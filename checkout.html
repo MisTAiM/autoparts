@@ -211,10 +211,12 @@
 <script src="js/modules/catalog.js"></script>
 <script src="js/modules/shipping.js"></script>
 <script src="js/modules/notify.js"></script>
+<script src="js/modules/security.js"></script>
 <script src="js/modules/auth.js"></script>
 <script src="js/modules/inventory-db.js"></script>
 <script src="js/modules/print.js"></script>
 <script src="js/modules/ui.js"></script>
+<script src="js/modules/coupons.js"></script>
 <script src="js/components/header.js"></script>
 
 <script>
@@ -222,6 +224,18 @@ let _currentStep = 1;
 let _shippingRates = [];
 let _selectedRate  = null;
 let _shippingInfo  = {};
+let _coupon        = null;
+
+function _loadCoupon() {
+  try { _coupon = JSON.parse(sessionStorage.getItem('ap_coupon')); } catch { _coupon = null; }
+}
+
+function _getCouponDiscount(subtotal) {
+  if (!_coupon) return { discount: 0, freeShipping: false };
+  const discount    = _coupon.discount || 0;
+  const freeShipping = _coupon.freeShipping || false;
+  return { discount, freeShipping };
+}
 
 // ── Init Stripe (replace pk_test_... with your real publishable key) ──────────
 // const stripe = Stripe('pk_test_YOUR_PUBLISHABLE_KEY');
@@ -232,6 +246,14 @@ document.addEventListener('DOMContentLoaded', () => {
   InventoryDB.seedFromSampleData();
   Cart.init();
   SiteHeader.init();
+
+  // Redirect if cart is empty
+  const cartCheck = Cart.getCart();
+  if (cartCheck.count === 0) {
+    UI.toast('Your cart is empty. Add some parts first!', 'warning');
+    setTimeout(() => { window.location.href = 'catalog.html'; }, 1500);
+    return;
+  }
 
 
   const { count } = Cart.getCart();
@@ -249,6 +271,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   } catch(e) {}
 
+  _loadCoupon();
   renderOrderSummary();
 
   // Stripe card mount (uncomment when Stripe key is set)
@@ -334,7 +357,7 @@ function renderOrderSummary() {
   document.getElementById('checkout-items-list').innerHTML = items.map(i => `
     <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--c-border);gap:12px">
       <div style="flex:1">
-        <div style="font-size:0.85rem;font-weight:600">${i.name}</div>
+        <div style="font-size:0.85rem;font-weight:600">${Security.escapeHtml(i.name)}</div>
         <div style="font-size:0.75rem;color:var(--c-text-3)">Qty: ${i.qty}</div>
       </div>
       <div style="font-size:0.9rem;font-weight:600;white-space:nowrap">$${(i.price*i.qty).toFixed(2)}</div>
@@ -352,30 +375,60 @@ function renderOrderSummary() {
 function updateSummaryShipping() {
   const { subtotal } = Cart.getCart();
   const coreTotal    = Cart.getCoreTotal();
-  const shipCost     = _selectedRate ? _selectedRate.price : 0;
+  const { discount, freeShipping } = _getCouponDiscount(subtotal);
+  const shipCost     = (freeShipping ? 0 : (_selectedRate ? _selectedRate.price : 0));
   const state        = _shippingInfo.state || Shipping.zipToState(document.getElementById('ship-zip')?.value || '');
-  const tax          = Shipping.calcTax(subtotal, state);
-  const total        = subtotal + coreTotal + shipCost + tax;
+  const tax          = Shipping.calcTax(Math.max(0, subtotal - discount), state);
+  const total        = subtotal + coreTotal + shipCost + tax - discount;
 
-  document.getElementById('co-shipping').textContent = _selectedRate ? Shipping.formatRate(shipCost) : '—';
+  document.getElementById('co-shipping').textContent = _selectedRate ? (freeShipping ? 'FREE' : Shipping.formatRate(shipCost)) : '—';
   document.getElementById('co-tax').textContent = `$${tax.toFixed(2)}`;
-  document.getElementById('co-total').textContent = `$${total.toFixed(2)}`;
+  document.getElementById('co-total').textContent = `$${Math.max(0,total).toFixed(2)}`;
+
+  // Show/hide coupon line
+  let discEl = document.getElementById('co-discount-row');
+  if (discount > 0) {
+    if (!discEl) {
+      const taxRow = document.getElementById('co-tax').closest('.summary-line') || document.getElementById('co-tax').parentElement;
+      discEl = document.createElement('div');
+      discEl.id = 'co-discount-row';
+      discEl.className = 'summary-line';
+      discEl.style.color = 'var(--c-success)';
+      discEl.innerHTML = `<span>Coupon (${Security.escapeHtml(_coupon?.code||'')})</span><span id="co-discount">-$${discount.toFixed(2)}</span>`;
+      taxRow?.parentElement?.insertBefore(discEl, taxRow);
+    } else {
+      discEl.innerHTML = `<span>Coupon (${Security.escapeHtml(_coupon?.code||'')})</span><span>-$${discount.toFixed(2)}</span>`;
+    }
+  } else if (discEl) { discEl.remove(); }
 }
 
 function populatePaymentSummary() {
   const { subtotal } = Cart.getCart();
   const coreTotal    = Cart.getCoreTotal();
-  const shipCost     = _selectedRate?.price || 0;
+  const { discount, freeShipping } = _getCouponDiscount(subtotal);
+  const shipCost     = freeShipping ? 0 : (_selectedRate?.price || 0);
   const state        = _shippingInfo.state || '';
-  const tax          = Shipping.calcTax(subtotal, state);
-  const total        = subtotal + coreTotal + shipCost + tax;
+  const tax          = Shipping.calcTax(Math.max(0, subtotal - discount), state);
+  const total        = Math.max(0, subtotal + coreTotal + shipCost + tax - discount);
 
   document.getElementById('pay-subtotal-line').children[1].textContent = `$${subtotal.toFixed(2)}`;
   if (coreTotal > 0) {
     document.getElementById('pay-core-line').style.display = 'flex';
     document.getElementById('pay-core-line').children[1].textContent = `$${coreTotal.toFixed(2)}`;
   }
-  document.getElementById('pay-shipping-line').children[1].textContent = Shipping.formatRate(shipCost);
+  // Coupon row
+  let discEl = document.getElementById('pay-discount-line');
+  if (discount > 0) {
+    if (!discEl) {
+      discEl = document.createElement('div');
+      discEl.id = 'pay-discount-line';
+      discEl.className = 'summary-line';
+      discEl.style.color = 'var(--c-success)';
+      document.getElementById('pay-shipping-line').parentElement.insertBefore(discEl, document.getElementById('pay-shipping-line'));
+    }
+    discEl.innerHTML = `<span>Coupon (${Security.escapeHtml(_coupon?.code||'')})</span><span>-$${discount.toFixed(2)}</span>`;
+  }
+  document.getElementById('pay-shipping-line').children[1].textContent = freeShipping ? 'FREE' : Shipping.formatRate(shipCost);
   document.getElementById('pay-tax-line').children[1].textContent = `$${tax.toFixed(2)}`;
   document.getElementById('pay-total-line').children[1].textContent = `$${total.toFixed(2)}`;
 }
@@ -410,7 +463,7 @@ async function placeOrder() {
     const coreTotal   = Cart.getCoreTotal();
     const shipCost    = _selectedRate?.price || 0;
     const tax         = Shipping.calcTax(subtotal, _shippingInfo.state);
-    const total       = subtotal + coreTotal + shipCost + tax;
+    // (total recalculated below with coupon)
 
     // ── Payment processing ──────────────────────────────────
     // STRIPE FLOW (uncomment and remove simulate block):
@@ -423,17 +476,23 @@ async function placeOrder() {
     const payment = { last4: '4242', brand: 'Visa' };
 
     // ── Build order object ──────────────────────────────────
+    const { discount: couponDiscount, freeShipping: couponFreeShip } = _getCouponDiscount(subtotal);
+    const finalShipCost = couponFreeShip ? 0 : shipCost;
+    const finalTotal    = Math.max(0, subtotal + coreTotal + finalShipCost + tax - couponDiscount);
+
     const order = {
       orderNumber:    'AP-' + Date.now().toString(36).toUpperCase(),
       createdAt:      new Date().toISOString(),
       items,
       shipping:       _shippingInfo,
       shippingMethod: _selectedRate,
-      shippingCost:   shipCost,
+      shippingCost:   finalShipCost,
       subtotal,
       coreTotal,
       tax,
-      total,
+      discount:       couponDiscount,
+      couponCode:     _coupon?.code || null,
+      total:          finalTotal,
       payment,
       notes: _shippingInfo.notes,
     };
@@ -444,10 +503,14 @@ async function placeOrder() {
     // ── Send email notifications ─────────────────────────────
     await Notify.sendOrderNotifications(order);
 
+    // ── Redeem coupon ───────────────────────────────────────
+    if (_coupon?.code && window.Coupons) Coupons.redeem(_coupon.code);
+
     // ── Clear cart ──────────────────────────────────────────
     Cart.clearCart();
     sessionStorage.removeItem('selectedShipping');
     sessionStorage.removeItem('estimatedZip');
+    sessionStorage.removeItem('ap_coupon');
 
     // ── Redirect to confirmation ────────────────────────────
     window.location.href = 'confirmation.html';

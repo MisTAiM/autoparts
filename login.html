@@ -118,6 +118,7 @@
 <script src="js/modules/catalog.js"></script>
 <script src="js/modules/shipping.js"></script>
 <script src="js/modules/notify.js"></script>
+<script src="js/modules/security.js"></script>
 <script src="js/modules/auth.js"></script>
 <script src="js/modules/inventory-db.js"></script>
 <script src="js/modules/print.js"></script>
@@ -133,8 +134,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // If already logged in, redirect
   if (Auth.isLoggedIn()) {
-    const redirect = new URLSearchParams(window.location.search).get('redirect') || 'account.html';
-    window.location.href = redirect;
+    const rawR = new URLSearchParams(window.location.search).get('redirect') || 'account.html';
+    window.location.href = /^(https?:)?\/\//i.test(rawR) ? 'account.html' : rawR;
     return;
   }
 
@@ -161,7 +162,7 @@ function switchTab(tab) {
 }
 
 function showAlert(containerId, msg, type='danger') {
-  document.getElementById(containerId).innerHTML = `<div class="alert alert-${type}" style="margin-bottom:16px">${msg}</div>`;
+  document.getElementById(containerId).innerHTML = `<div class="alert alert-${type}" style="margin-bottom:16px">${window.Security ? Security.escapeHtml(msg) : msg}</div>`;
 }
 
 function doLogin() {
@@ -181,8 +182,10 @@ function doLogin() {
 
   if (!result.ok) { showAlert('login-alert', result.error); return; }
 
-  const redirect = new URLSearchParams(window.location.search).get('redirect') || 'account.html';
-  window.location.href = redirect;
+  const rawRedir = new URLSearchParams(window.location.search).get('redirect') || 'account.html';
+  // Prevent open redirect: only allow relative paths (no protocol, no //host)
+  const safeRedir = /^(https?:)?\/\//i.test(rawRedir) ? 'account.html' : rawRedir;
+  window.location.href = safeRedir;
 }
 
 function doRegister() {

@@ -11,6 +11,7 @@
  *   saveOrder() → POST /api/account/orders
  */
 
+// Requires: security.js loaded before auth.js
 const Auth = (() => {
   const USERS_KEY   = 'ap_users';
   const SESSION_KEY = 'ap_session';
@@ -22,13 +23,23 @@ const Auth = (() => {
   function _getSession()  { try { return JSON.parse(localStorage.getItem(SESSION_KEY)); } catch(e) { return null; } }
   function _saveSession(s){ localStorage.setItem(SESSION_KEY, JSON.stringify(s)); }
   function _clearSession(){ localStorage.removeItem(SESSION_KEY); }
-  function _hash(str)     { /* Simple hash for demo — use bcrypt on real backend */
-    let h = 0; for (let i = 0; i < str.length; i++) { h = Math.imul(31, h) + str.charCodeAt(i) | 0; } return h.toString(36);
+  function _hash(str) {
+    // Demo hash — replace with bcrypt on a real backend
+    let h = 0x811c9dc5;
+    for (let i = 0; i < str.length; i++) { h = (h ^ str.charCodeAt(i)) * 0x01000193 >>> 0; }
+    return h.toString(36);
   }
 
   // ─── Register ────────────────────────────────────────────
   function register({ firstName, lastName, email, password, phone = '' }) {
     const users = _getUsers();
+    // Sanitize inputs
+    if (window.Security) {
+      firstName = Security.sanitizeText(firstName, 50);
+      lastName  = Security.sanitizeText(lastName, 50);
+      email     = Security.sanitizeEmail(email);
+      phone     = Security.sanitizePhone(phone);
+    }
     if (users.find(u => u.email.toLowerCase() === email.toLowerCase())) {
       return { ok: false, error: 'An account with this email already exists.' };
     }
@@ -47,11 +58,23 @@ const Auth = (() => {
 
   // ─── Login ───────────────────────────────────────────────
   function login(email, password) {
+    // Rate limiting
+    if (window.Security && Security.isLocked('customer')) {
+      const ms = Security.lockoutRemaining('customer');
+      return { ok: false, error: `Too many attempts. Try again in ${Security.formatLockoutTime(ms)}.`, locked: true };
+    }
     const users = _getUsers();
-    const user  = users.find(u => u.email === email.toLowerCase());
+    const user  = users.find(u => u.email === (window.Security ? Security.sanitizeEmail(email) : email.toLowerCase()));
     if (!user || user.passwordHash !== _hash(password)) {
+      if (window.Security) {
+        const count = Security.recordFailedAttempt('customer');
+        const rem   = Security.attemptsRemaining('customer');
+        if (rem === 0) return { ok: false, error: 'Account locked for 15 minutes due to too many failed attempts.', locked: true };
+        return { ok: false, error: `Invalid email or password. ${rem} attempt${rem !== 1 ? 's' : ''} remaining.` };
+      }
       return { ok: false, error: 'Invalid email or password.' };
     }
+    if (window.Security) Security.clearAttempts('customer');
     _startSession(user);
     return { ok: true, user: _sanitize(user) };
   }

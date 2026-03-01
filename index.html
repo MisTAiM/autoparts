@@ -273,6 +273,38 @@
     </div>
   </section>
 
+
+
+  <!-- Newsletter -->
+  <section style="padding:72px 0;background:linear-gradient(135deg,rgba(245,158,11,.08) 0%,rgba(245,158,11,.03) 100%);border-top:1px solid var(--c-border)">
+    <div class="container" style="text-align:center;max-width:560px">
+      <div style="display:inline-flex;align-items:center;gap:8px;background:var(--c-accent-dim);border:1px solid rgba(245,158,11,.3);border-radius:var(--radius-pill);padding:5px 14px;margin-bottom:18px;font-size:.78rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--c-accent)">
+        <i class="fa-solid fa-envelope"></i> Newsletter
+      </div>
+      <h2 style="font-family:var(--font-display);font-size:clamp(1.5rem,4vw,2rem);font-weight:700;text-transform:uppercase;letter-spacing:.04em;margin-bottom:12px">
+        Deals in Your Garage
+      </h2>
+      <p style="color:var(--c-text-2);margin-bottom:28px;line-height:1.6">
+        Get exclusive deals, new part alerts, and expert tips delivered weekly. No spam — just good stuff for gearheads.
+      </p>
+      <div style="display:flex;gap:10px;max-width:420px;margin:0 auto" id="newsletter-form">
+        <input type="email" id="nl-email" placeholder="your@email.com" style="flex:1" maxlength="254">
+        <button class="btn btn-primary" id="nl-submit"><i class="fa-solid fa-paper-plane"></i> Subscribe</button>
+      </div>
+      <div id="nl-msg" style="margin-top:12px;font-size:.85rem;min-height:20px"></div>
+      <p style="color:var(--c-text-3);font-size:.75rem;margin-top:12px">No spam. Unsubscribe any time.</p>
+    </div>
+  </section>
+  <!-- Recently Viewed -->
+  <section id="recently-viewed-section" style="display:none;padding:64px 0;background:var(--c-surface);border-top:1px solid var(--c-border)">
+    <div class="container">
+      <div class="section-header" style="margin-bottom:28px">
+        <h2 class="section-title"><i class="fa-solid fa-clock-rotate-left" style="color:var(--c-accent);margin-right:10px"></i>Recently Viewed</h2>
+        <a href="catalog.html" class="section-link">Browse All</a>
+      </div>
+      <div class="parts-grid" id="recently-viewed-grid"></div>
+    </div>
+  </section>
 </main>
 
 <!-- ═══ FOOTER ══════════════════════════════════════════ -->
@@ -340,6 +372,7 @@
 <script src="js/modules/catalog.js"></script>
 <script src="js/modules/shipping.js"></script>
 <script src="js/modules/notify.js"></script>
+<script src="js/modules/security.js"></script>
 <script src="js/modules/auth.js"></script>
 <script src="js/modules/inventory-db.js"></script>
 <script src="js/modules/print.js"></script>
@@ -382,6 +415,31 @@ document.addEventListener('DOMContentLoaded', () => {
   // Cart count
   updateCartCount();
   window.addEventListener('cart:updated', updateCartCount);
+
+  // Newsletter
+  document.getElementById('nl-submit')?.addEventListener('click', () => {
+    const email = document.getElementById('nl-email').value.trim();
+    const msg   = document.getElementById('nl-msg');
+    if (!window.Security || !Security.isValidEmail(email)) {
+      msg.innerHTML = '<span style="color:var(--c-danger)">Please enter a valid email address.</span>';
+      return;
+    }
+    // Save to localStorage (replace with real email service in production)
+    try {
+      const subs = JSON.parse(localStorage.getItem('ap_newsletter') || '[]');
+      if (subs.includes(email.toLowerCase())) {
+        msg.innerHTML = '<span style="color:var(--c-accent)">You're already subscribed!</span>';
+      } else {
+        subs.push(email.toLowerCase());
+        localStorage.setItem('ap_newsletter', JSON.stringify(subs));
+        msg.innerHTML = '<span style="color:var(--c-success)"><i class="fa-solid fa-circle-check"></i> Subscribed! Thanks for joining.</span>';
+        document.getElementById('nl-email').value = '';
+      }
+    } catch(e) {
+      msg.innerHTML = '<span style="color:var(--c-success)"><i class="fa-solid fa-circle-check"></i> Subscribed! Thanks for joining.</span>';
+    }
+  });
+  document.getElementById('nl-email')?.addEventListener('keydown', e => { if(e.key==='Enter') document.getElementById('nl-submit')?.click(); });
 
   // Mobile nav
   document.getElementById('menu-toggle').addEventListener('click', () => {

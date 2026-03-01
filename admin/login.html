@@ -51,6 +51,7 @@
   </div>
 </div>
 
+<script src="../js/modules/security.js"></script>
 <script src="../js/modules/admin-auth.js"></script>
 <script>
 document.addEventListener('DOMContentLoaded', () => {
@@ -78,7 +79,7 @@ function doLogin() {
 }
 
 function showAlert(msg) {
-  document.getElementById('login-alert').innerHTML = `<div style="background:rgba(239,68,68,.1);border:1px solid #ef4444;border-radius:6px;padding:12px 16px;margin-bottom:16px;font-size:.88rem;color:#fca5a5">${msg}</div>`;
+  document.getElementById('login-alert').innerHTML = `<div style="background:rgba(239,68,68,.1);border:1px solid #ef4444;border-radius:6px;padding:12px 16px;margin-bottom:16px;font-size:.88rem;color:#fca5a5">${Security.escapeHtml(msg)}</div>`;
 }
 </script>
 </body>

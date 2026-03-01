@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Coupons | Admin</title>
+  <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;600;700&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <link rel="stylesheet" href="../css/variables.css">
+  <link rel="stylesheet" href="../css/base.css">
+  <style>
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{background:var(--c-bg);color:var(--c-text);font-family:var(--font-body);display:flex;min-height:100vh}
+    .sidebar{width:220px;min-height:100vh;background:var(--c-surface);border-right:1px solid var(--c-border);padding:24px 0;flex-shrink:0}
+    .sidebar-logo{padding:0 20px 24px;border-bottom:1px solid var(--c-border);margin-bottom:16px}
+    .sidebar-logo span{font-family:var(--font-display);font-size:1.1rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--c-accent)}
+    .sidebar-logo small{display:block;font-size:.7rem;color:var(--c-text-3)}
+    .nav-item{display:flex;align-items:center;gap:10px;padding:10px 20px;color:var(--c-text-2);font-size:.875rem;text-decoration:none;transition:all .1s;border-left:2px solid transparent}
+    .nav-item:hover{color:var(--c-text);background:rgba(255,255,255,.03);border-left-color:var(--c-border-2)}
+    .nav-item.active{color:var(--c-accent);background:var(--c-accent-dim);border-left-color:var(--c-accent)}
+    .nav-item i{width:16px;text-align:center;font-size:.85rem}
+    .main{flex:1;overflow-x:hidden}
+    .topbar{display:flex;align-items:center;justify-content:space-between;padding:16px 28px;background:var(--c-surface);border-bottom:1px solid var(--c-border)}
+    .topbar h1{font-family:var(--font-display);font-size:1.2rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em}
+    .content{padding:28px}
+    .card{background:var(--c-surface);border:1px solid var(--c-border);border-radius:var(--radius-lg);overflow:hidden;margin-bottom:24px}
+    .card-header{padding:14px 20px;border-bottom:1px solid var(--c-border);background:var(--c-surface-2);display:flex;align-items:center;justify-content:space-between}
+    .card-header h3{font-family:var(--font-display);font-size:.95rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em;display:flex;align-items:center;gap:8px}
+    .card-body{padding:20px}
+    .coupon-table{width:100%;border-collapse:collapse}
+    .coupon-table th{font-size:.72rem;text-transform:uppercase;letter-spacing:.06em;color:var(--c-text-3);padding:10px 14px;border-bottom:2px solid var(--c-border);text-align:left}
+    .coupon-table td{padding:10px 14px;border-bottom:1px solid var(--c-border);font-size:.85rem;vertical-align:middle}
+    .coupon-table tr:last-child td{border-bottom:none}
+    .coupon-table tr:hover td{background:rgba(255,255,255,.02)}
+    .form-row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px}
+    .form-group{margin-bottom:12px}
+    .form-group label{display:block;font-size:.75rem;font-weight:600;color:var(--c-text-2);text-transform:uppercase;letter-spacing:.07em;margin-bottom:5px}
+    .toggle-switch{position:relative;display:inline-block;width:44px;height:24px}
+    .toggle-switch input{opacity:0;width:0;height:0}
+    .toggle-slider{position:absolute;cursor:pointer;top:0;left:0;right:0;bottom:0;background:var(--c-surface-3);border-radius:24px;transition:.2s}
+    .toggle-slider:before{position:absolute;content:"";height:18px;width:18px;left:3px;bottom:3px;background:#fff;border-radius:50%;transition:.2s}
+    input:checked+.toggle-slider{background:var(--c-accent)}
+    input:checked+.toggle-slider:before{transform:translateX(20px)}
+    .badge-type{display:inline-block;padding:2px 8px;border-radius:var(--radius-pill);font-size:.68rem;font-weight:700;text-transform:uppercase}
+    .badge-type.percent{background:rgba(59,130,246,.12);color:#60A5FA;border:1px solid rgba(59,130,246,.25)}
+    .badge-type.flat{background:rgba(16,185,129,.12);color:var(--c-success);border:1px solid rgba(16,185,129,.25)}
+    .badge-type.shipping{background:rgba(245,158,11,.12);color:var(--c-accent);border:1px solid rgba(245,158,11,.25)}
+  </style>
+</head>
+<body>
+  <aside class="sidebar">
+    <div class="sidebar-logo">
+      <span><i class="fa-solid fa-gear" style="margin-right:6px"></i>AutoParts</span>
+      <small>Admin Panel</small>
+    </div>
+    <a href="dashboard.html" class="nav-item"><i class="fa-solid fa-chart-line"></i> Dashboard</a>
+    <a href="inventory.html" class="nav-item"><i class="fa-solid fa-boxes-stacked"></i> Inventory</a>
+    <a href="orders.html" class="nav-item"><i class="fa-solid fa-receipt"></i> Orders</a>
+    <a href="customers.html" class="nav-item"><i class="fa-solid fa-users"></i> Customers</a>
+    <a href="coupons.html" class="nav-item active"><i class="fa-solid fa-tag"></i> Coupons</a>
+    <a href="settings.html" class="nav-item"><i class="fa-solid fa-sliders"></i> Settings</a>
+    <div style="margin-top:32px;padding-top:20px;border-top:1px solid var(--c-border)">
+      <a href="../index.html" class="nav-item"><i class="fa-solid fa-globe"></i> View Store</a>
+      <a href="#" class="nav-item" id="logout-link"><i class="fa-solid fa-right-from-bracket"></i> Logout</a>
+    </div>
+  </aside>
+
+  <div class="main">
+    <div class="topbar">
+      <h1><i class="fa-solid fa-tag" style="color:var(--c-accent);margin-right:8px"></i>Coupon Codes</h1>
+      <span id="admin-name" style="font-size:.85rem;color:var(--c-text-2)"></span>
+    </div>
+    <div class="content">
+
+      <!-- Create Coupon -->
+      <div class="card">
+        <div class="card-header">
+          <h3><i class="fa-solid fa-plus" style="color:var(--c-accent)"></i> Create Coupon</h3>
+        </div>
+        <div class="card-body">
+          <div id="create-alert"></div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>Code</label>
+              <input type="text" id="cc-code" placeholder="SAVE10" style="text-transform:uppercase" maxlength="20">
+            </div>
+            <div class="form-group">
+              <label>Type</label>
+              <select id="cc-type">
+                <option value="percent">% Percent Off</option>
+                <option value="flat">$ Flat Off</option>
+                <option value="shipping">Free Shipping</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Value (% or $)</label>
+              <input type="number" id="cc-value" placeholder="10" min="0" step="0.01">
+            </div>
+            <div class="form-group">
+              <label>Min Order ($)</label>
+              <input type="number" id="cc-min" placeholder="0" min="0" step="1">
+            </div>
+            <div class="form-group">
+              <label>Max Uses (blank = unlimited)</label>
+              <input type="number" id="cc-max" placeholder="Unlimited" min="1" step="1">
+            </div>
+            <div class="form-group">
+              <label>Expires (blank = never)</label>
+              <input type="date" id="cc-expires">
+            </div>
+          </div>
+          <div class="form-group">
+            <label>Description</label>
+            <input type="text" id="cc-desc" placeholder="e.g. 10% off any order" maxlength="100">
+          </div>
+          <button class="btn btn-primary btn-sm" id="create-coupon-btn">
+            <i class="fa-solid fa-plus"></i> Create Coupon
+          </button>
+        </div>
+      </div>
+
+      <!-- Coupon List -->
+      <div class="card">
+        <div class="card-header">
+          <h3><i class="fa-solid fa-list"></i> All Coupons</h3>
+          <span id="coupon-count" style="font-size:.8rem;color:var(--c-text-3)"></span>
+        </div>
+        <div class="card-body" style="padding:0">
+          <table class="coupon-table">
+            <thead>
+              <tr>
+                <th>Code</th><th>Type</th><th>Value</th><th>Min Order</th><th>Uses</th><th>Expires</th><th>Active</th><th></th>
+              </tr>
+            </thead>
+            <tbody id="coupons-tbody"></tbody>
+          </table>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <script src="../js/modules/security.js"></script>
+  <script src="../js/modules/admin-auth.js"></script>
+  <script src="../js/modules/coupons.js"></script>
+  <script>
+  document.addEventListener('DOMContentLoaded', () => {
+    if (!AdminAuth.requireAdmin()) return;
+    const session = AdminAuth.getSession();
+    document.getElementById('admin-name').textContent = session.name;
+    document.getElementById('logout-link').addEventListener('click', e => { e.preventDefault(); AdminAuth.logout(); });
+
+    renderCoupons();
+
+    document.getElementById('create-coupon-btn').addEventListener('click', () => {
+      const code  = Security.sanitizeText(document.getElementById('cc-code').value, 20).toUpperCase();
+      const type  = document.getElementById('cc-type').value;
+      const value = parseFloat(document.getElementById('cc-value').value) || 0;
+      const min   = parseFloat(document.getElementById('cc-min').value) || 0;
+      const max   = document.getElementById('cc-max').value ? parseInt(document.getElementById('cc-max').value) : null;
+      const exp   = document.getElementById('cc-expires').value || null;
+      const desc  = Security.sanitizeText(document.getElementById('cc-desc').value, 100);
+
+      if (!code) return showAlert('create-alert', 'Code is required.', 'danger');
+      if (type !== 'shipping' && value <= 0) return showAlert('create-alert', 'Value must be greater than 0.', 'danger');
+
+      const result = Coupons.create({ code, type, value, minOrder: min, maxUses: max, description: desc, expiresAt: exp ? new Date(exp).toISOString() : null });
+      showAlert('create-alert', result.ok ? `Coupon "${code}" created!` : result.error, result.ok ? 'success' : 'danger');
+      if (result.ok) { renderCoupons(); ['cc-code','cc-value','cc-min','cc-max','cc-desc','cc-expires'].forEach(id => document.getElementById(id).value = ''); }
+    });
+  });
+
+  function renderCoupons() {
+    const coupons = Coupons.getAll();
+    document.getElementById('coupon-count').textContent = `${coupons.length} coupon${coupons.length !== 1 ? 's' : ''}`;
+    document.getElementById('coupons-tbody').innerHTML = coupons.map(c => {
+      const typeLabel = { percent: `${c.value}% Off`, flat: `$${c.value.toFixed(2)} Off`, shipping: 'Free Shipping' }[c.type] || c.type;
+      const expired   = c.expiresAt && new Date() > new Date(c.expiresAt);
+      return `<tr style="${expired ? 'opacity:.5' : ''}">
+        <td>
+          <span style="font-family:var(--font-mono);font-weight:700;letter-spacing:.04em;color:var(--c-accent)">${Security.escapeHtml(c.code)}</span>
+          <div style="font-size:.75rem;color:var(--c-text-3);margin-top:2px">${Security.escapeHtml(c.description)}</div>
+        </td>
+        <td><span class="badge-type ${c.type}">${Security.escapeHtml(c.type)}</span></td>
+        <td style="font-weight:600">${typeLabel}</td>
+        <td>${c.minOrder > 0 ? `$${c.minOrder.toFixed(2)}` : '<span style="color:var(--c-text-3)">None</span>'}</td>
+        <td>${c.uses}${c.maxUses !== null ? `/${c.maxUses}` : ''}</td>
+        <td style="font-size:.8rem;color:var(--c-text-3)">${c.expiresAt ? `<span style="color:${expired?'var(--c-danger)':'inherit'}">${new Date(c.expiresAt).toLocaleDateString()}</span>` : '—'}</td>
+        <td>
+          <label class="toggle-switch">
+            <input type="checkbox" ${c.active ? 'checked' : ''} data-code="${Security.escapeHtml(c.code)}" class="toggle-active">
+            <span class="toggle-slider"></span>
+          </label>
+        </td>
+        <td>
+          <button class="btn btn-ghost btn-sm delete-coupon" data-code="${Security.escapeHtml(c.code)}" style="color:var(--c-danger)">
+            <i class="fa-solid fa-trash"></i>
+          </button>
+        </td>
+      </tr>`;
+    }).join('') || '<tr><td colspan="8" style="text-align:center;padding:32px;color:var(--c-text-3)">No coupons yet. Create one above.</td></tr>';
+
+    document.querySelectorAll('.toggle-active').forEach(cb => {
+      cb.addEventListener('change', () => { Coupons.update(cb.dataset.code, { active: cb.checked }); });
+    });
+    document.querySelectorAll('.delete-coupon').forEach(btn => {
+      btn.addEventListener('click', () => {
+        if (!confirm(`Delete coupon ${btn.dataset.code}?`)) return;
+        Coupons.remove(btn.dataset.code);
+        renderCoupons();
+      });
+    });
+  }
+
+  function showAlert(id, msg, type) {
+    const colors = { success:'var(--c-success-dim)', danger:'var(--c-danger-dim)' };
+    const borders = { success:'rgba(16,185,129,.3)', danger:'rgba(239,68,68,.3)' };
+    const textColors = { success:'var(--c-success)', danger:'var(--c-danger)' };
+    document.getElementById(id).innerHTML = `<div style="background:${colors[type]};border:1px solid ${borders[type]};color:${textColors[type]};padding:10px 14px;border-radius:var(--radius);font-size:.85rem;margin-bottom:12px">${Security.escapeHtml(msg)}</div>`;
+    setTimeout(() => { const el = document.getElementById(id); if(el) el.innerHTML=''; }, 4000);
+  }
+  </script>
+</body>
+</html>

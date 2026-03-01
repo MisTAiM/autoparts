@@ -100,6 +100,10 @@ const SiteHeader = (() => {
           <a href="${root}account.html" class="header-action-btn auth-account-link" style="display:none">
             <i class="fa-solid fa-user-check"></i><span id="auth-user-name">Account</span>
           </a>
+          <a href="${root}wishlist.html" class="header-action-btn wishlist-btn" title="Wishlist">
+            <i class="fa-regular fa-heart"></i>
+            <span class="cart-badge hidden" id="wishlist-count">0</span>
+          </a>
           <a href="${root}cart.html" class="header-action-btn cart-btn">
             <i class="fa-solid fa-cart-shopping"></i>
             <span>Cart</span>
@@ -186,6 +190,10 @@ const SiteHeader = (() => {
     // Cart count
     _updateCartCount();
     window.addEventListener('cart:updated', _updateCartCount);
+
+    // Wishlist count
+    _updateWishlistCount();
+    window.addEventListener('wishlist:updated', _updateWishlistCount);
 
     // Vehicle state
     _updateVehicleBanner();

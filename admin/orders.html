@@ -37,13 +37,16 @@
 <body>
 <div class="admin-layout">
   <aside class="admin-sidebar">
-    <div class="admin-sidebar-logo">&#9881; Admin<span>Panel</span></div>
+    <div class="admin-sidebar-logo"> Admin<span>Panel</span></div>
     <nav class="admin-nav">
-      <a href="orders.html" class="active">&#128230; Orders</a>
-      <a href="#">&#128299; Inventory</a>
-      <a href="#">&#128202; Reports</a>
+      <a href="dashboard.html"><i class="fa-solid fa-chart-line"></i> Dashboard</a>
+      <a href="inventory.html"><i class="fa-solid fa-boxes-stacked"></i> Inventory</a>
+      <a href="orders.html" class="active"><i class="fa-solid fa-receipt"></i> Orders</a>
+      <a href="customers.html"><i class="fa-solid fa-users"></i> Customers</a>
+      <a href="coupons.html"><i class="fa-solid fa-tag"></i> Coupons</a>
+      <a href="settings.html"><i class="fa-solid fa-sliders"></i> Settings</a>
       <div style="border-top:1px solid var(--c-border);margin:16px 0"></div>
-      <a href="../index.html">&#8592; Back to Site</a>
+      <a href="../index.html"><i class="fa-solid fa-globe"></i> View Store</a>
     </nav>
   </aside>
   <main class="admin-main">
@@ -51,8 +54,8 @@
       <div><h2 style="margin-bottom:4px">Orders</h2><p class="text-muted text-sm">Manage incoming orders and fulfillment</p></div>
       <div style="display:flex;gap:12px">
         <input type="text" id="search-orders" placeholder="Search..." style="width:200px">
-        <button class="btn btn-outline btn-sm" onclick="loadOrders()">&#128260; Refresh</button>
-        <button class="btn btn-primary btn-sm" onclick="exportOrders()">&#11015; CSV</button>
+        <button class="btn btn-outline btn-sm" onclick="loadOrders()"> Refresh</button>
+        <button class="btn btn-primary btn-sm" onclick="exportOrders()"> CSV</button>
       </div>
     </div>
     <div class="stats-row">
@@ -84,12 +87,13 @@
 </div>
 <div class="modal-overlay" id="order-modal">
   <div class="modal">
-    <button onclick="closeModal()" style="float:right;background:none;border:none;color:var(--c-text-2);font-size:1.3rem;cursor:pointer">&#10005;</button>
+    <button onclick="closeModal()" style="float:right;background:none;border:none;color:var(--c-text-2);font-size:1.3rem;cursor:pointer">&times;</button>
     <h3 id="modal-title">Order Detail</h3>
     <div id="modal-body"></div>
   </div>
 </div>
 <script src="../js/data/parts-data.js"></script>
+<script src="../js/modules/security.js"></script>
 <script src="../js/modules/admin-auth.js"></script>
 <script src="../js/modules/ymm.js"></script>
 <script src="../js/modules/cart.js"></script>
@@ -106,7 +110,62 @@ function renderAll(){renderStats();renderTable();}
 function renderStats(){const p=_orders.filter(o=>!o.status||o.status==='pending').length;const s=_orders.filter(o=>o.status==='shipped'||o.status==='delivered').length;const r=_orders.reduce((t,o)=>t+(o.total||0),0);document.getElementById('stat-total').textContent=_orders.length;document.getElementById('stat-pending').textContent=p;document.getElementById('stat-shipped').textContent=s;document.getElementById('stat-revenue').textContent='$'+r.toFixed(2);}
 function renderTable(){const sf=document.getElementById('status-filter').value;const sq=document.getElementById('search-orders').value.toLowerCase();let f=_orders.filter(o=>{const ms=!sf||o.status===sf||(!o.status&&sf==='pending');const mq=!sq||o.orderNumber?.toLowerCase().includes(sq)||o.shipping?.email?.toLowerCase().includes(sq)||((o.shipping?.firstName||'')+' '+(o.shipping?.lastName||'')).toLowerCase().includes(sq);return ms&&mq;});document.getElementById('filter-count').textContent=f.length+' order'+(f.length!==1?'s':'');const tb=document.getElementById('orders-tbody');if(!f.length){tb.innerHTML='<tr><td colspan="9" style="text-align:center;padding:40px;color:var(--c-text-3)">'+(_orders.length===0?'No orders yet.':'No orders match this filter.')+'</td></tr>';return;}tb.innerHTML=f.map(o=>{const d=new Date(o.createdAt).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});const c=((o.shipping?.firstName||'')+' '+(o.shipping?.lastName||'')).trim()||'—';const st=o.status||'pending';return`<tr><td class="order-num-cell">${o.orderNumber}</td><td>${d}</td><td><div style="font-weight:600">${c}</div><div style="font-size:.75rem;color:var(--c-text-3)">${o.shipping?.email||''}</div></td><td>${(o.items||[]).length}</td><td style="font-weight:700;color:var(--c-accent)">$${(o.total||0).toFixed(2)}</td><td>${o.shipping?.city||''}, ${o.shipping?.state||''}</td><td style="font-size:.8rem">${o.shippingMethod?.name||'—'}</td><td><select class="status-select" onchange="updateStatus('${o.orderNumber}',this.value)"><option value="pending" ${st==='pending'?'selected':''}>Pending</option><option value="processing" ${st==='processing'?'selected':''}>Processing</option><option value="shipped" ${st==='shipped'?'selected':''}>Shipped</option><option value="delivered" ${st==='delivered'?'selected':''}>Delivered</option><option value="cancelled" ${st==='cancelled'?'selected':''}>Cancelled</option></select></td><td><button class="btn btn-outline btn-sm" onclick="viewOrder('${o.orderNumber}')">View</button></td></tr>`;}).join('');}
 function updateStatus(num,status){const i=_orders.findIndex(o=>o.orderNumber===num);if(i!==-1){_orders[i].status=status;saveOrders();renderStats();}}
-function viewOrder(num){const o=_orders.find(o=>o.orderNumber===num);if(!o)return;document.getElementById('modal-title').textContent='Order '+o.orderNumber;document.getElementById('modal-body').innerHTML=`<div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:20px"><div><div class="text-xs text-dim" style="text-transform:uppercase;margin-bottom:8px">Customer</div><div style="font-weight:600">${o.shipping?.firstName} ${o.shipping?.lastName}</div><div class="text-sm text-muted">${o.shipping?.email||''}</div><div class="text-sm text-muted">${o.shipping?.phone||''}</div></div><div><div class="text-xs text-dim" style="text-transform:uppercase;margin-bottom:8px">Ship To</div><div class="text-sm">${o.shipping?.address||''}</div>${o.shipping?.address2?'<div class="text-sm">'+o.shipping.address2+'</div>':''}<div class="text-sm">${o.shipping?.city||''}, ${o.shipping?.state||''} ${o.shipping?.zip||''}</div></div></div>${o.shipping?.notes?'<div class="alert alert-warning" style="margin-bottom:16px;font-size:.82rem">Note: '+o.shipping.notes+'</div>':''}<div style="margin-bottom:16px"><div class="text-xs text-dim" style="text-transform:uppercase;margin-bottom:8px">Items</div>${(o.items||[]).map(i=>`<div style="display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--c-border)"><div><div style="font-weight:600">${i.name}</div><div class="text-mono text-xs text-muted">${i.brand} · ${i.partNumber}</div>${i.coreCharge>0?'<div class="text-xs" style="color:var(--c-accent)">Core: $'+i.coreCharge.toFixed(2)+'</div>':''}</div><div style="text-align:right"><div style="font-weight:700">x${i.qty}</div><div class="text-sm text-muted">$${(i.price*i.qty).toFixed(2)}</div></div></div>`).join('')}</div><div style="background:var(--c-surface-2);border:1px solid var(--c-border);border-radius:var(--radius);padding:16px"><div style="display:flex;justify-content:space-between;padding:6px 0;font-size:.88rem"><span class="text-muted">Subtotal</span><span>$${(o.subtotal||0).toFixed(2)}</span></div>${o.coreTotal>0?'<div style="display:flex;justify-content:space-between;padding:6px 0;font-size:.88rem"><span class="text-muted">Core</span><span>$'+o.coreTotal.toFixed(2)+'</span></div>':''}<div style="display:flex;justify-content:space-between;padding:6px 0;font-size:.88rem"><span class="text-muted">Shipping</span><span>${o.shippingCost===0?'FREE':'$'+(o.shippingCost||0).toFixed(2)}</span></div><div style="display:flex;justify-content:space-between;padding:6px 0;font-size:.88rem"><span class="text-muted">Tax</span><span>$${(o.tax||0).toFixed(2)}</span></div><div style="display:flex;justify-content:space-between;font-weight:700;padding:10px 0 0;border-top:1px solid var(--c-border);margin-top:6px"><span>Total</span><span style="color:var(--c-accent);font-family:var(--font-display);font-size:1.2rem">$${(o.total||0).toFixed(2)}</span></div></div><div style="display:flex;gap:10px;margin-top:20px"><button class="btn btn-primary btn-sm" onclick="markShipped('${o.orderNumber}')">Mark Shipped</button><button class="btn btn-ghost btn-sm" onclick="closeModal()">Close</button></div>`;document.getElementById('order-modal').classList.add('open');}
+function viewOrder(num){
+  const o=_orders.find(o=>o.orderNumber===num);
+  if(!o)return;
+  const esc=Security.escapeHtml;
+  document.getElementById('modal-title').textContent='Order '+o.orderNumber;
+  const itemsHtml=(o.items||[]).map(i=>`
+    <div style="display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--c-border)">
+      <div>
+        <div style="font-weight:600">${esc(i.name||'')}</div>
+        <div class="text-mono text-xs text-muted">${esc(i.brand||'')} · ${esc(i.partNumber||'')}</div>
+        ${i.coreCharge>0?'<div class="text-xs" style="color:var(--c-accent)">Core: $'+i.coreCharge.toFixed(2)+'</div>':''}
+      </div>
+      <div style="text-align:right">
+        <div style="font-weight:700">x${i.qty}</div>
+        <div class="text-sm text-muted">$${(i.price*i.qty).toFixed(2)}</div>
+      </div>
+    </div>`).join('');
+  const notesHtml=o.shipping?.notes?`<div class="alert alert-warning" style="margin-bottom:16px;font-size:.82rem">Note: ${esc(o.shipping.notes)}</div>`:'';
+  const discountHtml=o.discount>0?`<div style="display:flex;justify-content:space-between;padding:6px 0;font-size:.88rem;color:var(--c-success)"><span>Discount</span><span>-$${o.discount.toFixed(2)}</span></div>`:'';
+  document.getElementById('modal-body').innerHTML=`
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:20px">
+      <div>
+        <div class="text-xs text-dim" style="text-transform:uppercase;margin-bottom:8px">Customer</div>
+        <div style="font-weight:600">${esc((o.shipping?.firstName||'')+' '+(o.shipping?.lastName||''))}</div>
+        <div class="text-sm text-muted">${esc(o.shipping?.email||'')}</div>
+        <div class="text-sm text-muted">${esc(o.shipping?.phone||'')}</div>
+      </div>
+      <div>
+        <div class="text-xs text-dim" style="text-transform:uppercase;margin-bottom:8px">Ship To</div>
+        <div class="text-sm">${esc(o.shipping?.address||'')}</div>
+        ${o.shipping?.address2?'<div class="text-sm">'+esc(o.shipping.address2)+'</div>':''}
+        <div class="text-sm">${esc(o.shipping?.city||'')}, ${esc(o.shipping?.state||'')} ${esc(o.shipping?.zip||'')}</div>
+      </div>
+    </div>
+    ${notesHtml}
+    <div style="margin-bottom:16px">
+      <div class="text-xs text-dim" style="text-transform:uppercase;margin-bottom:8px">Items</div>
+      ${itemsHtml}
+    </div>
+    <div style="background:var(--c-surface-2);border:1px solid var(--c-border);border-radius:var(--radius);padding:16px">
+      <div style="display:flex;justify-content:space-between;padding:6px 0;font-size:.88rem"><span class="text-muted">Subtotal</span><span>$${(o.subtotal||0).toFixed(2)}</span></div>
+      ${o.coreTotal>0?'<div style="display:flex;justify-content:space-between;padding:6px 0;font-size:.88rem"><span class="text-muted">Core</span><span>$'+o.coreTotal.toFixed(2)+'</span></div>':''}
+      ${discountHtml}
+      <div style="display:flex;justify-content:space-between;padding:6px 0;font-size:.88rem"><span class="text-muted">Shipping</span><span>${o.shippingCost===0?'FREE':'$'+(o.shippingCost||0).toFixed(2)}</span></div>
+      <div style="display:flex;justify-content:space-between;padding:6px 0;font-size:.88rem"><span class="text-muted">Tax</span><span>$${(o.tax||0).toFixed(2)}</span></div>
+      <div style="display:flex;justify-content:space-between;font-weight:700;padding:10px 0 0;border-top:1px solid var(--c-border);margin-top:6px">
+        <span>Total</span><span style="color:var(--c-accent);font-family:var(--font-display);font-size:1.2rem">$${(o.total||0).toFixed(2)}</span>
+      </div>
+    </div>
+    <div style="display:flex;gap:10px;margin-top:20px">
+      <button class="btn btn-primary btn-sm" id="modal-ship-btn">Mark Shipped</button>
+      <button class="btn btn-ghost btn-sm" onclick="closeModal()">Close</button>
+    </div>`;
+  document.getElementById('modal-ship-btn')?.addEventListener('click',()=>{ markShipped(o.orderNumber); });
+  document.getElementById('order-modal').classList.add('open');
+}document.getElementById('order-modal').classList.add('open');}
 function closeModal(){document.getElementById('order-modal').classList.remove('open');}
 function markShipped(num){updateStatus(num,'shipped');closeModal();renderTable();}
 function exportOrders(){if(!_orders.length){alert('No orders.');return;}const h=['Order #','Date','First','Last','Email','Address','City','State','ZIP','Method','Subtotal','Shipping','Tax','Total','Status'];const r=_orders.map(o=>[o.orderNumber,new Date(o.createdAt).toLocaleDateString(),o.shipping?.firstName||'',o.shipping?.lastName||'',o.shipping?.email||'','"'+(o.shipping?.address||'')+'"',o.shipping?.city||'',o.shipping?.state||'',o.shipping?.zip||'',o.shippingMethod?.name||'',(o.subtotal||0).toFixed(2),(o.shippingCost||0).toFixed(2),(o.tax||0).toFixed(2),(o.total||0).toFixed(2),o.status||'pending']);const csv=[h,...r].map(x=>x.join(',')).join('\n');const a=document.createElement('a');a.href='data:text/csv;charset=utf-8,'+encodeURIComponent(csv);a.download='orders-'+new Date().toISOString().split('T')[0]+'.csv';a.click();}

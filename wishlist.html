@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Wishlist | AutoParts Warehouse</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <link rel="stylesheet" href="css/variables.css">
+  <link rel="stylesheet" href="css/base.css">
+  <link rel="stylesheet" href="css/layout.css">
+  <link rel="stylesheet" href="css/pages/product-cart-checkout.css">
+  <style>
+    .wishlist-page { padding: 32px 0 80px; }
+    .wishlist-header { display:flex;align-items:center;justify-content:space-between;margin-bottom:24px;flex-wrap:wrap;gap:12px; }
+    .wishlist-grid { display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:20px; }
+    .wish-card { background:var(--c-surface);border:1px solid var(--c-border);border-radius:var(--radius-lg);overflow:hidden;display:flex;flex-direction:column;transition:border-color .15s,box-shadow .15s; }
+    .wish-card:hover { border-color:rgba(245,158,11,.35);box-shadow:0 8px 24px rgba(0,0,0,.4); }
+    .wish-card-img { aspect-ratio:4/3;background:var(--c-surface-2);display:flex;align-items:center;justify-content:center;overflow:hidden; }
+    .wish-card-img img { width:100%;height:100%;object-fit:contain;padding:12px; }
+    .wish-card-body { padding:14px;flex:1;display:flex;flex-direction:column;gap:6px; }
+    .wish-card-name { font-family:var(--font-display);font-size:1rem;font-weight:600;color:var(--c-text); }
+    .wish-card-brand { font-size:.75rem;color:var(--c-text-3); }
+    .wish-card-price { font-family:var(--font-display);font-size:1.3rem;font-weight:700;color:var(--c-accent);margin-top:auto;padding-top:8px; }
+    .wish-card-actions { display:flex;gap:8px;margin-top:10px; }
+    .wish-card-actions .btn { flex:1;font-size:.8rem; }
+    .wish-empty { text-align:center;padding:80px 24px;background:var(--c-surface);border:1px solid var(--c-border);border-radius:var(--radius-lg); }
+    .wish-empty i { font-size:3.5rem;color:var(--c-border-2);margin-bottom:16px;display:block; }
+  </style>
+</head>
+<body>
+  <div id="site-header"></div>
+  <div id="mobile-nav"></div>
+
+  <main class="wishlist-page">
+    <div class="container">
+      <div class="wishlist-header">
+        <h1 style="font-family:var(--font-display);font-size:1.6rem;text-transform:uppercase;letter-spacing:.04em">
+          <i class="fa-regular fa-heart" style="color:var(--c-accent);margin-right:10px"></i>Wishlist
+        </h1>
+        <button class="btn btn-ghost btn-sm" id="clear-wishlist-btn">
+          <i class="fa-solid fa-trash"></i> Clear All
+        </button>
+      </div>
+      <div id="wishlist-root">
+        <div style="display:flex;align-items:center;justify-content:center;height:200px">
+          <span class="spinner" style="width:36px;height:36px"></span>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <script src="js/modules/security.js"></script>
+  <script src="js/data/parts-data.js"></script>
+  <script src="js/modules/ymm.js"></script>
+  <script src="js/modules/cart.js"></script>
+  <script src="js/modules/catalog.js"></script>
+  <script src="js/modules/shipping.js"></script>
+  <script src="js/modules/notify.js"></script>
+  <script src="js/modules/auth.js"></script>
+  <script src="js/modules/inventory-db.js"></script>
+  <script src="js/modules/print.js"></script>
+  <script src="js/modules/ui.js"></script>
+  <script src="js/modules/wishlist.js"></script>
+  <script src="js/modules/recently-viewed.js"></script>
+  <script src="js/components/header.js"></script>
+  <script>
+  document.addEventListener('DOMContentLoaded', () => {
+    InventoryDB.seedFromSampleData();
+    Cart.init();
+    SiteHeader.init();
+    render();
+
+    document.getElementById('clear-wishlist-btn').addEventListener('click', () => {
+      if (confirm('Clear your entire wishlist?')) { Wishlist.clear(); render(); }
+    });
+
+    window.addEventListener('wishlist:updated', render);
+  });
+
+  function render() {
+    const items = Wishlist.getItems();
+    const root  = document.getElementById('wishlist-root');
+
+    if (!items.length) {
+      root.innerHTML = `
+        <div class="wish-empty">
+          <i class="fa-regular fa-heart"></i>
+          <h3 style="margin-bottom:8px">Your wishlist is empty</h3>
+          <p style="color:var(--c-text-2);margin-bottom:24px">Save parts you want to buy later and they'll appear here.</p>
+          <a href="catalog.html" class="btn btn-primary"><i class="fa-solid fa-magnifying-glass"></i> Browse Parts</a>
+        </div>`;
+      return;
+    }
+
+    root.innerHTML = `<div class="wishlist-grid">${items.map(renderCard).join('')}</div>`;
+
+    root.querySelectorAll('.add-to-cart').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const part = InventoryDB.getById(parseInt(btn.dataset.id));
+        if (part) { Cart.addItem(part, 1); UI.toast(`${part.name} added to cart!`); }
+        else { UI.toast('Part no longer available.', 'warning'); }
+      });
+    });
+
+    root.querySelectorAll('.remove-wish').forEach(btn => {
+      btn.addEventListener('click', () => { Wishlist.remove(btn.dataset.id); });
+    });
+
+    root.querySelectorAll('.wish-card').forEach(card => {
+      card.addEventListener('click', e => {
+        if (e.target.closest('button')) return;
+        window.location.href = `product.html?id=${card.dataset.id}`;
+      });
+    });
+  }
+
+  function renderCard(item) {
+    return `
+      <div class="wish-card" data-id="${item.id}" style="cursor:pointer">
+        <div class="wish-card-img">
+          ${item.thumbnail ? `<img src="${Security.escapeHtml(item.thumbnail)}" alt="">` : '<i class="fa-solid fa-gear no-img"></i>'}
+        </div>
+        <div class="wish-card-body">
+          <div class="wish-card-name">${Security.escapeHtml(item.name)}</div>
+          <div class="wish-card-brand">${Security.escapeHtml(item.brand)} · <span style="font-family:var(--font-mono);font-size:.7rem">${Security.escapeHtml(item.partNumber)}</span></div>
+          <div class="wish-card-price">$${Number(item.price).toFixed(2)}</div>
+          <div class="wish-card-actions">
+            <button class="btn btn-primary btn-sm add-to-cart" data-id="${item.id}"><i class="fa-solid fa-cart-plus"></i> Add to Cart</button>
+            <button class="btn btn-ghost btn-sm remove-wish" data-id="${item.id}" title="Remove"><i class="fa-solid fa-heart-crack"></i></button>
+          </div>
+        </div>
+      </div>`;
+  }
+  </script>
+</body>
+</html>

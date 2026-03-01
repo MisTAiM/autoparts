@@ -47,10 +47,14 @@
 <script src="js/modules/catalog.js"></script>
 <script src="js/modules/shipping.js"></script>
 <script src="js/modules/notify.js"></script>
+<script src="js/modules/security.js"></script>
 <script src="js/modules/auth.js"></script>
 <script src="js/modules/inventory-db.js"></script>
 <script src="js/modules/print.js"></script>
 <script src="js/modules/ui.js"></script>
+<script src="js/modules/coupons.js"></script>
+<script src="js/modules/wishlist.js"></script>
+<script src="js/modules/recently-viewed.js"></script>
 <script src="js/components/header.js"></script>
 
 <script>
@@ -118,6 +122,15 @@ function renderCart() {
 
         ${coreTotal > 0 ? `<div class="alert alert-warning" style="margin-top:16px;font-size:0.8rem">Core charges of $${coreTotal.toFixed(2)} are refundable — return your old parts within 90 days.</div>` : ''}
 
+        <!-- Coupon Code -->
+        <div class="coupon-section" style="margin-top:16px;padding-top:16px;border-top:1px solid var(--c-border)">
+          <div class="coupon-row" style="display:flex;gap:8px">
+            <input type="text" id="coupon-input" placeholder="Promo code" style="flex:1;text-transform:uppercase" maxlength="20">
+            <button class="btn btn-outline btn-sm" id="apply-coupon-btn">Apply</button>
+          </div>
+          <div id="coupon-result" style="margin-top:8px;font-size:.82rem"></div>
+        </div>
+
         <a href="checkout.html" class="btn btn-primary btn-full btn-lg" style="margin-top:20px" id="checkout-btn">
           Proceed to Checkout →
         </a>
@@ -132,6 +145,67 @@ function renderCart() {
   });
 
   document.getElementById('calc-shipping-btn').addEventListener('click', calcShipping);
+
+  // Coupon code
+  let _appliedCoupon = null;
+  const savedCoupon = sessionStorage.getItem('ap_coupon');
+  if (savedCoupon) { try { _appliedCoupon = JSON.parse(savedCoupon); showCouponApplied(_appliedCoupon); } catch {} }
+
+  document.getElementById('apply-coupon-btn').addEventListener('click', () => {
+    const code    = document.getElementById('coupon-input').value.trim();
+    const { subtotal } = Cart.getCart();
+    const result  = Coupons.apply(code, subtotal);
+    const resultEl = document.getElementById('coupon-result');
+    if (!result.ok) {
+      resultEl.innerHTML = `<span style="color:var(--c-danger)"><i class="fa-solid fa-circle-xmark"></i> ${Security.escapeHtml(result.error)}</span>`;
+      _appliedCoupon = null;
+      sessionStorage.removeItem('ap_coupon');
+    } else {
+      _appliedCoupon = { ...result.coupon, discount: result.discount, freeShipping: result.freeShipping };
+      sessionStorage.setItem('ap_coupon', JSON.stringify(_appliedCoupon));
+      showCouponApplied(_appliedCoupon);
+    }
+    updateSummary();
+  });
+
+  function showCouponApplied(c) {
+    document.getElementById('coupon-result').innerHTML =
+      `<span style="color:var(--c-success)"><i class="fa-solid fa-circle-check"></i> <strong>${Security.escapeHtml(c.code)}</strong> applied — ${Security.escapeHtml(c.description)}</span>
+       <button id="remove-coupon" style="background:none;border:none;color:var(--c-danger);font-size:.75rem;cursor:pointer;margin-left:8px">Remove</button>`;
+    document.getElementById('coupon-input').value = c.code;
+    document.getElementById('remove-coupon')?.addEventListener('click', () => {
+      _appliedCoupon = null;
+      sessionStorage.removeItem('ap_coupon');
+      document.getElementById('coupon-input').value = '';
+      document.getElementById('coupon-result').innerHTML = '';
+      updateSummary();
+    });
+  }
+
+  function updateSummary() {
+    const { items, subtotal } = Cart.getCart();
+    const discount = _appliedCoupon?.discount || 0;
+    const freeShip = _appliedCoupon?.freeShipping || false;
+    const subtotalEl = document.querySelector('.summary-line:first-child span:last-child');
+    if (subtotalEl) subtotalEl.textContent = `$${subtotal.toFixed(2)}`;
+    // Show discount line
+    let discountLine = document.getElementById('summary-discount');
+    if (discount > 0 && !discountLine) {
+      const totalLine = document.querySelector('.summary-line.total');
+      if (totalLine) {
+        const dl = document.createElement('div');
+        dl.id = 'summary-discount';
+        dl.className = 'summary-line';
+        dl.style.color = 'var(--c-success)';
+        dl.innerHTML = `<span>Coupon (${Security.escapeHtml(_appliedCoupon.code)})</span><span>-$${discount.toFixed(2)}</span>`;
+        totalLine.parentElement.insertBefore(dl, totalLine);
+      }
+    } else if (discount === 0 && discountLine) {
+      discountLine.remove();
+    } else if (discount > 0 && discountLine) {
+      discountLine.innerHTML = `<span>Coupon (${Security.escapeHtml(_appliedCoupon.code)})</span><span>-$${discount.toFixed(2)}</span>`;
+    }
+  }
   document.getElementById('zip-input').addEventListener('keydown', (e) => { if (e.key === 'Enter') calcShipping(); });
 
   // Restore shipping rates display if zip already entered

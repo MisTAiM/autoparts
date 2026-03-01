@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Page Not Found | AutoParts Warehouse</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <link rel="stylesheet" href="css/variables.css">
+  <link rel="stylesheet" href="css/base.css">
+  <link rel="stylesheet" href="css/layout.css">
+  <style>
+    .not-found-page {
+      min-height: 80vh;
+      display: flex; align-items: center; justify-content: center;
+      text-align: center; padding: 60px 24px;
+    }
+    .nf-inner { max-width: 520px; }
+    .nf-code {
+      font-family: var(--font-display);
+      font-size: clamp(5rem, 15vw, 10rem);
+      font-weight: 700;
+      color: var(--c-accent);
+      line-height: 1;
+      margin-bottom: 12px;
+      text-shadow: 0 0 60px rgba(245,158,11,.3);
+    }
+    .nf-title {
+      font-family: var(--font-display);
+      font-size: 1.6rem; font-weight: 700;
+      text-transform: uppercase; letter-spacing: .06em;
+      margin-bottom: 12px;
+    }
+    .nf-sub {
+      color: var(--c-text-2); font-size: .95rem;
+      margin-bottom: 32px; line-height: 1.6;
+    }
+    .nf-actions { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+    .nf-icon { font-size: 1.5rem; color: var(--c-border-2); margin-bottom: 24px; }
+  </style>
+</head>
+<body>
+  <div id="site-header"></div>
+  <div id="mobile-nav"></div>
+
+  <main>
+    <div class="not-found-page">
+      <div class="nf-inner">
+        <div class="nf-code">404</div>
+        <div class="nf-icon"><i class="fa-solid fa-engine fa-beat-fade" style="color:var(--c-border-2)"></i></div>
+        <h1 class="nf-title">Part Not Found</h1>
+        <p class="nf-sub">The page you're looking for went missing — like a stripped bolt on a Monday morning. Let's get you back on the road.</p>
+        <div class="nf-actions">
+          <a href="index.html" class="btn btn-primary"><i class="fa-solid fa-house"></i> Home</a>
+          <a href="catalog.html" class="btn btn-outline"><i class="fa-solid fa-magnifying-glass"></i> Browse Parts</a>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container">
+      <p style="text-align:center;color:var(--c-text-3);font-size:.8rem;padding:24px 0">
+        &copy; 2025 AutoParts Warehouse. All rights reserved.
+      </p>
+    </div>
+  </footer>
+
+  <script src="js/modules/security.js"></script>
+  <script src="js/data/parts-data.js"></script>
+  <script src="js/modules/ymm.js"></script>
+  <script src="js/modules/cart.js"></script>
+  <script src="js/modules/auth.js"></script>
+  <script src="js/modules/inventory-db.js"></script>
+  <script src="js/modules/ui.js"></script>
+  <script src="js/components/header.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      InventoryDB.seedFromSampleData();
+      Cart.init();
+      SiteHeader.init();
+    });
+  </script>
+</body>
+</html>

@@ -11,6 +11,23 @@
   <link rel="stylesheet" href="css/base.css">
   <link rel="stylesheet" href="css/layout.css">
   <link rel="stylesheet" href="css/pages/product-cart-checkout.css">
+
+  <style>
+    .sticky-atc {
+      display: none;
+      position: fixed; bottom: 0; left: 0; right: 0; z-index: 500;
+      background: var(--c-surface); border-top: 1px solid var(--c-border);
+      padding: 12px 16px; align-items: center; gap: 12px;
+      box-shadow: 0 -4px 20px rgba(0,0,0,.4);
+      transform: translateY(100%);
+      transition: transform .25s ease;
+    }
+    .sticky-atc.visible { transform: translateY(0); }
+    .sticky-atc-name { flex: 1; font-size: .85rem; font-weight: 600; line-height: 1.2; color: var(--c-text); }
+    .sticky-atc-price { font-family: var(--font-display); font-size: 1.1rem; font-weight: 700; color: var(--c-accent); flex-shrink: 0; }
+    @media (min-width: 769px) { .sticky-atc { display: none !important; } }
+    @media (max-width: 768px) { .sticky-atc { display: flex; } body { padding-bottom: 80px; } }
+  </style>
 </head>
 <body>
 
@@ -51,10 +68,14 @@
 <script src="js/modules/catalog.js"></script>
 <script src="js/modules/shipping.js"></script>
 <script src="js/modules/notify.js"></script>
+<script src="js/modules/security.js"></script>
 <script src="js/modules/auth.js"></script>
 <script src="js/modules/inventory-db.js"></script>
 <script src="js/modules/print.js"></script>
 <script src="js/modules/ui.js"></script>
+<script src="js/modules/wishlist.js"></script>
+<script src="js/modules/recently-viewed.js"></script>
+<script src="js/modules/coupons.js"></script>
 <script src="js/components/header.js"></script>
 
 <script>
@@ -73,6 +94,33 @@ document.addEventListener('DOMContentLoaded', async () => {
   if (!part) { root.innerHTML = '<div class="alert alert-danger">Product not found.</div>'; return; }
 
   document.title = `${part.name} | AutoParts Warehouse`;
+
+  // Track recently viewed
+  if (window.RecentlyViewed) RecentlyViewed.track(part);
+
+  // Render recently viewed (excluding current)
+  if (window.RecentlyViewed) {
+    const viewed = RecentlyViewed.getItems().filter(i => i.id !== part.id).slice(0, 4);
+    if (viewed.length) {
+      const rvSection = document.createElement('section');
+      rvSection.style.cssText = 'padding:48px 0;border-top:1px solid var(--c-border)';
+      rvSection.innerHTML = `
+        <div class="container--narrow">
+          <h2 style="font-family:var(--font-display);font-size:1.1rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;margin-bottom:20px;color:var(--c-text-2)">
+            <i class="fa-solid fa-clock-rotate-left" style="color:var(--c-accent);margin-right:8px"></i>Recently Viewed
+          </h2>
+          <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:16px">
+            ${viewed.map(v => `
+              <a href="product.html?id=${v.id}" style="text-decoration:none;background:var(--c-surface);border:1px solid var(--c-border);border-radius:var(--radius-lg);padding:14px;display:block;transition:border-color .15s" onmouseover="this.style.borderColor='rgba(245,158,11,.4)'" onmouseout="this.style.borderColor='var(--c-border)'">
+                <div style="font-size:.78rem;text-transform:uppercase;letter-spacing:.06em;color:var(--c-text-3);margin-bottom:4px">${Security.escapeHtml(v.brand)}</div>
+                <div style="font-family:var(--font-display);font-size:.95rem;font-weight:600;color:var(--c-text);margin-bottom:6px;line-height:1.2">${Security.escapeHtml(v.name)}</div>
+                <div style="font-family:var(--font-display);font-size:1rem;font-weight:700;color:var(--c-accent)">$${Number(v.price).toFixed(2)}</div>
+              </a>`).join('')}
+          </div>
+        </div>`;
+      document.querySelector('main')?.appendChild(rvSection);
+    }
+  }
 
   const vehicle = YMM.getState();
   const hasVehicle = !!vehicle.year;
@@ -152,7 +200,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         </div>
 
         <!-- Add to cart -->
-        <div class="add-to-cart-row">
+        <div class="add-to-cart-row" style="flex-wrap:wrap">
           <div class="qty-control">
             <button id="qty-minus">−</button>
             <input type="number" id="qty-input" value="1" min="1" max="${part.stockQty || 99}">
@@ -160,6 +208,9 @@ document.addEventListener('DOMContentLoaded', async () => {
           </div>
           <button class="btn btn-primary btn-lg" id="add-to-cart-btn" ${!part.inStock ? 'disabled' : ''}>
             <i class="fa-solid fa-cart-plus"></i> Add to Cart
+          </button>
+          <button class="btn btn-outline" id="wishlist-btn" title="Save to Wishlist">
+            <i class="fa-regular fa-heart"></i> Wishlist
           </button>
         </div>
 
@@ -244,6 +295,39 @@ document.addEventListener('DOMContentLoaded', async () => {
   });
 
   // ── Add to cart ───────────────────────────────────────
+  // Wishlist button
+  const wishBtn = document.getElementById('wishlist-btn');
+  if (wishBtn && window.Wishlist) {
+    const updateWishBtn = () => {
+      const inWish = Wishlist.has(part.id);
+      wishBtn.innerHTML = inWish ? '<i class="fa-solid fa-heart"></i> Saved' : '<i class="fa-regular fa-heart"></i> Wishlist';
+      wishBtn.classList.toggle('btn-danger', inWish);
+      wishBtn.classList.toggle('btn-outline', !inWish);
+    };
+    updateWishBtn();
+    wishBtn.addEventListener('click', () => { Wishlist.toggle(part); updateWishBtn(); });
+  }
+
+  // ── Sticky add-to-cart (mobile) ─────────────────────
+  const stickyBar  = document.getElementById('sticky-atc');
+  const stickyName = document.getElementById('sticky-atc-name');
+  const stickyPrice= document.getElementById('sticky-atc-price');
+  const stickyBtn  = document.getElementById('sticky-atc-btn');
+  if (stickyBar && part.inStock) {
+    stickyName.textContent  = part.name;
+    stickyPrice.textContent = `$${Number(part.price).toFixed(2)}`;
+    stickyBtn.addEventListener('click', () => {
+      const qty = parseInt(document.getElementById('qty-input')?.value) || 1;
+      Cart.addItem(part, qty);
+      UI.toast(`${qty}× ${part.name} added to cart!`);
+    });
+    const observer = new IntersectionObserver(([e]) => {
+      stickyBar.classList.toggle('visible', !e.isIntersecting);
+    }, { threshold: 0.1 });
+    const addBtn = document.getElementById('add-to-cart-btn');
+    if (addBtn) observer.observe(addBtn);
+  }
+
   document.getElementById('add-to-cart-btn').addEventListener('click', () => {
     const qty = parseInt(qtyInput.value) || 1;
     Cart.addItem(part, qty);
@@ -284,5 +368,14 @@ document.addEventListener('DOMContentLoaded', async () => {
   }
 });
 </script>
+
+  <!-- Sticky Add to Cart (mobile) -->
+  <div class="sticky-atc" id="sticky-atc">
+    <div class="sticky-atc-name" id="sticky-atc-name"></div>
+    <div class="sticky-atc-price" id="sticky-atc-price"></div>
+    <button class="btn btn-primary btn-sm" id="sticky-atc-btn" style="flex-shrink:0">
+      <i class="fa-solid fa-cart-plus"></i> Add
+    </button>
+  </div>
 </body>
 </html>

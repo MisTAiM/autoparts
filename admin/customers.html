@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Customers | Admin</title>
+  <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;600;700&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <link rel="stylesheet" href="../css/variables.css">
+  <link rel="stylesheet" href="../css/base.css">
+  <style>
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{background:var(--c-bg);color:var(--c-text);font-family:var(--font-body);display:flex;min-height:100vh}
+    .sidebar{width:220px;min-height:100vh;background:var(--c-surface);border-right:1px solid var(--c-border);padding:24px 0;flex-shrink:0}
+    .sidebar-logo{padding:0 20px 24px;border-bottom:1px solid var(--c-border);margin-bottom:16px}
+    .sidebar-logo span{font-family:var(--font-display);font-size:1.1rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--c-accent)}
+    .sidebar-logo small{display:block;font-size:.7rem;color:var(--c-text-3)}
+    .nav-item{display:flex;align-items:center;gap:10px;padding:10px 20px;color:var(--c-text-2);font-size:.875rem;text-decoration:none;transition:all .1s;border-left:2px solid transparent}
+    .nav-item:hover{color:var(--c-text);background:rgba(255,255,255,.03);border-left-color:var(--c-border-2)}
+    .nav-item.active{color:var(--c-accent);background:var(--c-accent-dim);border-left-color:var(--c-accent)}
+    .nav-item i{width:16px;text-align:center;font-size:.85rem}
+    .main{flex:1;overflow-x:hidden}
+    .topbar{display:flex;align-items:center;justify-content:space-between;padding:16px 28px;background:var(--c-surface);border-bottom:1px solid var(--c-border);gap:16px;flex-wrap:wrap}
+    .topbar h1{font-family:var(--font-display);font-size:1.2rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em}
+    .content{padding:28px}
+    .card{background:var(--c-surface);border:1px solid var(--c-border);border-radius:var(--radius-lg);overflow:hidden}
+    .card-header{padding:14px 20px;border-bottom:1px solid var(--c-border);background:var(--c-surface-2);display:flex;align-items:center;justify-content:space-between}
+    .search-bar{display:flex;align-items:center;gap:8px;background:var(--c-surface-2);border:1px solid var(--c-border);border-radius:var(--radius);padding:0 12px;flex:1;max-width:320px}
+    .search-bar i{color:var(--c-text-3);font-size:.85rem}
+    .search-bar input{background:none;border:none;outline:none;color:var(--c-text);font-size:.875rem;padding:8px 0;width:100%}
+    .customers-table{width:100%;border-collapse:collapse}
+    .customers-table th{font-size:.72rem;text-transform:uppercase;letter-spacing:.06em;color:var(--c-text-3);padding:10px 16px;border-bottom:2px solid var(--c-border);text-align:left}
+    .customers-table td{padding:12px 16px;border-bottom:1px solid var(--c-border);font-size:.875rem;vertical-align:top}
+    .customers-table tr:last-child td{border-bottom:none}
+    .customers-table tr:hover td{background:rgba(255,255,255,.02)}
+    .avatar{width:36px;height:36px;border-radius:50%;background:var(--c-accent-dim);border:1px solid var(--c-border-hot);display:flex;align-items:center;justify-content:center;font-family:var(--font-display);font-weight:700;font-size:.9rem;color:var(--c-accent);flex-shrink:0}
+    .stat-cards{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:24px}
+    .stat-card{background:var(--c-surface);border:1px solid var(--c-border);border-radius:var(--radius-lg);padding:18px 20px}
+    .stat-label{font-size:.72rem;text-transform:uppercase;letter-spacing:.08em;color:var(--c-text-3);margin-bottom:6px}
+    .stat-value{font-family:var(--font-display);font-size:1.8rem;font-weight:700;color:var(--c-text)}
+    .stat-value.accent{color:var(--c-accent)}
+    @media(max-width:900px){.stat-cards{grid-template-columns:repeat(2,1fr)}.sidebar{display:none}}
+  </style>
+</head>
+<body>
+  <aside class="sidebar">
+    <div class="sidebar-logo">
+      <span><i class="fa-solid fa-gear" style="margin-right:6px"></i>AutoParts</span>
+      <small>Admin Panel</small>
+    </div>
+    <a href="dashboard.html" class="nav-item"><i class="fa-solid fa-chart-line"></i> Dashboard</a>
+    <a href="inventory.html" class="nav-item"><i class="fa-solid fa-boxes-stacked"></i> Inventory</a>
+    <a href="orders.html" class="nav-item"><i class="fa-solid fa-receipt"></i> Orders</a>
+    <a href="customers.html" class="nav-item active"><i class="fa-solid fa-users"></i> Customers</a>
+    <a href="coupons.html" class="nav-item"><i class="fa-solid fa-tag"></i> Coupons</a>
+    <a href="settings.html" class="nav-item"><i class="fa-solid fa-sliders"></i> Settings</a>
+    <div style="margin-top:32px;padding-top:20px;border-top:1px solid var(--c-border)">
+      <a href="../index.html" class="nav-item"><i class="fa-solid fa-globe"></i> View Store</a>
+      <a href="#" class="nav-item" id="logout-link"><i class="fa-solid fa-right-from-bracket"></i> Logout</a>
+    </div>
+  </aside>
+
+  <div class="main">
+    <div class="topbar">
+      <h1><i class="fa-solid fa-users" style="color:var(--c-accent);margin-right:8px"></i>Customers</h1>
+      <div class="search-bar">
+        <i class="fa-solid fa-magnifying-glass"></i>
+        <input type="text" id="search-customers" placeholder="Search by name or email…">
+      </div>
+      <span id="admin-name" style="font-size:.85rem;color:var(--c-text-2)"></span>
+    </div>
+
+    <div class="content">
+      <div class="stat-cards" id="customer-stats"></div>
+
+      <div class="card">
+        <div class="card-header">
+          <span style="font-size:.82rem;font-weight:600;text-transform:uppercase;letter-spacing:.06em">
+            <i class="fa-solid fa-users" style="color:var(--c-accent);margin-right:6px"></i>All Customers
+          </span>
+          <span id="customer-count" style="font-size:.8rem;color:var(--c-text-3)"></span>
+        </div>
+        <table class="customers-table">
+          <thead>
+            <tr><th></th><th>Name</th><th>Email</th><th>Joined</th><th>Orders</th><th>Total Spent</th><th>Vehicles</th></tr>
+          </thead>
+          <tbody id="customers-tbody"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <script src="../js/modules/security.js"></script>
+  <script src="../js/modules/admin-auth.js"></script>
+  <script>
+  document.addEventListener('DOMContentLoaded', () => {
+    if (!AdminAuth.requireAdmin()) return;
+    const session = AdminAuth.getSession();
+    document.getElementById('admin-name').textContent = session.name;
+    document.getElementById('logout-link').addEventListener('click', e => { e.preventDefault(); AdminAuth.logout(); });
+
+    const customers = getCustomers();
+    const orders    = getOrders();
+    renderStats(customers, orders);
+    renderTable(customers, orders);
+
+    document.getElementById('search-customers').addEventListener('input', e => {
+      const q = e.target.value.toLowerCase();
+      const filtered = customers.filter(c =>
+        c.firstName?.toLowerCase().includes(q) ||
+        c.lastName?.toLowerCase().includes(q) ||
+        c.email?.toLowerCase().includes(q)
+      );
+      renderTable(filtered, orders);
+    });
+  });
+
+  function getCustomers() {
+    try { return JSON.parse(localStorage.getItem('ap_users') || '[]'); } catch { return []; }
+  }
+
+  function getOrders() {
+    try { return JSON.parse(localStorage.getItem('ap_admin_orders') || '[]'); } catch { return []; }
+  }
+
+  function renderStats(customers, orders) {
+    const totalSpent = orders.reduce((s, o) => s + (o.total || 0), 0);
+    const avgOrder   = orders.length ? totalSpent / orders.length : 0;
+    document.getElementById('customer-stats').innerHTML = `
+      <div class="stat-card"><div class="stat-label">Total Customers</div><div class="stat-value">${customers.length}</div></div>
+      <div class="stat-card"><div class="stat-label">Total Orders</div><div class="stat-value">${orders.length}</div></div>
+      <div class="stat-card"><div class="stat-label">Total Revenue</div><div class="stat-value accent">$${totalSpent.toFixed(2)}</div></div>
+      <div class="stat-card"><div class="stat-label">Avg Order Value</div><div class="stat-value">$${avgOrder.toFixed(2)}</div></div>`;
+  }
+
+  function renderTable(customers, orders) {
+    document.getElementById('customer-count').textContent = `${customers.length} customer${customers.length !== 1 ? 's' : ''}`;
+    document.getElementById('customers-tbody').innerHTML = customers.length ? customers.map(c => {
+      const custOrders = orders.filter(o => o.customerEmail === c.email);
+      const spent      = custOrders.reduce((s, o) => s + (o.total || 0), 0);
+      const initials   = ((c.firstName || '?')[0] + (c.lastName || '?')[0]).toUpperCase();
+      return `<tr>
+        <td><div class="avatar">${Security.escapeHtml(initials)}</div></td>
+        <td>
+          <div style="font-weight:600">${Security.escapeHtml(c.firstName || '')} ${Security.escapeHtml(c.lastName || '')}</div>
+          ${c.phone ? `<div style="font-size:.75rem;color:var(--c-text-3)">${Security.escapeHtml(c.phone)}</div>` : ''}
+        </td>
+        <td style="font-family:var(--font-mono);font-size:.8rem;color:var(--c-text-2)">${Security.escapeHtml(c.email || '')}</td>
+        <td style="font-size:.8rem;color:var(--c-text-3)">${new Date(c.createdAt).toLocaleDateString()}</td>
+        <td style="font-weight:600">${custOrders.length}</td>
+        <td style="color:var(--c-accent);font-weight:700;font-family:var(--font-display)">$${spent.toFixed(2)}</td>
+        <td style="font-size:.8rem;color:var(--c-text-3)">${(c.savedVehicles || []).length} saved</td>
+      </tr>`;
+    }).join('') : `<tr><td colspan="7" style="text-align:center;padding:48px;color:var(--c-text-3)">No customers registered yet.</td></tr>`;
+  }
+  </script>
+</body>
+</html>

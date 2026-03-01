@@ -128,6 +128,7 @@
 <script src="js/modules/catalog.js"></script>
 <script src="js/modules/shipping.js"></script>
 <script src="js/modules/notify.js"></script>
+<script src="js/modules/security.js"></script>
 <script src="js/modules/auth.js"></script>
 <script src="js/modules/inventory-db.js"></script>
 <script src="js/modules/print.js"></script>
@@ -139,6 +140,9 @@ document.addEventListener('DOMContentLoaded', () => {
   InventoryDB.seedFromSampleData();
   Cart.init();
   SiteHeader.init();
+
+  // Require login
+  if (!Auth.requireLogin('login.html')) return;
 
   if (!Auth.requireLogin('login.html')) return;
 

@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Settings | Admin</title>
+  <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;600;700&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <link rel="stylesheet" href="../css/variables.css">
+  <link rel="stylesheet" href="../css/base.css">
+  <style>
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{background:var(--c-bg);color:var(--c-text);font-family:var(--font-body);display:flex;min-height:100vh}
+    .sidebar{width:220px;min-height:100vh;background:var(--c-surface);border-right:1px solid var(--c-border);padding:24px 0;flex-shrink:0}
+    .sidebar-logo{padding:0 20px 24px;border-bottom:1px solid var(--c-border);margin-bottom:16px}
+    .sidebar-logo span{font-family:var(--font-display);font-size:1.1rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--c-accent)}
+    .sidebar-logo small{display:block;font-size:.7rem;color:var(--c-text-3)}
+    .nav-item{display:flex;align-items:center;gap:10px;padding:10px 20px;color:var(--c-text-2);font-size:.875rem;text-decoration:none;transition:all .1s;border-left:2px solid transparent}
+    .nav-item:hover{color:var(--c-text);background:rgba(255,255,255,.03);border-left-color:var(--c-border-2)}
+    .nav-item.active{color:var(--c-accent);background:var(--c-accent-dim);border-left-color:var(--c-accent)}
+    .nav-item i{width:16px;text-align:center;font-size:.85rem}
+    .main{flex:1;overflow-x:hidden}
+    .topbar{display:flex;align-items:center;justify-content:space-between;padding:16px 28px;background:var(--c-surface);border-bottom:1px solid var(--c-border)}
+    .topbar h1{font-family:var(--font-display);font-size:1.2rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em}
+    .content{padding:28px}
+    .settings-grid{display:grid;grid-template-columns:1fr 1fr;gap:24px}
+    .settings-card{background:var(--c-surface);border:1px solid var(--c-border);border-radius:var(--radius-lg);overflow:hidden}
+    .settings-card-header{padding:16px 20px;border-bottom:1px solid var(--c-border);background:var(--c-surface-2);display:flex;align-items:center;gap:10px}
+    .settings-card-header i{color:var(--c-accent)}
+    .settings-card-header h3{font-family:var(--font-display);font-size:.95rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em}
+    .settings-card-body{padding:20px}
+    .form-row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+    .form-group{margin-bottom:14px}
+    .form-group label{display:block;font-size:.78rem;font-weight:600;color:var(--c-text-2);text-transform:uppercase;letter-spacing:.07em;margin-bottom:6px}
+    .admin-table{width:100%;border-collapse:collapse}
+    .admin-table th{font-size:.72rem;text-transform:uppercase;letter-spacing:.06em;color:var(--c-text-3);padding:10px 12px;border-bottom:2px solid var(--c-border);text-align:left}
+    .admin-table td{padding:10px 12px;border-bottom:1px solid var(--c-border);font-size:.875rem;color:var(--c-text-2)}
+    .admin-table tr:last-child td{border-bottom:none}
+    .admin-table tr:hover td{background:rgba(255,255,255,.02)}
+    .badge-role{display:inline-block;padding:2px 8px;border-radius:var(--radius-pill);font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em}
+    .badge-role.owner{background:rgba(245,158,11,.15);color:var(--c-accent);border:1px solid rgba(245,158,11,.3)}
+    .badge-role.staff{background:rgba(59,130,246,.12);color:#60A5FA;border:1px solid rgba(59,130,246,.25)}
+    .security-log{max-height:280px;overflow-y:auto;font-size:.8rem}
+    .log-entry{padding:8px 12px;border-bottom:1px solid var(--c-border);display:flex;gap:12px;align-items:flex-start}
+    .log-entry:last-child{border-bottom:none}
+    .log-action{font-weight:600;flex-shrink:0;min-width:140px}
+    .log-time{color:var(--c-text-3);font-family:var(--font-mono);font-size:.72rem;flex-shrink:0}
+    .log-fail .log-action{color:var(--c-danger)}
+    .log-ok   .log-action{color:var(--c-success)}
+    @media(max-width:900px){.settings-grid{grid-template-columns:1fr}.sidebar{display:none}}
+    .alert-success{background:var(--c-success-dim);border:1px solid rgba(16,185,129,.3);color:var(--c-success);padding:10px 14px;border-radius:var(--radius);font-size:.85rem;margin-bottom:12px}
+    .alert-danger{background:var(--c-danger-dim);border:1px solid rgba(239,68,68,.3);color:var(--c-danger);padding:10px 14px;border-radius:var(--radius);font-size:.85rem;margin-bottom:12px}
+    .must-change-pw{background:rgba(245,158,11,.12);border:1px solid rgba(245,158,11,.4);border-radius:var(--radius);padding:12px 16px;margin-bottom:20px;display:flex;align-items:center;gap:10px;font-size:.875rem;color:var(--c-accent)}
+  </style>
+</head>
+<body>
+  <aside class="sidebar">
+    <div class="sidebar-logo">
+      <span><i class="fa-solid fa-gear" style="margin-right:6px"></i>AutoParts</span>
+      <small>Admin Panel</small>
+    </div>
+    <a href="dashboard.html" class="nav-item"><i class="fa-solid fa-chart-line"></i> Dashboard</a>
+    <a href="inventory.html" class="nav-item"><i class="fa-solid fa-boxes-stacked"></i> Inventory</a>
+    <a href="orders.html" class="nav-item"><i class="fa-solid fa-receipt"></i> Orders</a>
+    <a href="customers.html" class="nav-item"><i class="fa-solid fa-users"></i> Customers</a>
+    <a href="coupons.html" class="nav-item"><i class="fa-solid fa-tag"></i> Coupons</a>
+    <a href="settings.html" class="nav-item active"><i class="fa-solid fa-sliders"></i> Settings</a>
+    <div style="margin-top:auto;padding:20px 0 0;border-top:1px solid var(--c-border);margin-top:32px">
+      <a href="../index.html" class="nav-item"><i class="fa-solid fa-globe"></i> View Store</a>
+      <a href="#" class="nav-item" id="logout-link"><i class="fa-solid fa-right-from-bracket"></i> Logout</a>
+    </div>
+  </aside>
+
+  <div class="main">
+    <div class="topbar">
+      <h1><i class="fa-solid fa-sliders" style="color:var(--c-accent);margin-right:8px"></i>Settings</h1>
+      <span id="admin-name" style="font-size:.85rem;color:var(--c-text-2)"></span>
+    </div>
+
+    <div class="content">
+      <div id="pw-banner" class="must-change-pw" style="display:none">
+        <i class="fa-solid fa-triangle-exclamation"></i>
+        <span>You are using the default password. Please change it now for security.</span>
+      </div>
+
+      <div class="settings-grid">
+
+        <!-- Store Info -->
+        <div class="settings-card">
+          <div class="settings-card-header">
+            <i class="fa-solid fa-store"></i>
+            <h3>Store Info</h3>
+          </div>
+          <div class="settings-card-body">
+            <div id="store-alert"></div>
+            <div class="form-row">
+              <div class="form-group">
+                <label>Store Name</label>
+                <input type="text" id="store-name" placeholder="AutoParts Warehouse">
+              </div>
+              <div class="form-group">
+                <label>Phone</label>
+                <input type="text" id="store-phone" placeholder="(555) 000-0000">
+              </div>
+            </div>
+            <div class="form-group">
+              <label>Email</label>
+              <input type="email" id="store-email" placeholder="orders@example.com">
+            </div>
+            <div class="form-group">
+              <label>Address</label>
+              <input type="text" id="store-address" placeholder="123 Main St, City, ST 00000">
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label>Tax Rate (%)</label>
+                <input type="number" id="store-tax" placeholder="8.5" step="0.01" min="0" max="30">
+              </div>
+              <div class="form-group">
+                <label>Free Shipping Over ($)</label>
+                <input type="number" id="free-ship-threshold" placeholder="99" step="1" min="0">
+              </div>
+            </div>
+            <button class="btn btn-primary btn-sm" id="save-store-btn">
+              <i class="fa-solid fa-floppy-disk"></i> Save Store Settings
+            </button>
+          </div>
+        </div>
+
+        <!-- Change Password -->
+        <div class="settings-card">
+          <div class="settings-card-header">
+            <i class="fa-solid fa-lock"></i>
+            <h3>Change Password</h3>
+          </div>
+          <div class="settings-card-body">
+            <div id="pw-alert"></div>
+            <div class="form-group">
+              <label>Current Password</label>
+              <input type="password" id="current-pw" autocomplete="current-password">
+            </div>
+            <div class="form-group">
+              <label>New Password</label>
+              <input type="password" id="new-pw" autocomplete="new-password">
+              <small style="color:var(--c-text-3);font-size:.72rem">Minimum 8 characters</small>
+            </div>
+            <div class="form-group">
+              <label>Confirm New Password</label>
+              <input type="password" id="confirm-pw" autocomplete="new-password">
+            </div>
+            <button class="btn btn-primary btn-sm" id="change-pw-btn">
+              <i class="fa-solid fa-key"></i> Change Password
+            </button>
+          </div>
+        </div>
+
+        <!-- Admin Users -->
+        <div class="settings-card" style="grid-column:1/-1">
+          <div class="settings-card-header">
+            <i class="fa-solid fa-user-shield"></i>
+            <h3>Admin Users</h3>
+          </div>
+          <div class="settings-card-body">
+            <table class="admin-table">
+              <thead>
+                <tr><th>Username</th><th>Name</th><th>Role</th><th>Created</th><th></th></tr>
+              </thead>
+              <tbody id="admins-table"></tbody>
+            </table>
+            <div style="margin-top:20px;padding-top:20px;border-top:1px solid var(--c-border)">
+              <h4 style="font-size:.82rem;text-transform:uppercase;letter-spacing:.07em;color:var(--c-text-2);margin-bottom:14px">
+                <i class="fa-solid fa-user-plus" style="color:var(--c-accent)"></i> Add Admin User
+              </h4>
+              <div id="add-admin-alert"></div>
+              <div class="form-row">
+                <div class="form-group"><label>Username</label><input type="text" id="new-admin-username" placeholder="jane_admin"></div>
+                <div class="form-group"><label>Name</label><input type="text" id="new-admin-name" placeholder="Jane Smith"></div>
+                <div class="form-group"><label>Password</label><input type="password" id="new-admin-pw" placeholder="8+ characters"></div>
+                <div class="form-group">
+                  <label>Role</label>
+                  <select id="new-admin-role">
+                    <option value="staff">Staff</option>
+                    <option value="owner">Owner</option>
+                  </select>
+                </div>
+              </div>
+              <button class="btn btn-outline btn-sm" id="add-admin-btn">
+                <i class="fa-solid fa-user-plus"></i> Add Admin
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Security Log -->
+        <div class="settings-card" style="grid-column:1/-1">
+          <div class="settings-card-header">
+            <i class="fa-solid fa-shield-halved"></i>
+            <h3>Security Log</h3>
+          </div>
+          <div class="settings-card-body" style="padding:0">
+            <div class="security-log" id="security-log"></div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <script src="../js/modules/security.js"></script>
+  <script src="../js/modules/admin-auth.js"></script>
+  <script>
+  document.addEventListener('DOMContentLoaded', () => {
+    if (!AdminAuth.requireAdmin()) return;
+    const session = AdminAuth.getSession();
+    document.getElementById('admin-name').textContent = session.name;
+    document.getElementById('logout-link').addEventListener('click', e => { e.preventDefault(); AdminAuth.logout(); });
+
+    // Password change banner
+    if (session.mustChangePassword) {
+      document.getElementById('pw-banner').style.display = 'flex';
+    }
+
+    // Load store settings
+    const settings = AdminAuth.getSettings();
+    document.getElementById('store-name').value         = settings.storeName || '';
+    document.getElementById('store-phone').value        = settings.storePhone || '';
+    document.getElementById('store-email').value        = settings.storeEmail || '';
+    document.getElementById('store-address').value      = settings.storeAddress || '';
+    document.getElementById('store-tax').value          = settings.taxRate || '';
+    document.getElementById('free-ship-threshold').value = settings.freeShipThreshold || '';
+
+    // Save store settings
+    document.getElementById('save-store-btn').addEventListener('click', () => {
+      const result = AdminAuth.saveSettings({
+        storeName:          Security.sanitizeText(document.getElementById('store-name').value, 100),
+        storePhone:         Security.sanitizePhone(document.getElementById('store-phone').value),
+        storeEmail:         Security.sanitizeEmail(document.getElementById('store-email').value),
+        storeAddress:       Security.sanitizeText(document.getElementById('store-address').value, 200),
+        taxRate:            Security.sanitizePrice(document.getElementById('store-tax').value),
+        freeShipThreshold:  Security.sanitizeInt(document.getElementById('free-ship-threshold').value, 0, 9999),
+      });
+      showAlert('store-alert', result.ok ? 'Settings saved.' : result.error, result.ok ? 'success' : 'danger');
+    });
+
+    // Change password
+    document.getElementById('change-pw-btn').addEventListener('click', () => {
+      const current  = document.getElementById('current-pw').value;
+      const newPw    = document.getElementById('new-pw').value;
+      const confirm  = document.getElementById('confirm-pw').value;
+      if (newPw !== confirm)          return showAlert('pw-alert', 'Passwords do not match.', 'danger');
+      if (!Security.isStrongPassword(newPw)) return showAlert('pw-alert', 'Password must be at least 8 characters.', 'danger');
+      const result = AdminAuth.changePassword(session.username, current, newPw);
+      showAlert('pw-alert', result.ok ? 'Password changed successfully.' : result.error, result.ok ? 'success' : 'danger');
+      if (result.ok) { document.getElementById('pw-banner').style.display = 'none'; ['current-pw','new-pw','confirm-pw'].forEach(id => document.getElementById(id).value = ''); }
+    });
+
+    // Admin users table
+    renderAdmins();
+
+    // Add admin
+    document.getElementById('add-admin-btn').addEventListener('click', () => {
+      const result = AdminAuth.addAdmin(
+        document.getElementById('new-admin-username').value,
+        document.getElementById('new-admin-pw').value,
+        document.getElementById('new-admin-name').value,
+        document.getElementById('new-admin-role').value
+      );
+      showAlert('add-admin-alert', result.ok ? 'Admin user added.' : result.error, result.ok ? 'success' : 'danger');
+      if (result.ok) { renderAdmins(); ['new-admin-username','new-admin-pw','new-admin-name'].forEach(id => document.getElementById(id).value = ''); }
+    });
+
+    // Security log
+    renderLog();
+  });
+
+  function renderAdmins() {
+    const admins = AdminAuth.getAdmins();
+    document.getElementById('admins-table').innerHTML = admins.map(a => `
+      <tr>
+        <td><span style="font-family:var(--font-mono);font-size:.82rem">${Security.escapeHtml(a.username)}</span></td>
+        <td>${Security.escapeHtml(a.name)}</td>
+        <td><span class="badge-role ${a.role}">${Security.escapeHtml(a.role)}</span></td>
+        <td style="font-size:.78rem;color:var(--c-text-3)">${new Date(a.createdAt).toLocaleDateString()}</td>
+        <td>${a.role !== 'owner' ? `<button class="btn btn-ghost btn-sm remove-admin" data-id="${a.id}" style="color:var(--c-danger)"><i class="fa-solid fa-trash"></i></button>` : ''}</td>
+      </tr>`).join('');
+
+    document.querySelectorAll('.remove-admin').forEach(btn => {
+      btn.addEventListener('click', () => {
+        if (!confirm('Remove this admin user?')) return;
+        AdminAuth.removeAdmin(btn.dataset.id);
+        renderAdmins();
+      });
+    });
+  }
+
+  function renderLog() {
+    const log = AdminAuth.getLog().slice(0, 50);
+    const icons = { LOGIN_OK:'fa-circle-check', LOGIN_FAIL:'fa-circle-xmark', LOGOUT:'fa-right-from-bracket', PASSWORD_CHANGE:'fa-key', ADMIN_ADDED:'fa-user-plus', ADMIN_REMOVED:'fa-user-minus', SETTINGS_UPDATED:'fa-sliders' };
+    document.getElementById('security-log').innerHTML = log.length ? log.map(e => {
+      const isFail = e.action.includes('FAIL');
+      const isOk   = e.action === 'LOGIN_OK' || e.action === 'PASSWORD_CHANGE';
+      return `<div class="log-entry ${isFail?'log-fail':isOk?'log-ok':''}">
+        <span class="log-action"><i class="fa-solid fa-${icons[e.action]||'circle'}" style="margin-right:6px"></i>${Security.escapeHtml(e.action.replace(/_/g,' '))}</span>
+        ${e.detail ? `<span style="flex:1;color:var(--c-text-2)">${Security.escapeHtml(e.detail)}</span>` : '<span style="flex:1"></span>'}
+        <span class="log-time">${new Date(e.at).toLocaleString()}</span>
+      </div>`;
+    }).join('') : '<div style="padding:20px;text-align:center;color:var(--c-text-3)">No activity logged yet.</div>';
+  }
+
+  function showAlert(containerId, msg, type) {
+    document.getElementById(containerId).innerHTML = `<div class="alert-${type}">${Security.escapeHtml(msg)}</div>`;
+    setTimeout(() => { const el = document.getElementById(containerId); if(el) el.innerHTML=''; }, 4000);
+  }
+  </script>
+</body>
+</html>

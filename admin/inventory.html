@@ -55,9 +55,12 @@
   <aside class="admin-sidebar" style="display:flex;flex-direction:column">
     <div class="admin-logo">⚙ Admin<span>Panel</span></div>
     <nav class="admin-nav" style="flex:1">
-      <a href="dashboard.html"><i class="fa-solid fa-chart-bar"></i> Dashboard</a>
-      <a href="orders.html"><i class="fa-solid fa-box"></i> Orders</a>
-      <a href="inventory.html" class="active"><i class="fa-solid fa-gear"></i> Inventory</a>
+      <a href="dashboard.html"><i class="fa-solid fa-chart-line"></i> Dashboard</a>
+      <a href="inventory.html" class="active"><i class="fa-solid fa-boxes-stacked"></i> Inventory</a>
+      <a href="orders.html"><i class="fa-solid fa-receipt"></i> Orders</a>
+      <a href="customers.html"><i class="fa-solid fa-users"></i> Customers</a>
+      <a href="coupons.html"><i class="fa-solid fa-tag"></i> Coupons</a>
+      <a href="settings.html"><i class="fa-solid fa-sliders"></i> Settings</a>
       <div style="border-top:1px solid var(--c-border);margin:8px 0"></div>
       <a href="../index.html" target="_blank"><i class="fa-solid fa-globe"></i> View Store</a>
       <a href="#" id="logout-link"><i class="fa-solid fa-right-from-bracket"></i> Sign Out</a>
@@ -217,6 +220,7 @@
 </div>
 
 <script src="../js/data/parts-data.js"></script>
+<script src="../js/modules/security.js"></script>
 <script src="../js/modules/admin-auth.js"></script>
 <script src="../js/modules/inventory-db.js"></script>
 
@@ -225,7 +229,7 @@ let _editingId = null;
 let _photoFile = null;
 
 document.addEventListener('DOMContentLoaded', () => {
-  if (!AdminAuth.requireLogin()) return;
+  if (!AdminAuth.requireAdmin()) return;
 
   const session = AdminAuth.getSession();
   document.getElementById('admin-name').textContent = session.name;
@@ -414,9 +418,9 @@ function populateForm(p) {
 }
 
 async function savePart() {
-  const name    = document.getElementById('f-name').value.trim();
-  const brand   = document.getElementById('f-brand').value.trim();
-  const partnum = document.getElementById('f-partnum').value.trim();
+  const name    = Security.sanitizeText(document.getElementById('f-name').value, 150);
+  const brand   = Security.sanitizeText(document.getElementById('f-brand').value, 80);
+  const partnum = Security.sanitizeText(document.getElementById('f-partnum').value, 60);
   const price   = document.getElementById('f-price').value;
 
   if (!name || !brand || !partnum || !price) {

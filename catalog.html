@@ -255,10 +255,14 @@
 <script src="js/modules/catalog.js"></script>
 <script src="js/modules/shipping.js"></script>
 <script src="js/modules/notify.js"></script>
+<script src="js/modules/security.js"></script>
 <script src="js/modules/auth.js"></script>
 <script src="js/modules/inventory-db.js"></script>
 <script src="js/modules/print.js"></script>
 <script src="js/modules/ui.js"></script>
+<script src="js/modules/wishlist.js"></script>
+<script src="js/modules/recently-viewed.js"></script>
+<script src="js/modules/coupons.js"></script>
 <script src="js/components/header.js"></script>
 <script>
 let _currentPage = 1;
@@ -407,7 +411,19 @@ function renderPartsList(parts) {
       const part = InventoryDB.getById(parseInt(card.dataset.id));
       if (part) {
         Cart.addItem(part, 1);
-        showToast(`<i class="fa-solid fa-check"></i> ${part.name} added to cart`, 'success');
+        showToast(`<i class="fa-solid fa-check"></i> ${Security.escapeHtml(part.name)} added to cart`, 'success');
+      }
+    });
+    card.querySelector('.wish-btn')?.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const part = InventoryDB.getById(parseInt(card.dataset.id));
+      if (part && window.Wishlist) {
+        const added = Wishlist.toggle(part);
+        const btn   = card.querySelector('.wish-btn');
+        const icon  = btn?.querySelector('i');
+        if (icon) { icon.className = added ? 'fa-solid fa-heart' : 'fa-regular fa-heart'; }
+        if (btn) btn.style.color = added ? 'var(--c-danger)' : 'var(--c-text-3)';
+        showToast(added ? `<i class="fa-solid fa-heart"></i> Saved to wishlist` : `Removed from wishlist`, added ? 'success' : 'info');
       }
     });
   });
@@ -434,9 +450,14 @@ function renderGridCard(p) {
             <div class="part-price">$${Number(p.price).toFixed(2)}</div>
             ${p.coreCharge > 0 ? `<div class="part-price-core"><i class="fa-solid fa-rotate-left" style="font-size:.6rem"></i> +$${Number(p.coreCharge).toFixed(2)} core</div>` : ''}
           </div>
-          ${p.inStock
-            ? `<button class="btn btn-primary btn-sm add-btn"><i class="fa-solid fa-cart-plus"></i> Add</button>`
-            : `<span class="badge badge-danger">N/A</span>`}
+          <div style="display:flex;gap:6px;align-items:center">
+            ${p.inStock
+              ? `<button class="btn btn-primary btn-sm add-btn"><i class="fa-solid fa-cart-plus"></i> Add</button>`
+              : `<span class="badge badge-danger">N/A</span>`}
+            <button class="btn btn-ghost btn-sm wish-btn" data-id="${p.id}" title="Save to Wishlist" style="padding:6px 8px;color:var(--c-text-3)">
+              <i class="fa-${(window.Wishlist?.has(p.id) ? 'solid' : 'regular')} fa-heart"></i>
+            </button>
+          </div>
         </div>
       </div>
     </div>`;
@@ -463,6 +484,9 @@ function renderListCard(p) {
           ${p.inStock
             ? `<button class="btn btn-primary btn-sm add-btn" style="margin-top:10px"><i class="fa-solid fa-cart-plus"></i> Add to Cart</button>`
             : `<span class="badge badge-danger" style="margin-top:8px;display:inline-block">Out of Stock</span>`}
+          <button class="btn btn-ghost btn-sm wish-btn" data-id="${p.id}" title="Save to Wishlist" style="margin-top:6px;color:var(--c-text-3)">
+            <i class="fa-${(window.Wishlist?.has(p.id) ? 'solid' : 'regular')} fa-heart"></i>
+          </button>
         </div>
       </div>
     </div>`;
