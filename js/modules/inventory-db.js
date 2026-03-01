@@ -227,7 +227,7 @@ const InventoryDB = (() => {
    * Run on first launch so the store isn't empty.
    */
   function seedFromSampleData() {
-    const SEED_VERSION = 'v6';
+    const SEED_VERSION = 'v8';
     if (localStorage.getItem('ap_inventory_seeded') === SEED_VERSION) return;
     const samples = window.SAMPLE_PARTS || [];
     if (!samples.length) return;

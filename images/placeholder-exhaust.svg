@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400">
+  <rect width="400" height="400" fill="#16181f"/>
+  <rect x="1" y="1" width="398" height="398" fill="none" stroke="#f59e0b" stroke-width="1" opacity="0.08"/>
+  <g transform="translate(140,120)" stroke="#f59e0b" fill="none" opacity="0.35" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M14 70 Q14 42 22 42 L110 42 Q118 42 118 56 Q118 70 110 70 L22 70 Q14 70 14 70 Z" stroke-width="3" fill="none"/><line x1="110" y1="56" x2="148" y2="56" stroke-width="3"/><path d="M128 40 Q136 30 128 20" stroke-width="3" fill="none" stroke-linecap="round"/><path d="M138 42 Q148 30 138 18" stroke-width="3" fill="none" stroke-linecap="round"/><path d="M148 46 Q158 34 148 22" stroke-width="3" fill="none" stroke-linecap="round"/>
+  </g>
+  <text x="200" y="320" text-anchor="middle" fill="#f59e0b" font-family="system-ui,-apple-system,sans-serif" font-size="11" font-weight="600" letter-spacing="3" opacity="0.4">EXHAUST</text>
+</svg>

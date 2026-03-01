@@ -97,22 +97,24 @@ const SiteHeader = (() => {
 
         <div class="header-actions">
           <a href="${root}login.html" class="header-action-btn auth-login-link">
-            <i class="fa-regular fa-user"></i><span>Sign In</span>
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
+            <span>Sign In</span>
           </a>
           <a href="${root}account.html" class="header-action-btn auth-account-link" style="display:none">
-            <i class="fa-solid fa-user-check"></i><span id="auth-user-name">Account</span>
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/><polyline points="15,11 17,13 21,9"/></svg>
+            <span id="auth-user-name">Account</span>
           </a>
           <a href="${root}wishlist.html" class="header-action-btn wishlist-btn" title="Wishlist">
-            <i class="fa-regular fa-heart"></i>
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1-1.1a5.5 5.5 0 0 0-7.8 7.8l1.1 1L12 21l7.7-7.6 1.1-1.1a5.5 5.5 0 0 0 0-7.8z"/></svg>
             <span class="cart-badge hidden" id="wishlist-count">0</span>
           </a>
           <a href="${root}cart.html" class="header-action-btn cart-btn">
-            <i class="fa-solid fa-cart-shopping"></i>
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.7 13.4a2 2 0 0 0 2 1.6h9.7a2 2 0 0 0 2-1.6L23 6H6"/></svg>
             <span>Cart</span>
             <span class="cart-badge hidden" id="cart-count">0</span>
           </a>
-          <button class="menu-toggle" id="menu-toggle">
-            <i class="fa-solid fa-bars"></i>
+          <button class="menu-toggle" id="menu-toggle" aria-label="Menu">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
           </button>
         </div>
       </div>
@@ -135,17 +137,30 @@ const SiteHeader = (() => {
           AutoParts Warehouse
         </div>
         <button id="close-mobile-nav"
-          style="background:none;border:none;color:var(--c-text-2);font-size:1.2rem;cursor:pointer">
-          <i class="fa-solid fa-xmark"></i>
+          style="background:none;border:none;color:var(--c-text-2);cursor:pointer;display:flex;align-items:center;justify-content:center;width:32px;height:32px">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
         </button>
       </div>
-      <a href="${root}index.html"><i class="fa-solid fa-house"></i> Home</a>
-      <a href="${root}catalog.html"><i class="fa-solid fa-list"></i> All Parts</a>
-      <a href="${root}login.html" class="auth-login-link"><i class="fa-solid fa-right-to-bracket"></i> Sign In</a>
-      <a href="${root}account.html" class="auth-account-link" style="display:none">
-        <i class="fa-solid fa-user"></i> My Account
+      <a href="${root}index.html" style="display:flex;align-items:center;gap:10px">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="color:var(--c-text-3);flex-shrink:0"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9,22 9,12 15,12 15,22"/></svg>
+        Home
       </a>
-      <a href="${root}cart.html"><i class="fa-solid fa-cart-shopping"></i> Cart</a>
+      <a href="${root}catalog.html" style="display:flex;align-items:center;gap:10px">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="color:var(--c-text-3);flex-shrink:0"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
+        All Parts
+      </a>
+      <a href="${root}login.html" class="auth-login-link" style="display:flex;align-items:center;gap:10px">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="color:var(--c-text-3);flex-shrink:0"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10,17 15,12 10,7"/><line x1="15" y1="12" x2="3" y2="12"/></svg>
+        Sign In
+      </a>
+      <a href="${root}account.html" class="auth-account-link" style="display:none;align-items:center;gap:10px">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="color:var(--c-text-3);flex-shrink:0"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
+        My Account
+      </a>
+      <a href="${root}cart.html" style="display:flex;align-items:center;gap:10px">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="color:var(--c-text-3);flex-shrink:0"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.7 13.4a2 2 0 0 0 2 1.6h9.7a2 2 0 0 0 2-1.6L23 6H6"/></svg>
+        Cart
+      </a>
       <div style="margin:12px 0;border-top:1px solid var(--c-border)"></div>
       <div style="font-size:.7rem;text-transform:uppercase;letter-spacing:.1em;
                   color:var(--c-text-3);padding:8px 16px">Categories</div>

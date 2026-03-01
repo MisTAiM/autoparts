@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400">
+  <rect width="400" height="400" fill="#16181f"/>
+  <rect x="1" y="1" width="398" height="398" fill="none" stroke="#f59e0b" stroke-width="1" opacity="0.08"/>
+  <g transform="translate(140,120)" stroke="#f59e0b" fill="none" opacity="0.35" stroke-linecap="round" stroke-linejoin="round">
+    <circle cx="46" cy="80" r="28" stroke-width="3"/><circle cx="46" cy="80" r="10" stroke-width="3"/><line x1="74" y1="58" x2="152" y2="28" stroke-width="3" stroke-linecap="round"/><line x1="74" y1="80" x2="152" y2="80" stroke-width="3" stroke-linecap="round"/><line x1="74" y1="102" x2="152" y2="132" stroke-width="3" stroke-linecap="round"/>
+  </g>
+  <text x="200" y="320" text-anchor="middle" fill="#f59e0b" font-family="system-ui,-apple-system,sans-serif" font-size="11" font-weight="600" letter-spacing="3" opacity="0.4">LIGHTING</text>
+</svg>

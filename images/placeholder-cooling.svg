@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400">
+  <rect width="400" height="400" fill="#16181f"/>
+  <rect x="1" y="1" width="398" height="398" fill="none" stroke="#f59e0b" stroke-width="1" opacity="0.08"/>
+  <g transform="translate(140,120)" stroke="#f59e0b" fill="none" opacity="0.35" stroke-linecap="round" stroke-linejoin="round">
+    <circle cx="80" cy="80" r="14" stroke-width="3"/><path d="M80 66 C77 52 70 30 80 14 C90 30 84 52 80 66" stroke-width="3" fill="none"/><path d="M80 94 C83 108 90 130 80 146 C70 130 76 108 80 94" stroke-width="3" fill="none"/><path d="M66 80 C52 83 30 90 14 80 C30 70 52 76 66 80" stroke-width="3" fill="none"/><path d="M94 80 C108 77 130 70 146 80 C130 90 108 84 94 80" stroke-width="3" fill="none"/><path d="M91 69 C96 57 105 40 116 36 C112 47 99 60 91 69" stroke-width="3" fill="none"/><path d="M91 91 C96 103 105 120 116 124 C112 113 99 100 91 91" stroke-width="3" fill="none"/><path d="M69 91 C64 103 55 120 44 124 C48 113 61 100 69 91" stroke-width="3" fill="none"/><path d="M69 69 C64 57 55 40 44 36 C48 47 61 60 69 69" stroke-width="3" fill="none"/>
+  </g>
+  <text x="200" y="320" text-anchor="middle" fill="#f59e0b" font-family="system-ui,-apple-system,sans-serif" font-size="11" font-weight="600" letter-spacing="3" opacity="0.4">COOLING</text>
+</svg>

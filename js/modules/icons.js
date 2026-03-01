@@ -39,17 +39,16 @@ window.APIcons = (function() {
       <path d="M13 2 L4 13 L12 13 L11 22 L20 11 L12 11 Z"/>
     </svg>`,
 
-    // ── COOLING — 6-blade fan (clearly a fan, not a snowflake) ────────
-    cooling: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
-      <circle cx="12" cy="12" r="2"/>
-      <path d="M12 10 C11 7 9 4 12 2 C15 4 14 7 13 10"/>
-      <path d="M14 12 C17 11 20 9 22 12 C20 15 17 14 14 13"/>
-      <path d="M12 14 C13 17 15 20 12 22 C9 20 10 17 11 14"/>
-      <path d="M10 12 C7 13 4 15 2 12 C4 9 7 10 10 11"/>
-      <path d="M13.4 10.6 C15 9 17.5 7.5 18.4 5 C15.9 5.9 14.4 8.4 13.4 10.6"/>
-      <path d="M13.4 13.4 C14.4 15.6 15.9 18.1 18.4 19 C17.5 16.5 15 15 13.4 13.4"/>
-      <path d="M10.6 13.4 C9 15 6.5 16.5 5.6 19 C8.1 18.1 9.6 15.6 10.6 13.4"/>
-      <path d="M10.6 10.6 C9.6 8.4 8.1 5.9 5.6 5 C6.5 7.5 9 9 10.6 10.6"/>
+    // ── COOLING — radiator: outer frame + 5 horizontal cooling fins ────
+    cooling: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+      <rect x="2" y="3" width="20" height="18" rx="1.5"/>
+      <line x1="2" y1="7.5" x2="22" y2="7.5"/>
+      <line x1="2" y1="11" x2="22" y2="11"/>
+      <line x1="2" y1="14.5" x2="22" y2="14.5"/>
+      <line x1="2" y1="18" x2="22" y2="18"/>
+      <line x1="7" y1="3" x2="7" y2="21"/>
+      <line x1="12" y1="3" x2="12" y2="21"/>
+      <line x1="17" y1="3" x2="17" y2="21"/>
     </svg>`,
 
     // ── SUSPENSION — helical coil spring side view ───────────────────────
@@ -59,13 +58,13 @@ window.APIcons = (function() {
       <path d="M12 2 Q17 4 17 6.5 Q17 9 7 9 Q7 11.5 17 11.5 Q17 14 7 14 Q7 16.5 17 16.5 Q17 19 12 22"/>
     </svg>`,
 
-    // ── EXHAUST — horizontal pipe + wavy smoke lines rising from tip ────
+    // ── EXHAUST — curved pipe with circular tip outlet + 3 smoke puffs ──
     exhaust: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
-      <path d="M2 14 Q2 10 4 10 L16 10 Q18 10 18 12 Q18 14 16 14 L4 14 Q2 14 2 14 Z"/>
-      <line x1="16" y1="12" x2="21" y2="12"/>
-      <path d="M17 9 Q18.5 7 17 5"/>
-      <path d="M19.5 9 Q21 7 19.5 5"/>
-      <path d="M22 9 Q23.5 7 22 5"/>
+      <path d="M3 18 L3 14 Q3 12 5 12 L14 12 Q16 12 16 10 L16 7"/>
+      <circle cx="16" cy="5.5" r="1.5"/>
+      <path d="M8 9 Q9 7 8 5"/>
+      <path d="M11 8 Q12.5 6 11 4"/>
+      <path d="M14 9 Q15.5 7 14 5"/>
     </svg>`,
 
     // ── FILTERS — clean funnel ────────────────────────────────────────
@@ -73,26 +72,14 @@ window.APIcons = (function() {
       <path d="M22 3 L2 3 L10 12.5 L10 19 L14 21 L14 12.5 Z"/>
     </svg>`,
 
-    // ── DRIVETRAIN — two meshing gears (large + small) ────────────────
-    drivetrain: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-      <circle cx="9" cy="13" r="4.5"/>
-      <circle cx="9" cy="13" r="1.5"/>
-      <circle cx="17.5" cy="7" r="3"/>
-      <circle cx="17.5" cy="7" r="1"/>
-      <line x1="9" y1="8.5" x2="9" y2="7"/>
-      <line x1="9" y1="17.5" x2="9" y2="19"/>
-      <line x1="4.5" y1="13" x2="3" y2="13"/>
-      <line x1="13.5" y1="13" x2="15" y2="13"/>
-      <line x1="6.3" y1="10.3" x2="5.2" y2="9.2"/>
-      <line x1="11.7" y1="15.7" x2="12.8" y2="16.8"/>
-      <line x1="6.3" y1="15.7" x2="5.2" y2="16.8"/>
-      <line x1="11.7" y1="10.3" x2="12.8" y2="9.2"/>
-      <line x1="17.5" y1="4" x2="17.5" y2="3"/>
-      <line x1="17.5" y1="10" x2="17.5" y2="11"/>
-      <line x1="14.5" y1="7" x2="13.5" y2="7"/>
-      <line x1="15.4" y1="4.9" x2="14.6" y2="4.1"/>
-      <line x1="19.6" y1="9.1" x2="20.4" y2="9.9"/>
-      <line x1="19.6" y1="4.9" x2="20.4" y2="4.1"/>
+    // ── DRIVETRAIN — driveshaft: two u-joints + center shaft ───────────
+    drivetrain: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+      <circle cx="4" cy="12" r="3"/>
+      <circle cx="20" cy="12" r="3"/>
+      <line x1="7" y1="12" x2="17" y2="12"/>
+      <line x1="4" y1="9" x2="4" y2="15"/>
+      <line x1="20" y1="9" x2="20" y2="15"/>
+      <rect x="9" y="10" width="6" height="4" rx="1"/>
     </svg>`,
 
     // ── FUEL SYSTEM — gas pump ────────────────────────────────────────

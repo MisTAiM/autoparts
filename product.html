@@ -150,11 +150,12 @@ document.addEventListener('DOMContentLoaded', async () => {
       <!-- Gallery -->
       <div class="product-gallery">
         <div class="gallery-main" id="gallery-main">
-          ${part.images?.length
-            ? `<img id="main-img" src="${part.images[0]}" alt="${part.name}">`
-            : '<i class="fa-solid fa-gear no-img"></i>'}
+          ${(part.images?.length || part.thumbnail)
+            ? `<img id="main-img" src="${part.images?.[0] || part.thumbnail}" alt="${part.name}" 
+                onerror="this.src='images/placeholder-'+(part.categoryId||'brakes')+'.svg';this.onerror=null">`
+            : '<img src="images/part-placeholder.svg" alt="No image">'}
         </div>
-        ${part.images?.length > 1 ? `
+        ${(part.images?.length > 1) ? `
           <div class="gallery-thumbs" id="gallery-thumbs">
             ${part.images.map((src, i) => `
               <div class="gallery-thumb ${i===0?'active':''}" data-src="${src}" data-idx="${i}">
@@ -379,7 +380,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   } else {
     relEl.innerHTML = related.map(p => `
       <div class="part-card" data-id="${p.id}" style="cursor:pointer" onclick="window.location='product.html?id=${p.id}'">
-        <div class="part-card-img"><i class="fa-solid fa-gear no-img" style="font-size:2rem;color:var(--c-border-2)"></i></div>
+        <div class="part-card-img"><img src="${p.thumbnail || 'images/part-placeholder.svg'}" alt="${p.name}" loading="lazy" onerror="this.src='images/part-placeholder.svg'"></div>
         <div class="part-card-body">
           <div class="part-category">${p.categoryName}</div>
           <div class="part-name">${p.name}</div>

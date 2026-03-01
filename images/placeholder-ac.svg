@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400">
+  <rect width="400" height="400" fill="#16181f"/>
+  <rect x="1" y="1" width="398" height="398" fill="none" stroke="#f59e0b" stroke-width="1" opacity="0.08"/>
+  <g transform="translate(140,120)" stroke="#f59e0b" fill="none" opacity="0.35" stroke-linecap="round" stroke-linejoin="round">
+    <line x1="80" y1="10" x2="80" y2="150" stroke-width="3" stroke-linecap="round"/><line x1="17" y1="45" x2="143" y2="115" stroke-width="3" stroke-linecap="round"/><line x1="143" y1="45" x2="17" y2="115" stroke-width="3" stroke-linecap="round"/><polyline points="62,22 80,42 98,22" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/><polyline points="62,138 80,118 98,138" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/><polyline points="26,60 44,56 38,38" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/><polyline points="134,100 116,104 122,122" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/><polyline points="134,60 116,56 122,38" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/><polyline points="26,100 44,104 38,122" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+  </g>
+  <text x="200" y="320" text-anchor="middle" fill="#f59e0b" font-family="system-ui,-apple-system,sans-serif" font-size="11" font-weight="600" letter-spacing="3" opacity="0.4">AC</text>
+</svg>
