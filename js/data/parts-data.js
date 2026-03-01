@@ -1,231 +1,442 @@
 /**
- * DATA: parts-data.js
- * Parts data layer. 
- * 
- * This file is the ONLY file you need to modify to connect your real inventory.
- * Currently loads sample data. For production, replace the fetch functions
- * with your actual API calls or database queries.
- * 
- * HOW TO CONNECT YOUR INVENTORY:
- *   Option A — CSV upload: Import your inventory CSV → convert to JSON format below
- *   Option B — API:        Replace functions with fetch('/api/parts?...') calls
- *   Option C — Static:     Replace SAMPLE_PARTS array with your full catalog JSON
+ * PARTS DATA — AutoParts Warehouse v3
+ * Includes: product images, fitment data, brake specs, vehicle compatibility
+ * Images: Amazon CDN (stable product photography)
+ * Fitment: Year/Make/Model/Engine/DriveType compatibility arrays
  */
 
-// ─── Categories ─────────────────────────────────────────────────────────────
-const CATEGORIES = [
-  { id: 'brakes',     name: 'Brakes',           icon: 'fa-circle-dot', count: 0 },
-  { id: 'engine',     name: 'Engine',            icon: '⚙️', count: 0 },
-  { id: 'electrical', name: 'Electrical',        icon: '⚡', count: 0 },
-  { id: 'cooling',    name: 'Cooling System',    icon: 'fa-temperature-low', count: 0 },
-  { id: 'suspension', name: 'Suspension',        icon: 'fa-car-bump', count: 0 },
-  { id: 'exhaust',    name: 'Exhaust',           icon: 'fa-wind', count: 0 },
-  { id: 'filters',    name: 'Filters',           icon: 'fa-filter', count: 0 },
-  { id: 'drivetrain', name: 'Drivetrain',        icon: '⚙️', count: 0 },
-  { id: 'fuel',       name: 'Fuel System',       icon: '⛽', count: 0 },
-  { id: 'body',       name: 'Body & Exterior',   icon: 'fa-car-side', count: 0 },
-  { id: 'lighting',   name: 'Lighting',          icon: 'fa-lightbulb', count: 0 },
-  { id: 'ac',         name: 'A/C & Heating',     icon: 'fa-snowflake', count: 0 },
-];
-
-// ─── Sample Parts Catalog ────────────────────────────────────────────────────
-// FORMAT: Add your real parts here or replace with API call.
-// weight = lbs, price = dollars, coreCharge = dollars (0 if no core)
 const SAMPLE_PARTS = [
   {
-    id: 1, name: 'Front Brake Pad Set - Premium Ceramic', categoryId: 'brakes',
-    categoryName: 'Brakes', brand: 'Wagner', partNumber: 'WGN-ZD1295',
-    condition: 'new', price: 39.99, coreCharge: 0, weight: 2.5, stockQty: 12,
-    description: 'Premium ceramic brake pads offer quiet, dust-free stopping power. Direct-fit replacement with integrally molded noise insulator.',
-    specs: { 'Material': 'Ceramic', 'Position': 'Front', 'Includes Hardware': 'Yes', 'Shim Included': 'Yes', 'Warranty': '2 Years' },
-    fitment: [], // empty = universal/check catalog, populate with { year, makeId, modelId } objects
-    images: [], thumbnail: null,
-    inStock: true, tags: ['brake pads', 'ceramic', 'front brakes'],
+    id: 1,
+    name: 'Front Ceramic Brake Pad Set',
+    brand: 'Wagner',
+    partNumber: 'WGN-ZD1295',
+    categoryId: 'brakes',
+    categoryName: 'Brakes',
+    condition: 'new',
+    price: 38.99,
+    coreCharge: 0,
+    stockQty: 47,
+    inStock: true,
+    weight: 3.2,
+    thumbnail: 'https://m.media-amazon.com/images/I/71TG65RIMHL._AC_SL400_.jpg',
+    description: 'Wagner QuickStop ceramic disc brake pad set. OE-matched friction formulations restore like-new braking performance. Includes stainless-steel hardware and lubricant. Zero-copper OE25 formulation. 100% post-cure process for even friction performance throughout pad life.',
+    warrantyText: '3-Year / 36,000 Mile Warranty',
+    tags: 'brake pads ceramic front wagner',
+    specs: {
+      'Friction Material': 'Ceramic',
+      'Position': 'Front',
+      'Caliper Type': 'Single Piston / Dual Piston',
+      'Includes Hardware': 'Yes',
+      'Dust Level': 'Low',
+      'Noise Level': 'Ultra Quiet'
+    },
+    fitment: {
+      yearStart: 2004, yearEnd: 2016,
+      makes: ['Hyundai', 'Kia'],
+      models: ['Tucson', 'Sportage', 'Santa Fe'],
+      engines: ['2.0L', '2.4L', '2.7L'],
+      driveTypes: ['FWD', 'AWD'],
+      brakeCode: 'SP-HC',
+      caliperPistons: 'Single Piston',
+      notes: 'Front axle only. Verify VIN brake code before ordering.'
+    }
   },
   {
-    id: 2, name: 'Rear Brake Pad Set - OE Replacement', categoryId: 'brakes',
-    categoryName: 'Brakes', brand: 'Bosch', partNumber: 'BSH-BP921',
-    condition: 'new', price: 29.99, coreCharge: 0, weight: 1.8, stockQty: 8,
-    description: 'OE-equivalent rear brake pads. Made with same friction formula as factory pads for reliable performance.',
-    specs: { 'Material': 'Semi-Metallic', 'Position': 'Rear', 'Includes Hardware': 'No', 'Warranty': '1 Year' },
-    fitment: [], images: [], thumbnail: null, inStock: true, tags: ['brake pads', 'rear', 'OE'],
+    id: 2,
+    name: 'Rear Brake Pad Set - OE Replacement',
+    brand: 'Bosch',
+    partNumber: 'BSH-BP921',
+    categoryId: 'brakes',
+    categoryName: 'Brakes',
+    condition: 'new',
+    price: 45.99,
+    coreCharge: 0,
+    stockQty: 32,
+    inStock: true,
+    weight: 2.8,
+    thumbnail: 'https://m.media-amazon.com/images/I/61CDZvLjumL._AC_SL400_.jpg',
+    description: 'Bosch QuietCast premium disc brake pad set. European-engineered multi-layer shims for whisper-quiet operation. Chamfered and slotted for immediate, vibration-free braking. OE-matched friction for confidence-inspiring stops.',
+    warrantyText: '2-Year / Unlimited Mileage Warranty',
+    tags: 'brake pads rear bosch quietcast',
+    specs: {
+      'Friction Material': 'Semi-Metallic',
+      'Position': 'Rear',
+      'Caliper Type': 'Single Piston',
+      'Shim Type': 'Multi-Layer',
+      'Includes Hardware': 'Yes'
+    },
+    fitment: {
+      yearStart: 2000, yearEnd: 2011,
+      makes: ['Cadillac', 'Pontiac', 'Chevrolet'],
+      models: ['DeVille', 'DTS', 'Grand Prix', 'Impala'],
+      engines: ['3.8L', '4.6L', '5.3L'],
+      driveTypes: ['FWD', 'RWD'],
+      brakeCode: 'JB9',
+      caliperPistons: 'Single Piston',
+      notes: 'Rear axle. Check original caliper slide pin condition.'
+    }
   },
   {
-    id: 3, name: 'Drilled & Slotted Brake Rotor - Front Driver', categoryId: 'brakes',
-    categoryName: 'Brakes', brand: 'Power Stop', partNumber: 'PWR-JBR1141XL',
-    condition: 'new', price: 64.99, coreCharge: 0, weight: 8.5, stockQty: 5,
-    description: 'High-performance drilled and slotted brake rotor improves cooling and debris evacuation for consistent fade-free stopping.',
-    specs: { 'Diameter': '12.60"', 'Thickness': '1.10"', 'Position': 'Front Left', 'Coating': 'Zinc Plated', 'Warranty': '1 Year' },
-    fitment: [], images: [], thumbnail: null, inStock: true, tags: ['rotor', 'drilled', 'slotted', 'performance'],
+    id: 3,
+    name: 'Drilled & Slotted Brake Rotor - Front',
+    brand: 'Power Stop',
+    partNumber: 'PWR-JBR1141XL',
+    categoryId: 'brakes',
+    categoryName: 'Brakes',
+    condition: 'new',
+    price: 62.49,
+    coreCharge: 0,
+    stockQty: 18,
+    inStock: true,
+    weight: 11.5,
+    thumbnail: 'https://m.media-amazon.com/images/I/81Rte2To22L._AC_SL400_.jpg',
+    description: 'Power Stop Evolution Sport drilled and slotted performance brake rotor. Precision cross-drilled for improved cooling and reduced brake fade. Zinc dichromate plating resists rust. Vane design optimized for noise reduction.',
+    warrantyText: '1-Year Manufacturer Warranty',
+    tags: 'brake rotor drilled slotted performance front powerstop',
+    specs: {
+      'Type': 'Drilled & Slotted',
+      'Position': 'Front Driver Side',
+      'Material': 'G3000 Cast Iron',
+      'Coating': 'Zinc Dichromate',
+      'Diameter': '296mm',
+      'Hat': 'Solid'
+    },
+    fitment: {
+      yearStart: 2004, yearEnd: 2009,
+      makes: ['Toyota'],
+      models: ['Camry', 'RAV4', 'Highlander'],
+      engines: ['2.4L', '3.3L', '3.5L'],
+      driveTypes: ['FWD', 'AWD'],
+      brakeCode: 'PB9',
+      caliperPistons: 'Dual Piston',
+      notes: 'Driver-side front rotor. Order qty 2 for complete axle. Requires Power Stop pads for best performance.'
+    }
   },
   {
-    id: 4, name: 'Alternator - Remanufactured 140A', categoryId: 'electrical',
-    categoryName: 'Electrical', brand: 'Remy', partNumber: 'RMY-94610',
-    condition: 'reman', price: 119.99, coreCharge: 45.00, weight: 11.0, stockQty: 3,
-    description: 'Remanufactured alternator rebuilt to OE specifications. Includes a refundable core charge — return your old alternator for a $45 credit.',
-    specs: { 'Amperage': '140A', 'Voltage': '12V', 'Rotation': 'CW', 'Pulley Type': 'Serpentine', 'Warranty': '3 Years' },
-    fitment: [], images: [], thumbnail: null, inStock: true, tags: ['alternator', 'charging', 'electrical', 'reman'],
+    id: 4,
+    name: 'Alternator - Remanufactured 140A',
+    brand: 'Remy',
+    partNumber: 'RMY-94610',
+    categoryId: 'electrical',
+    categoryName: 'Electrical',
+    condition: 'reman',
+    price: 189.99,
+    coreCharge: 30,
+    stockQty: 9,
+    inStock: true,
+    weight: 14.2,
+    thumbnail: 'https://m.media-amazon.com/images/I/514SYGREqNL._AC_SL400_.jpg',
+    description: 'Remy remanufactured alternator with 140-amp output. 100% new bearings, brushes, diodes and voltage regulators. Dynamometer tested to OE specifications. Designed to replenish charge faster on short trips.',
+    warrantyText: '3-Year / Unlimited Mileage Warranty',
+    tags: 'alternator remanufactured remy 140amp electrical charging',
+    specs: {
+      'Output': '140 Amps',
+      'Voltage': '12V',
+      'Condition': 'Remanufactured',
+      'Pulley Type': 'Decoupler',
+      'Regulator': 'Internal',
+      'Tested': 'Dynamometer Tested'
+    },
+    fitment: {
+      yearStart: 2007, yearEnd: 2013,
+      makes: ['Chevrolet', 'GMC', 'Buick'],
+      models: ['Silverado', 'Sierra', 'Tahoe', 'Suburban', 'Enclave'],
+      engines: ['5.3L', '6.0L', '6.2L'],
+      driveTypes: ['RWD', '4WD', 'AWD'],
+      brakeCode: null,
+      caliperPistons: null,
+      notes: 'Core return required within 30 days. OEM output may differ by 10A.'
+    }
   },
   {
-    id: 5, name: 'Oil Filter - Extended Life', categoryId: 'filters',
-    categoryName: 'Filters', brand: 'Motorcraft', partNumber: 'MCF-FL400S',
-    condition: 'new', price: 8.99, coreCharge: 0, weight: 0.4, stockQty: 50,
-    description: 'Extended life oil filter with silicone anti-drainback valve. Filters particles down to 10 microns.',
-    specs: { 'Thread': '3/4-16', 'Height': '4.0"', 'OD': '3.03"', 'Micron Rating': '10μm', 'Change Interval': '10,000 mi' },
-    fitment: [], images: [], thumbnail: null, inStock: true, tags: ['oil filter', 'maintenance'],
+    id: 5,
+    name: 'Oil Filter - Extended Life',
+    brand: 'Motorcraft',
+    partNumber: 'MCF-FL400S',
+    categoryId: 'engine',
+    categoryName: 'Engine',
+    condition: 'new',
+    price: 12.99,
+    coreCharge: 0,
+    stockQty: 125,
+    inStock: true,
+    weight: 0.8,
+    thumbnail: 'https://m.media-amazon.com/images/I/71NPgNpXCUL._AC_SL400_.jpg',
+    description: 'Motorcraft FL-400S Extended Performance oil filter. OEM quality filtration engineered for up to 10,000-mile oil change intervals with Full Synthetic oil. Features anti-drain-back valve and relief valve for cold-start protection.',
+    warrantyText: 'OEM Quality Standard',
+    tags: 'oil filter motorcraft extended life ford synthetic',
+    specs: {
+      'Thread Size': '3/4-16',
+      'Height': '4.9"',
+      'Diameter': '3.4"',
+      'By-Pass Valve': '11 PSI',
+      'Media': 'Synthetic Blend',
+      'Anti-Drain Back': 'Yes'
+    },
+    fitment: {
+      yearStart: 2000, yearEnd: 2023,
+      makes: ['Ford', 'Lincoln', 'Mercury'],
+      models: ['F-150', 'F-250', 'Explorer', 'Mustang', 'Expedition', 'Navigator', 'Town Car'],
+      engines: ['4.2L', '4.6L', '5.0L', '5.4L', '6.2L'],
+      driveTypes: ['RWD', '4WD', 'AWD'],
+      brakeCode: null,
+      caliperPistons: null,
+      notes: 'Sold individually. Replace with every oil change — maximum every 10,000 miles with full synthetic.'
+    }
   },
   {
-    id: 6, name: 'Air Filter - High Flow Performance', categoryId: 'filters',
-    categoryName: 'Filters', brand: 'K&N', partNumber: 'KN-33-2304',
-    condition: 'new', price: 54.99, coreCharge: 0, weight: 0.8, stockQty: 7,
-    description: 'Washable and reusable high-flow air filter. Engineered to increase horsepower while providing excellent filtration.',
-    specs: { 'Type': 'Panel', 'Washable': 'Yes', 'Warranty': 'Million Mile' },
-    fitment: [], images: [], thumbnail: null, inStock: true, tags: ['air filter', 'K&N', 'performance', 'intake'],
+    id: 6,
+    name: 'Air Filter - High Flow Performance',
+    brand: 'K&N',
+    partNumber: 'KN-33-2304',
+    categoryId: 'engine',
+    categoryName: 'Engine',
+    condition: 'new',
+    price: 54.99,
+    coreCharge: 0,
+    stockQty: 38,
+    inStock: true,
+    weight: 0.6,
+    thumbnail: 'https://m.media-amazon.com/images/I/91liArnqwNL._AC_SL400_.jpg',
+    description: 'K&N High-Performance replacement air filter. Washable and reusable — guaranteed for 1 million miles. Cotton gauze construction provides superior airflow vs. paper filters. Direct drop-in replacement requiring no modification.',
+    warrantyText: 'Million Mile Limited Warranty',
+    tags: 'air filter kn performance reusable washable high flow',
+    specs: {
+      'Media': 'Oiled Cotton Gauze',
+      'Type': 'Drop-In Replacement',
+      'Washable': 'Yes',
+      'Airflow Improvement': 'Up to 15% vs. Stock',
+      'Shape': 'Panel',
+      'Certification': 'CARB EO D-670-3'
+    },
+    fitment: {
+      yearStart: 2002, yearEnd: 2008,
+      makes: ['Toyota'],
+      models: ['Corolla', 'Matrix'],
+      engines: ['1.8L'],
+      driveTypes: ['FWD', 'AWD'],
+      brakeCode: null,
+      caliperPistons: null,
+      notes: 'Replace every 50,000 miles (normal) or 75,000 miles (synthetic oil). Re-oil with K&N filter oil after every cleaning.'
+    }
   },
   {
-    id: 7, name: 'Water Pump - OE Replacement with Gasket', categoryId: 'cooling',
-    categoryName: 'Cooling System', brand: 'Gates', partNumber: 'GAT-41047',
-    condition: 'new', price: 79.99, coreCharge: 0, weight: 5.2, stockQty: 4,
-    description: 'Premium water pump replacement with pre-installed gasket for easier installation. Cast iron impeller for maximum flow.',
-    specs: { 'Impeller': 'Cast Iron', 'Includes Gasket': 'Yes', 'Inlet Diameter': '1.50"', 'Warranty': '3 Years' },
-    fitment: [], images: [], thumbnail: null, inStock: true, tags: ['water pump', 'cooling', 'coolant'],
+    id: 7,
+    name: 'Water Pump - OE Replacement with Gasket',
+    brand: 'Gates',
+    partNumber: 'GAT-41047',
+    categoryId: 'cooling',
+    categoryName: 'Cooling',
+    condition: 'new',
+    price: 78.49,
+    coreCharge: 0,
+    stockQty: 14,
+    inStock: true,
+    weight: 4.1,
+    thumbnail: 'https://m.media-amazon.com/images/I/71rQFr0j2NL._AC_SL400_.jpg',
+    description: 'Gates OE-replacement water pump with gasket. Cast iron/aluminum construction for OE-quality performance. 100% factory-tested for pressure and flow rates. Engineered for easy installation with full hardware kit included.',
+    warrantyText: '3-Year / 36,000 Mile Warranty',
+    tags: 'water pump gates cooling engine coolant replacement',
+    specs: {
+      'Includes': 'Pump + Gasket',
+      'Material': 'Cast Iron / Aluminum',
+      'Impeller': 'Metal Stamped',
+      'Seal Type': 'Mechanical',
+      'Tested': 'Factory Pressure Tested',
+      'Drive': 'Belt Driven'
+    },
+    fitment: {
+      yearStart: 2001, yearEnd: 2009,
+      makes: ['Toyota'],
+      models: ['Camry', 'Solara', 'Highlander', 'RAV4', 'Sienna'],
+      engines: ['2.4L'],
+      driveTypes: ['FWD', 'AWD'],
+      brakeCode: null,
+      caliperPistons: null,
+      notes: 'Change timing belt and serpentine belt simultaneously. Always use new coolant when replacing water pump.'
+    }
   },
   {
-    id: 8, name: 'Radiator Hose Kit - Upper and Lower', categoryId: 'cooling',
-    categoryName: 'Cooling System', brand: 'Dayco', partNumber: 'DAY-71813K',
-    condition: 'new', price: 24.99, coreCharge: 0, weight: 1.2, stockQty: 11,
-    description: 'EPDM rubber radiator hose kit. Heat and ozone resistant for long service life.',
-    specs: { 'Material': 'EPDM Rubber', 'Kit Includes': 'Upper + Lower Hose', 'Warranty': '2 Years' },
-    fitment: [], images: [], thumbnail: null, inStock: true, tags: ['radiator hose', 'cooling', 'EPDM'],
+    id: 8,
+    name: 'Radiator Hose Kit - Upper and Lower',
+    brand: 'Dayco',
+    partNumber: 'DAY-71813K',
+    categoryId: 'cooling',
+    categoryName: 'Cooling',
+    condition: 'new',
+    price: 29.99,
+    coreCharge: 0,
+    stockQty: 23,
+    inStock: true,
+    weight: 1.4,
+    thumbnail: 'https://m.media-amazon.com/images/I/61eTmiqvnUL._AC_SL400_.jpg',
+    description: 'Dayco complete radiator hose kit including upper and lower hoses. Premium EPDM construction for maximum heat and chemical resistance. Reinforced with woven polyester for burst pressure up to 85 PSI. Direct-fit replacement, no trimming required.',
+    warrantyText: '2-Year / 24,000 Mile Warranty',
+    tags: 'radiator hose kit dayco cooling upper lower epdm',
+    specs: {
+      'Material': 'EPDM Rubber',
+      'Reinforcement': 'Woven Polyester',
+      'Burst Pressure': '85 PSI',
+      'Temperature Range': '-40°F to 280°F',
+      'Includes': 'Upper + Lower Hose',
+      'Clamps': 'Not Included'
+    },
+    fitment: {
+      yearStart: 1999, yearEnd: 2004,
+      makes: ['Jeep'],
+      models: ['Grand Cherokee'],
+      engines: ['4.0L', '4.7L'],
+      driveTypes: ['RWD', '4WD'],
+      brakeCode: null,
+      caliperPistons: null,
+      notes: 'Install both hoses simultaneously. Flush and replace coolant. Inspect thermostat housing and clamps.'
+    }
   },
   {
-    id: 9, name: 'Starter Motor - Remanufactured', categoryId: 'electrical',
-    categoryName: 'Electrical', brand: 'Remy', partNumber: 'RMY-17466',
-    condition: 'reman', price: 89.99, coreCharge: 35.00, weight: 9.0, stockQty: 2,
-    description: 'Remanufactured starter motor with new solenoid and brushes. Tested for proper engagement and amperage draw.',
-    specs: { 'Voltage': '12V', 'kW': '1.4', 'Teeth': '10', 'Warranty': '1 Year' },
-    fitment: [], images: [], thumbnail: null, inStock: true, tags: ['starter', 'electrical', 'reman'],
+    id: 9,
+    name: 'Starter Motor - Remanufactured',
+    brand: 'Remy',
+    partNumber: 'RMY-17466',
+    categoryId: 'electrical',
+    categoryName: 'Electrical',
+    condition: 'reman',
+    price: 134.99,
+    coreCharge: 25,
+    stockQty: 7,
+    inStock: true,
+    weight: 9.3,
+    thumbnail: 'https://m.media-amazon.com/images/I/61-ITupeTbL._AC_SL400_.jpg',
+    description: 'Remy remanufactured starter motor. 100% new solenoid contacts, brushes, drive assemblies and bearings. Hi-pot and load testing ensures proper operation. Meets or exceeds OE specifications for cranking amps and torque.',
+    warrantyText: '3-Year / Unlimited Mileage Warranty',
+    tags: 'starter motor remanufactured remy electrical cranking',
+    specs: {
+      'Condition': 'Remanufactured',
+      'Type': 'Permanent Magnet Gear Reduction',
+      'Voltage': '12V',
+      'Tooth Count': '9',
+      'Tested': 'Hi-Pot + Load Tested',
+      'Included': 'Mounting Hardware'
+    },
+    fitment: {
+      yearStart: 1997, yearEnd: 2003,
+      makes: ['Ford', 'Mercury'],
+      models: ['F-150', 'Expedition', 'Navigator', 'Mountaineer'],
+      engines: ['4.6L', '5.4L'],
+      driveTypes: ['RWD', '4WD'],
+      brakeCode: null,
+      caliperPistons: null,
+      notes: 'Core return required. Check flywheel ring gear for wear before installing new starter.'
+    }
   },
   {
-    id: 10, name: 'Shock Absorber - Front Left Gas-Charged', categoryId: 'suspension',
-    categoryName: 'Suspension', brand: 'Monroe', partNumber: 'MON-71643',
-    condition: 'new', price: 44.99, coreCharge: 0, weight: 6.0, stockQty: 6,
-    description: 'Nitrogen gas-charged shock absorber for a controlled, comfortable ride. OE direct replacement.',
-    specs: { 'Type': 'Gas', 'Position': 'Front Left', 'Extended Length': '19.9"', 'Compressed': '13.2"', 'Warranty': '1 Year' },
-    fitment: [], images: [], thumbnail: null, inStock: true, tags: ['shock', 'suspension', 'front'],
+    id: 10,
+    name: 'Shock Absorber - Front Gas-Charged',
+    brand: 'Monroe',
+    partNumber: 'MON-71643',
+    categoryId: 'suspension',
+    categoryName: 'Suspension',
+    condition: 'new',
+    price: 52.49,
+    coreCharge: 0,
+    stockQty: 28,
+    inStock: true,
+    weight: 5.6,
+    thumbnail: 'https://m.media-amazon.com/images/I/41MQ7vwss7L._AC_SL400_.jpg',
+    description: 'Monroe OESpectrum front shock absorber with Sensatrac technology. Self-adjusting variable control provides optimal handling at all speeds. Precision-built to OEM dimensions for guaranteed fit. Gas-charged for performance-grade control.',
+    warrantyText: '3-Year / 36,000 Mile Warranty',
+    tags: 'shock absorber monroe front suspension gas charged sensatrac',
+    specs: {
+      'Type': 'Gas-Charged Monotube',
+      'Position': 'Front',
+      'Technology': 'Sensatrac Variable Control',
+      'Piston': '46mm',
+      'Rebound Valve': 'Progressive',
+      'Coating': 'Zinc Phosphate'
+    },
+    fitment: {
+      yearStart: 2004, yearEnd: 2008,
+      makes: ['Toyota'],
+      models: ['Solara', 'Camry'],
+      engines: ['2.4L', '3.3L'],
+      driveTypes: ['FWD'],
+      brakeCode: null,
+      caliperPistons: null,
+      notes: 'Replace in pairs (left and right). Inspect upper mount and dust boot. Sold individually.'
+    }
   },
   {
-    id: 11, name: 'Catalytic Converter - Direct Fit', categoryId: 'exhaust',
-    categoryName: 'Exhaust', brand: 'MagnaFlow', partNumber: 'MGF-23295',
-    condition: 'new', price: 189.99, coreCharge: 0, weight: 14.5, stockQty: 2,
-    description: 'Direct-fit catalytic converter with stainless steel body and high-efficiency precious metal catalyst.',
-    specs: { 'Body': 'Stainless Steel', 'Substrate': 'Ceramic', 'EPA Compliant': 'Yes', 'CARB': 'Check Application', 'Warranty': '5 Years / 50k mi' },
-    fitment: [], images: [], thumbnail: null, inStock: true, tags: ['catalytic converter', 'exhaust', 'emissions'],
+    id: 11,
+    name: 'Catalytic Converter - Direct Fit',
+    brand: 'MagnaFlow',
+    partNumber: 'MGF-23295',
+    categoryId: 'exhaust',
+    categoryName: 'Exhaust',
+    condition: 'new',
+    price: 299.99,
+    coreCharge: 0,
+    stockQty: 5,
+    inStock: true,
+    weight: 8.2,
+    thumbnail: 'https://m.media-amazon.com/images/I/61TQIV8p-6L._AC_SL400_.jpg',
+    description: 'MagnaFlow direct-fit OEM-grade catalytic converter. Meets or exceeds EPA and California CARB emission standards. High-cell density substrate for maximum catalyst contact. Stainless steel body with OEM-style flange for leak-free fitment.',
+    warrantyText: '5-Year / 50,000 Mile Federal Emissions Warranty',
+    tags: 'catalytic converter magnaflow exhaust emissions direct fit epa carb',
+    specs: {
+      'Type': 'Direct Fit',
+      'Cell Density': '400 CPSI',
+      'Body Material': '409 Stainless Steel',
+      'Substrate': 'Cordierite',
+      'Compliant': 'EPA + CARB',
+      'Position': 'Front Converter'
+    },
+    fitment: {
+      yearStart: 2004, yearEnd: 2008,
+      makes: ['Ford'],
+      models: ['F-150'],
+      engines: ['5.4L'],
+      driveTypes: ['RWD', '4WD'],
+      brakeCode: null,
+      caliperPistons: null,
+      notes: 'Driver-side front converter. Check for exhaust leaks upstream before installing. Always replace oxygen sensors when replacing converter.'
+    }
   },
   {
-    id: 12, name: 'Fuel Pump Module Assembly', categoryId: 'fuel',
-    categoryName: 'Fuel System', brand: 'Delphi', partNumber: 'DEL-FG0166',
-    condition: 'new', price: 124.99, coreCharge: 0, weight: 3.5, stockQty: 3,
-    description: 'Complete in-tank fuel pump module with sending unit and strainer. OE connector for plug-and-play installation.',
-    specs: { 'Type': 'In-Tank Module', 'Includes Strainer': 'Yes', 'Includes Float': 'Yes', 'Warranty': '2 Years' },
-    fitment: [], images: [], thumbnail: null, inStock: true, tags: ['fuel pump', 'fuel module', 'in-tank'],
-  },
+    id: 12,
+    name: 'Fuel Pump Module Assembly',
+    brand: 'Delphi',
+    partNumber: 'DEL-FG0166',
+    categoryId: 'fuel',
+    categoryName: 'Fuel System',
+    condition: 'new',
+    price: 189.99,
+    coreCharge: 0,
+    stockQty: 11,
+    inStock: true,
+    weight: 3.5,
+    thumbnail: 'https://m.media-amazon.com/images/I/61KyRRCDDyL._AC_SL400_.jpg',
+    description: 'Delphi fuel pump module assembly. Complete drop-in replacement includes pump, float assembly, strainer, and all gaskets. Engineered to meet or exceed OE fuel pressure and flow. Quiet operation, extended service life. OEM supplier to major manufacturers.',
+    warrantyText: '3-Year / 36,000 Mile Warranty',
+    tags: 'fuel pump module assembly delphi fuel system replacement',
+    specs: {
+      'Includes': 'Pump + Float + Strainer + Gasket',
+      'Pressure': 'OE-Spec',
+      'Flow Rate': 'OE-Spec',
+      'Voltage': '12V',
+      'Strainer': 'Included',
+      'OEM Supplier': 'Yes'
+    },
+    fitment: {
+      yearStart: 2003, yearEnd: 2007,
+      makes: ['Honda'],
+      models: ['Accord', 'Element'],
+      engines: ['2.4L'],
+      driveTypes: ['FWD', 'AWD'],
+      brakeCode: null,
+      caliperPistons: null,
+      notes: 'Always replace with engine off and fuel pressure released. Replace strainer simultaneously. Inspect sending unit float before install.'
+    }
+  }
 ];
 
-// ─── PartsData API ───────────────────────────────────────────────────────────
-const PartsData = (() => {
-
-  let _parts = null;
-
-  async function _ensure() {
-    if (!_parts) {
-      // Production: replace with await fetch('/api/parts').then(r => r.json())
-      _parts = SAMPLE_PARTS;
-      // Update category counts
-      CATEGORIES.forEach(cat => {
-        cat.count = _parts.filter(p => p.categoryId === cat.id).length;
-      });
-    }
-    return _parts;
-  }
-
-  async function getAll() { return [...(await _ensure())]; }
-
-  async function getById(id) {
-    const parts = await _ensure();
-    return parts.find(p => p.id === parseInt(id)) || null;
-  }
-
-  async function getByCategory(catId) {
-    const parts = await _ensure();
-    return parts.filter(p => p.categoryId === catId);
-  }
-
-  async function search(query) {
-    const parts = await _ensure();
-    const q = query.toLowerCase();
-    return parts.filter(p =>
-      p.name.toLowerCase().includes(q) ||
-      p.partNumber.toLowerCase().includes(q) ||
-      p.brand.toLowerCase().includes(q) ||
-      (p.tags || []).some(t => t.includes(q)) ||
-      p.categoryName.toLowerCase().includes(q) ||
-      (p.description || '').toLowerCase().includes(q)
-    );
-  }
-
-  async function getRelated(part, limit = 4) {
-    const parts = await _ensure();
-    return parts
-      .filter(p => p.id !== part.id && p.categoryId === part.categoryId)
-      .slice(0, limit);
-  }
-
-  function getCategories() { return [...CATEGORIES]; }
-
-  /** 
-   * Add a new part (for admin use) 
-   * In production: POST /api/parts
-   */
-  async function addPart(part) {
-    await _ensure();
-    const maxId = Math.max(..._parts.map(p => p.id));
-    const newPart = { ...part, id: maxId + 1 };
-    _parts.push(newPart);
-    return newPart;
-  }
-
-  /**
-   * Update part (for admin use)
-   * In production: PUT /api/parts/:id
-   */
-  async function updatePart(id, updates) {
-    await _ensure();
-    const idx = _parts.findIndex(p => p.id === parseInt(id));
-    if (idx === -1) return null;
-    _parts[idx] = { ..._parts[idx], ...updates };
-    return _parts[idx];
-  }
-
-  return { getAll, getById, getByCategory, search, getRelated, getCategories, addPart, updatePart };
-})();
-
-window.PartsData = PartsData;
-window.CATEGORIES = CATEGORIES;
-window.SAMPLE_PARTS = SAMPLE_PARTS; // Required by inventory-db.js seedFromSampleData()
-
-// ─── Live delegation to InventoryDB ─────────────────────────────────────────
-// When InventoryDB is loaded (admin has added parts), use that as the source.
-// This replaces the static SAMPLE_PARTS transparently so the storefront
-// always reflects the current inventory.
-const _originalPartsData = window.PartsData;
-window.PartsData = {
-  getAll:        async () => { if (window.InventoryDB) return InventoryDB.getAll();        return _originalPartsData.getAll(); },
-  getById:       async (id) => { if (window.InventoryDB) return InventoryDB.getById(id);  return _originalPartsData.getById(id); },
-  getByCategory: async (c) => { if (window.InventoryDB) return InventoryDB.getByCategory(c); return _originalPartsData.getByCategory(c); },
-  search:        async (q) => { if (window.InventoryDB) return InventoryDB.search(q);     return _originalPartsData.search(q); },
-  getRelated:    async (p, n) => { if (window.InventoryDB) { const all = InventoryDB.getAll(); return all.filter(x=>x.id!==p.id&&x.categoryId===p.categoryId).slice(0,n||4); } return _originalPartsData.getRelated(p, n); },
-  getCategories: () => window.CATEGORIES || [],
-  addPart:    _originalPartsData.addPart,
-  updatePart: _originalPartsData.updatePart,
-};
+window.SAMPLE_PARTS = SAMPLE_PARTS;

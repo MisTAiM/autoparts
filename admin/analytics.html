@@ -1,0 +1,634 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Analytics — AutoParts Admin</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <link rel="stylesheet" href="../css/admin.css">
+  <style>
+    .kpi-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:16px; margin-bottom:28px; }
+    .kpi-card { background:var(--surface-2); border:1px solid var(--border); border-radius:var(--radius-lg); padding:20px; }
+    .kpi-label { font-size:.72rem; font-weight:700; text-transform:uppercase; letter-spacing:.06em; color:var(--text-3); margin-bottom:8px; }
+    .kpi-value { font-size:2rem; font-weight:800; font-family:var(--font-display); line-height:1; }
+    .kpi-sub { font-size:.75rem; color:var(--text-3); margin-top:6px; }
+    .kpi-trend { font-size:.72rem; font-weight:700; margin-top:4px; }
+    .kpi-trend.up { color:#22c55e; }
+    .kpi-trend.down { color:#ef4444; }
+    .chart-card { background:var(--surface-2); border:1px solid var(--border); border-radius:var(--radius-lg); padding:20px; margin-bottom:20px; }
+    .chart-title { font-size:.85rem; font-weight:700; margin-bottom:16px; color:var(--text-1); }
+    .bar-chart { display:flex; align-items:flex-end; gap:6px; height:120px; }
+    .bar-col { flex:1; display:flex; flex-direction:column; align-items:center; gap:4px; min-width:0; }
+    .bar { width:100%; border-radius:4px 4px 0 0; background:var(--accent); transition:height .4s ease; min-height:4px; }
+    .bar-label { font-size:.6rem; color:var(--text-3); text-align:center; overflow:hidden; white-space:nowrap; text-overflow:ellipsis; max-width:100%; }
+    .bar-val { font-size:.65rem; font-weight:700; color:var(--text-2); }
+    .two-col { display:grid; grid-template-columns:1fr 1fr; gap:20px; }
+    .three-col { display:grid; grid-template-columns:1fr 1fr 1fr; gap:20px; }
+    .data-table { width:100%; border-collapse:collapse; font-size:.82rem; }
+    .data-table th { font-size:.72rem; font-weight:700; text-transform:uppercase; letter-spacing:.06em; color:var(--text-3); padding:8px 0; border-bottom:1px solid var(--border); text-align:left; }
+    .data-table td { padding:10px 0; border-bottom:1px solid var(--border-light,rgba(255,255,255,.05)); }
+    .data-table tr:last-child td { border-bottom:none; }
+    .progress-bar { height:6px; background:var(--surface-3); border-radius:3px; margin-top:4px; }
+    .progress-fill { height:100%; border-radius:3px; background:var(--accent); }
+    .donut-ring { position:relative; width:120px; height:120px; margin:0 auto 12px; }
+    .donut-ring svg { transform:rotate(-90deg); }
+    .donut-center { position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); text-align:center; }
+    .donut-pct { font-size:1.4rem; font-weight:800; }
+    .donut-sub { font-size:.65rem; color:var(--text-3); }
+    .legend-item { display:flex; align-items:center; gap:8px; font-size:.75rem; margin-bottom:6px; }
+    .legend-dot { width:10px; height:10px; border-radius:50%; flex-shrink:0; }
+    .filter-bar { display:flex; align-items:center; gap:10px; margin-bottom:20px; }
+    .filter-btn { padding:6px 14px; border-radius:999px; font-size:.78rem; font-weight:700; cursor:pointer; border:1px solid var(--border); background:var(--surface-2); color:var(--text-2); transition:all .15s; }
+    .filter-btn.active { background:var(--accent); color:#000; border-color:var(--accent); }
+    .activity-item { display:flex; align-items:center; gap:12px; padding:10px 0; border-bottom:1px solid var(--border-light,rgba(255,255,255,.05)); }
+    .activity-icon { width:32px; height:32px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:.8rem; flex-shrink:0; }
+    .icon-order { background:rgba(245,158,11,.15); color:#f59e0b; }
+    .icon-user  { background:rgba(59,130,246,.12); color:#3b82f6; }
+    .icon-search{ background:rgba(168,85,247,.12); color:#a855f7; }
+    .icon-cart  { background:rgba(34,197,94,.12); color:#22c55e; }
+    .activity-text { flex:1; font-size:.82rem; }
+    .activity-time { font-size:.72rem; color:var(--text-3); white-space:nowrap; }
+    .metric-row { display:flex; justify-content:space-between; align-items:center; padding:9px 0; border-bottom:1px solid var(--border-light,rgba(255,255,255,.05)); font-size:.82rem; }
+    .metric-row:last-child { border-bottom:none; }
+    .metric-val { font-weight:700; color:var(--accent); }
+  </style>
+</head>
+<body>
+<div class="admin-layout">
+  <aside class="admin-sidebar">
+    <div class="admin-logo"><i class="fa-solid fa-gears"></i> AutoParts</div>
+    <nav class="admin-nav">
+
+      <a href="dashboard.html"><i class="fa-solid fa-chart-line"></i> Dashboard</a>
+
+      <a href="inventory.html"><i class="fa-solid fa-boxes-stacked"></i> Inventory</a>
+
+      <a href="orders.html"><i class="fa-solid fa-receipt"></i> Orders</a>
+
+      <a href="customers.html"><i class="fa-solid fa-users"></i> Customers</a>
+
+      <a href="coupons.html"><i class="fa-solid fa-tag"></i> Coupons</a>
+
+      <a href="analytics.html" class="active"><i class="fa-solid fa-chart-bar"></i> Analytics</a>
+
+      <a href="content.html"><i class="fa-solid fa-pen-to-square"></i> Content</a>
+
+      <a href="settings.html"><i class="fa-solid fa-sliders"></i> Settings</a>
+
+      <div style="border-top:1px solid var(--c-border);margin:8px 0"></div>
+
+      <a href="../index.html" target="_blank"><i class="fa-solid fa-globe"></i> View Store</a>
+
+      <a href="#" id="logout-link"><i class="fa-solid fa-right-from-bracket"></i> Sign Out</a>
+  </nav>
+    <div class="admin-nav-footer">
+      <a href="../index.html" target="_blank"><i class="fa-solid fa-arrow-up-right-from-square"></i> View Store</a>
+      <a href="login.html" id="logout-btn"><i class="fa-solid fa-right-from-bracket"></i> Logout</a>
+    </div>
+  </aside>
+
+  <main class="admin-main">
+    <div class="admin-topbar">
+      <div>
+        <h1 class="admin-page-title">Analytics & Insights</h1>
+        <div class="admin-breadcrumb">Business intelligence — sales, traffic, customer behavior</div>
+      </div>
+      <div style="display:flex;align-items:center;gap:10px">
+        <span style="font-size:.78rem;color:var(--text-3)">Last updated: <span id="last-updated-time">now</span></span>
+        <button class="btn btn-ghost btn-sm" onclick="loadAnalytics()">
+          <i class="fa-solid fa-rotate"></i> Refresh
+        </button>
+      </div>
+    </div>
+
+    <!-- Time range -->
+    <div class="filter-bar">
+      <span style="font-size:.78rem;font-weight:700;color:var(--text-3)">Period:</span>
+      <button class="filter-btn" data-range="7">7 Days</button>
+      <button class="filter-btn active" data-range="30">30 Days</button>
+      <button class="filter-btn" data-range="90">90 Days</button>
+      <button class="filter-btn" data-range="365">1 Year</button>
+      <button class="filter-btn" data-range="all">All Time</button>
+    </div>
+
+    <!-- KPI Cards -->
+    <div class="kpi-grid">
+      <div class="kpi-card">
+        <div class="kpi-label"><i class="fa-solid fa-dollar-sign" style="margin-right:4px"></i>Total Revenue</div>
+        <div class="kpi-value" id="kpi-revenue">—</div>
+        <div class="kpi-sub">Gross sales in period</div>
+        <div class="kpi-trend up" id="kpi-revenue-trend">—</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label"><i class="fa-solid fa-receipt" style="margin-right:4px"></i>Total Orders</div>
+        <div class="kpi-value" id="kpi-orders">—</div>
+        <div class="kpi-sub">Completed + processing</div>
+        <div class="kpi-trend up" id="kpi-orders-trend">—</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label"><i class="fa-solid fa-users" style="margin-right:4px"></i>Customers</div>
+        <div class="kpi-value" id="kpi-customers">—</div>
+        <div class="kpi-sub">Registered accounts</div>
+        <div class="kpi-trend up" id="kpi-customers-trend">—</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label"><i class="fa-solid fa-chart-simple" style="margin-right:4px"></i>Avg Order Value</div>
+        <div class="kpi-value" id="kpi-aov">—</div>
+        <div class="kpi-sub">Per completed order</div>
+        <div class="kpi-trend" id="kpi-aov-trend">—</div>
+      </div>
+    </div>
+
+    <!-- Secondary KPIs -->
+    <div class="three-col" style="margin-bottom:20px">
+      <div class="kpi-card">
+        <div class="kpi-label"><i class="fa-solid fa-cart-shopping" style="margin-right:4px"></i>Cart Adds</div>
+        <div class="kpi-value" id="kpi-cart-adds">—</div>
+        <div class="kpi-sub">Items added to cart</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label"><i class="fa-solid fa-heart" style="margin-right:4px"></i>Wishlist Saves</div>
+        <div class="kpi-value" id="kpi-wishlist">—</div>
+        <div class="kpi-sub">Total wishlist items</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label"><i class="fa-solid fa-envelope" style="margin-right:4px"></i>Newsletter Subs</div>
+        <div class="kpi-value" id="kpi-newsletter">—</div>
+        <div class="kpi-sub">Email subscribers</div>
+      </div>
+    </div>
+
+    <!-- Charts -->
+    <div class="two-col">
+      <!-- Revenue chart -->
+      <div class="chart-card">
+        <div class="chart-title"><i class="fa-solid fa-chart-line" style="color:var(--accent);margin-right:8px"></i>Revenue by Period</div>
+        <div class="bar-chart" id="revenue-chart"></div>
+      </div>
+
+      <!-- Orders chart -->
+      <div class="chart-card">
+        <div class="chart-title"><i class="fa-solid fa-boxes-stacked" style="color:var(--accent);margin-right:8px"></i>Orders by Status</div>
+        <div id="orders-status-chart"></div>
+      </div>
+    </div>
+
+    <div class="two-col">
+      <!-- Top parts -->
+      <div class="chart-card">
+        <div class="chart-title"><i class="fa-solid fa-star" style="color:var(--accent);margin-right:8px"></i>Top Selling Parts</div>
+        <table class="data-table" id="top-parts-table">
+          <thead><tr><th>Part</th><th style="text-align:right">Orders</th><th style="text-align:right">Revenue</th></tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+
+      <!-- Top categories -->
+      <div class="chart-card">
+        <div class="chart-title"><i class="fa-solid fa-layer-group" style="color:var(--accent);margin-right:8px"></i>Revenue by Category</div>
+        <div id="category-chart"></div>
+      </div>
+    </div>
+
+    <div class="two-col">
+      <!-- Customer metrics -->
+      <div class="chart-card">
+        <div class="chart-title"><i class="fa-solid fa-user-group" style="color:var(--accent);margin-right:8px"></i>Customer Metrics</div>
+        <div id="customer-metrics"></div>
+      </div>
+
+      <!-- Vehicle searches -->
+      <div class="chart-card">
+        <div class="chart-title"><i class="fa-solid fa-car" style="color:var(--accent);margin-right:8px"></i>Top Vehicle Searches</div>
+        <table class="data-table" id="vehicle-search-table">
+          <thead><tr><th>Vehicle</th><th style="text-align:right">Searches</th></tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Recent Activity Feed -->
+    <div class="chart-card">
+      <div class="chart-title"><i class="fa-solid fa-clock-rotate-left" style="color:var(--accent);margin-right:8px"></i>Recent Store Activity</div>
+      <div id="activity-feed"></div>
+    </div>
+
+    <!-- Admin security log summary -->
+    <div class="chart-card">
+      <div class="chart-title"><i class="fa-solid fa-shield" style="color:var(--accent);margin-right:8px"></i>Security Events (Last 30 Days)</div>
+      <div id="security-summary"></div>
+    </div>
+
+    <!-- Behavioral Analytics (from AnalyticsTracker) -->
+    <div style="margin-top:24px;margin-bottom:12px;font-family:var(--font-display);font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--text-3)">
+      <i class="fa-solid fa-user-secret" style="margin-right:6px;color:var(--accent)"></i>Behavioral Analytics — Live Visitor Tracking
+    </div>
+
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:20px">
+      <div class="kpi-card">
+        <div class="kpi-label"><i class="fa-solid fa-person-walking-arrow-right" style="margin-right:4px"></i>Total Sessions</div>
+        <div class="kpi-value" id="kpi-sessions">—</div>
+        <div class="kpi-sub">Unique browser sessions</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label"><i class="fa-solid fa-eye" style="margin-right:4px"></i>Total Pageviews</div>
+        <div class="kpi-value" id="kpi-pageviews">—</div>
+        <div class="kpi-sub">Pages viewed all-time</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label"><i class="fa-solid fa-percent" style="margin-right:4px"></i>Checkout Conversion</div>
+        <div class="kpi-value" id="kpi-conversion">—</div>
+        <div class="kpi-sub">Checkouts → completed orders</div>
+      </div>
+    </div>
+
+    <div class="two-col">
+      <div class="chart-card">
+        <div class="chart-title"><i class="fa-solid fa-chart-line" style="margin-right:6px"></i>Daily Visits (Last 14 Days)</div>
+        <div class="bar-chart" id="daily-visits-chart"></div>
+      </div>
+      <div class="chart-card">
+        <div class="chart-title"><i class="fa-solid fa-car" style="margin-right:6px"></i>Top Vehicle Lookups</div>
+        <div id="top-vehicles"></div>
+      </div>
+    </div>
+
+    <div class="two-col" style="margin-top:20px;margin-bottom:20px">
+      <div class="chart-card">
+        <div class="chart-title"><i class="fa-solid fa-magnifying-glass" style="margin-right:6px"></i>Top Search Terms</div>
+        <div id="top-searches"></div>
+      </div>
+      <div class="chart-card">
+        <div class="chart-title"><i class="fa-solid fa-fire" style="margin-right:6px"></i>Most Viewed Products</div>
+        <div id="top-viewed"></div>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<script src="../js/modules/analytics-tracker.js"></script>
+<script src="../js/modules/security.js"></script>
+<script src="../js/modules/admin-auth.js"></script>
+<script>
+AdminAuth.requireAdmin();
+document.getElementById("logout-btn").addEventListener("click", () => AdminAuth.logout());
+  const ll = document.getElementById("logout-link"); if(ll) ll.addEventListener("click", (e) => { e.preventDefault(); AdminAuth.logout(); });
+
+// ─── Data loading ─────────────────────────────────────────────
+let _rangeDays = 30;
+
+function loadAnalytics() {
+  const orders    = JSON.parse(localStorage.getItem('ap_admin_orders') || '[]');
+  const users     = JSON.parse(localStorage.getItem('ap_users') || '[]');
+  const newsletter= JSON.parse(localStorage.getItem('ap_newsletter') || '[]');
+  const adminLog  = AdminAuth.getLog ? AdminAuth.getLog() : [];
+  const wishlistKeys = Object.keys(localStorage).filter(k => k.startsWith('ap_wishlist'));
+  let wishlistTotal = 0;
+  wishlistKeys.forEach(k => {
+    try { wishlistTotal += JSON.parse(localStorage.getItem(k) || '[]').length; } catch {}
+  });
+
+  // Filter orders by date range
+  const cutoff = _rangeDays === Infinity ? 0 : Date.now() - _rangeDays * 86400000;
+  const filteredOrders = orders.filter(o => {
+    const ts = new Date(o.date || o.createdAt || 0).getTime();
+    return ts >= cutoff;
+  });
+
+  // KPIs
+  const revenue   = filteredOrders.reduce((s, o) => s + (Number(o.total) || 0), 0);
+  const aov       = filteredOrders.length ? revenue / filteredOrders.length : 0;
+
+  document.getElementById('kpi-revenue').textContent   = '$' + revenue.toFixed(2);
+  document.getElementById('kpi-orders').textContent    = filteredOrders.length;
+  document.getElementById('kpi-customers').textContent = users.length;
+  document.getElementById('kpi-aov').textContent       = '$' + aov.toFixed(2);
+  document.getElementById('kpi-newsletter').textContent= newsletter.length;
+  document.getElementById('kpi-wishlist').textContent  = wishlistTotal;
+
+  // Simulated cart adds from order line items
+  const cartAdds = filteredOrders.reduce((s, o) => s + (o.items?.length || 0), 0);
+  document.getElementById('kpi-cart-adds').textContent = cartAdds;
+
+  // Trends (simulated — compare to prior period)
+  const prior = orders.filter(o => {
+    const ts = new Date(o.date || o.createdAt || 0).getTime();
+    return ts >= cutoff - _rangeDays * 86400000 && ts < cutoff;
+  });
+  const priorRevenue = prior.reduce((s, o) => s + (Number(o.total) || 0), 0);
+  const revChange = priorRevenue > 0 ? ((revenue - priorRevenue) / priorRevenue * 100).toFixed(1) : null;
+  const ordChange = prior.length   > 0 ? ((filteredOrders.length - prior.length) / prior.length * 100).toFixed(1) : null;
+
+  const revTrend = document.getElementById('kpi-revenue-trend');
+  if (revChange !== null) {
+    revTrend.textContent = (revChange >= 0 ? '▲' : '▼') + ' ' + Math.abs(revChange) + '% vs prior period';
+    revTrend.className = 'kpi-trend ' + (revChange >= 0 ? 'up' : 'down');
+  } else { revTrend.textContent = 'No prior period data'; }
+
+  const ordTrend = document.getElementById('kpi-orders-trend');
+  if (ordChange !== null) {
+    ordTrend.textContent = (ordChange >= 0 ? '▲' : '▼') + ' ' + Math.abs(ordChange) + '% vs prior period';
+    ordTrend.className = 'kpi-trend ' + (ordChange >= 0 ? 'up' : 'down');
+  } else { ordTrend.textContent = 'No prior period data'; }
+
+  document.getElementById('kpi-aov-trend').textContent = filteredOrders.length + ' orders avg';
+
+  // Revenue chart (daily or weekly buckets)
+  renderRevenueChart(filteredOrders);
+
+  // Orders by status
+  renderStatusChart(filteredOrders);
+
+  // Top parts
+  renderTopParts(filteredOrders);
+
+  // Category revenue
+  renderCategoryChart(filteredOrders);
+
+  // Customer metrics
+  renderCustomerMetrics(users, filteredOrders);
+
+  // Vehicle searches
+  renderVehicleSearches();
+
+  // Activity feed
+  renderActivityFeed(filteredOrders, users, adminLog);
+
+  // Security summary
+  renderSecuritySummary(adminLog);
+
+  document.getElementById('last-updated-time').textContent = new Date().toLocaleTimeString();
+}
+
+function renderRevenueChart(orders) {
+  const container = document.getElementById('revenue-chart');
+  const buckets = {};
+  const numBuckets = Math.min(_rangeDays === Infinity ? 12 : Math.min(_rangeDays, 12), 12);
+  const bucketSize = _rangeDays === Infinity ? 30 : Math.ceil(_rangeDays / numBuckets);
+  const now = Date.now();
+
+  for (let i = numBuckets - 1; i >= 0; i--) {
+    const start = now - (i + 1) * bucketSize * 86400000;
+    const end   = now - i * bucketSize * 86400000;
+    const label = new Date(end).toLocaleDateString('en', { month:'short', day:'numeric' });
+    const rev   = orders
+      .filter(o => { const ts = new Date(o.date || 0).getTime(); return ts >= start && ts < end; })
+      .reduce((s, o) => s + (Number(o.total) || 0), 0);
+    buckets[label] = rev;
+  }
+
+  const maxVal = Math.max(...Object.values(buckets), 1);
+  container.innerHTML = Object.entries(buckets).map(([label, val]) => {
+    const pct = (val / maxVal * 100).toFixed(1);
+    return `<div class="bar-col">
+      <div class="bar-val" style="font-size:.55rem">${val > 0 ? '$' + val.toFixed(0) : ''}</div>
+      <div class="bar" style="height:${Math.max(pct, 2)}%;background:${val > 0 ? 'var(--accent)' : 'var(--surface-3)'}"></div>
+      <div class="bar-label">${label}</div>
+    </div>`;
+  }).join('');
+}
+
+function renderStatusChart(orders) {
+  const counts = { processing:0, shipped:0, delivered:0, cancelled:0 };
+  orders.forEach(o => { const s = (o.status || 'processing').toLowerCase(); if (counts[s] !== undefined) counts[s]++; else counts.processing++; });
+  const total = orders.length || 1;
+  const colors = { processing:'#f59e0b', shipped:'#3b82f6', delivered:'#22c55e', cancelled:'#ef4444' };
+  const labels = { processing:'Processing', shipped:'Shipped', delivered:'Delivered', cancelled:'Cancelled' };
+
+  document.getElementById('orders-status-chart').innerHTML = Object.entries(counts).map(([status, count]) => {
+    const pct = (count / total * 100).toFixed(1);
+    return `<div class="metric-row">
+      <div style="display:flex;align-items:center;gap:8px">
+        <div style="width:10px;height:10px;border-radius:50%;background:${colors[status]};flex-shrink:0"></div>
+        ${labels[status]}
+      </div>
+      <div style="flex:1;margin:0 12px">
+        <div class="progress-bar"><div class="progress-fill" style="width:${pct}%;background:${colors[status]}"></div></div>
+      </div>
+      <div class="metric-val">${count} <span style="font-weight:400;color:var(--text-3)">(${pct}%)</span></div>
+    </div>`;
+  }).join('');
+}
+
+function renderTopParts(orders) {
+  const partRevenue = {};
+  const partOrders  = {};
+  orders.forEach(o => {
+    (o.items || []).forEach(item => {
+      const key = item.name || item.partNumber || 'Unknown';
+      partRevenue[key] = (partRevenue[key] || 0) + (Number(item.price) * (Number(item.qty) || 1));
+      partOrders[key]  = (partOrders[key]  || 0) + 1;
+    });
+  });
+  const sorted = Object.entries(partRevenue).sort((a,b) => b[1] - a[1]).slice(0, 8);
+  const tbody = document.querySelector('#top-parts-table tbody');
+  if (!sorted.length) { tbody.innerHTML = '<tr><td colspan="3" style="color:var(--text-3);padding:20px 0">No order data yet</td></tr>'; return; }
+  tbody.innerHTML = sorted.map(([name, rev]) => `
+    <tr>
+      <td style="max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${Security.escapeHtml(name)}">${Security.escapeHtml(name.length > 35 ? name.slice(0,35) + '…' : name)}</td>
+      <td style="text-align:right;font-weight:700">${partOrders[name]}</td>
+      <td style="text-align:right;color:var(--accent);font-weight:700">$${rev.toFixed(2)}</td>
+    </tr>`).join('');
+}
+
+function renderCategoryChart(orders) {
+  const catRevenue = {};
+  orders.forEach(o => {
+    (o.items || []).forEach(item => {
+      const cat = item.category || item.categoryName || 'Uncategorized';
+      catRevenue[cat] = (catRevenue[cat] || 0) + (Number(item.price) * (Number(item.qty) || 1));
+    });
+  });
+  const sorted = Object.entries(catRevenue).sort((a,b) => b[1] - a[1]);
+  const total  = sorted.reduce((s, [,v]) => s + v, 0) || 1;
+  const colors = ['#f59e0b','#3b82f6','#22c55e','#ef4444','#a855f7','#06b6d4','#f97316','#84cc16'];
+
+  if (!sorted.length) {
+    document.getElementById('category-chart').innerHTML = '<div style="color:var(--text-3);font-size:.82rem;padding:20px 0">No order data yet</div>';
+    return;
+  }
+
+  document.getElementById('category-chart').innerHTML = sorted.slice(0,6).map(([cat, rev], i) => {
+    const pct = (rev / total * 100).toFixed(1);
+    return `<div class="metric-row">
+      <div style="display:flex;align-items:center;gap:8px">
+        <div style="width:10px;height:10px;border-radius:50%;background:${colors[i % colors.length]};flex-shrink:0"></div>
+        ${Security.escapeHtml(cat)}
+      </div>
+      <div style="flex:1;margin:0 12px">
+        <div class="progress-bar"><div class="progress-fill" style="width:${pct}%;background:${colors[i % colors.length]}"></div></div>
+      </div>
+      <div class="metric-val">$${rev.toFixed(0)}</div>
+    </div>`;
+  }).join('');
+}
+
+function renderCustomerMetrics(users, orders) {
+  const newCutoff = Date.now() - _rangeDays * 86400000;
+  const newUsers  = users.filter(u => new Date(u.createdAt || 0).getTime() >= newCutoff).length;
+  const repeatCust= new Set(orders.flatMap(o => o.userId ? [o.userId] : [])).size;
+  const totalSpent= orders.reduce((s,o) => s + (Number(o.total)||0), 0);
+  const avgPerCust= repeatCust > 0 ? (totalSpent / repeatCust).toFixed(2) : '0.00';
+
+  const vehicles = users.reduce((s, u) => s + (u.savedVehicles?.length || 0), 0);
+
+  document.getElementById('customer-metrics').innerHTML = `
+    <div class="metric-row"><span>New Customers (period)</span><span class="metric-val">${newUsers}</span></div>
+    <div class="metric-row"><span>Total Customers</span><span class="metric-val">${users.length}</span></div>
+    <div class="metric-row"><span>Customers Who Ordered</span><span class="metric-val">${repeatCust}</span></div>
+    <div class="metric-row"><span>Avg Revenue / Customer</span><span class="metric-val">$${avgPerCust}</span></div>
+    <div class="metric-row"><span>Saved Vehicles</span><span class="metric-val">${vehicles}</span></div>
+    <div class="metric-row"><span>Customers With Account</span><span class="metric-val">${users.length}</span></div>
+  `;
+}
+
+function renderVehicleSearches() {
+  // Aggregate vehicle searches from localStorage vehicle history
+  const searches = {};
+  try {
+    const saved = localStorage.getItem('ap_vehicle_search_log');
+    if (saved) {
+      const log = JSON.parse(saved);
+      log.forEach(entry => { searches[entry] = (searches[entry] || 0) + 1; });
+    }
+  } catch {}
+
+  // Also count selected vehicles from user accounts
+  const users = JSON.parse(localStorage.getItem('ap_users') || '[]');
+  users.forEach(u => {
+    (u.savedVehicles || []).forEach(v => {
+      if (v.year && v.makeName && v.modelName) {
+        const key = `${v.year} ${v.makeName} ${v.modelName}`;
+        searches[key] = (searches[key] || 0) + 1;
+      }
+    });
+  });
+
+  const sorted = Object.entries(searches).sort((a,b) => b[1] - a[1]).slice(0, 8);
+  const tbody  = document.querySelector('#vehicle-search-table tbody');
+  if (!sorted.length) {
+    tbody.innerHTML = '<tr><td colspan="2" style="color:var(--text-3);padding:20px 0">No vehicle search data yet</td></tr>';
+    return;
+  }
+  tbody.innerHTML = sorted.map(([vehicle, count]) => `
+    <tr>
+      <td>${Security.escapeHtml(vehicle)}</td>
+      <td style="text-align:right;font-weight:700">${count}</td>
+    </tr>`).join('');
+}
+
+function renderActivityFeed(orders, users, adminLog) {
+  const events = [];
+
+  // Recent orders
+  orders.slice(-10).reverse().forEach(o => {
+    events.push({
+      type: 'order',
+      icon: 'fa-receipt',
+      iconClass: 'icon-order',
+      text: `Order #${Security.escapeHtml(o.orderNumber || String(o.id))} — $${Number(o.total||0).toFixed(2)} (${Security.escapeHtml(o.status || 'processing')})`,
+      time: o.date || o.createdAt || '',
+    });
+  });
+
+  // Recent signups
+  users.slice(-5).reverse().forEach(u => {
+    events.push({
+      type: 'user',
+      icon: 'fa-user-plus',
+      iconClass: 'icon-user',
+      text: `New account: ${Security.escapeHtml(u.firstName || '')} ${Security.escapeHtml(u.lastName || '')} (${Security.escapeHtml(u.email || '')})`,
+      time: u.createdAt || '',
+    });
+  });
+
+  // Admin events
+  adminLog.slice(-8).reverse().forEach(e => {
+    events.push({
+      type: 'admin',
+      icon: 'fa-shield',
+      iconClass: e.type?.includes('FAIL') ? 'icon-order' : 'icon-cart',
+      text: `Admin: ${Security.escapeHtml(e.type || '')} — ${Security.escapeHtml(e.detail || '')}`,
+      time: e.ts || '',
+    });
+  });
+
+  // Sort by time
+  events.sort((a, b) => new Date(b.time) - new Date(a.time));
+
+  const container = document.getElementById('activity-feed');
+  if (!events.length) {
+    container.innerHTML = '<div style="color:var(--text-3);font-size:.82rem;padding:16px 0">No activity recorded yet. Activity will appear here as customers browse, order, and register.</div>';
+    return;
+  }
+
+  container.innerHTML = events.slice(0, 15).map(e => {
+    const timeStr = e.time ? new Date(e.time).toLocaleString('en', { month:'short', day:'numeric', hour:'numeric', minute:'2-digit' }) : '';
+    return `<div class="activity-item">
+      <div class="activity-icon ${e.iconClass}"><i class="fa-solid ${e.icon}"></i></div>
+      <div class="activity-text">${e.text}</div>
+      <div class="activity-time">${timeStr}</div>
+    </div>`;
+  }).join('');
+}
+
+function renderSecuritySummary(adminLog) {
+  const cutoff = Date.now() - 30 * 86400000;
+  const recent = adminLog.filter(e => new Date(e.ts || 0).getTime() >= cutoff);
+  const counts = { logins:0, failures:0, changes:0, other:0 };
+  recent.forEach(e => {
+    const t = e.type || '';
+    if (t.includes('LOGIN_OK'))   counts.logins++;
+    else if (t.includes('FAIL'))  counts.failures++;
+    else if (t.includes('CHANGE') || t.includes('ADDED') || t.includes('REMOVED') || t.includes('UPDATED')) counts.changes++;
+    else counts.other++;
+  });
+
+  document.getElementById('security-summary').innerHTML = `
+    <div class="metric-row"><span><i class="fa-solid fa-circle-check" style="color:#22c55e;margin-right:6px"></i>Successful Logins</span><span class="metric-val" style="color:#22c55e">${counts.logins}</span></div>
+    <div class="metric-row"><span><i class="fa-solid fa-triangle-exclamation" style="color:#ef4444;margin-right:6px"></i>Failed Login Attempts</span><span class="metric-val" style="color:#ef4444">${counts.failures}</span></div>
+    <div class="metric-row"><span><i class="fa-solid fa-pen-to-square" style="color:#3b82f6;margin-right:6px"></i>Admin Changes</span><span class="metric-val" style="color:#3b82f6">${counts.changes}</span></div>
+    <div class="metric-row"><span><i class="fa-solid fa-circle-info" style="color:var(--text-3);margin-right:6px"></i>Other Events</span><span class="metric-val">${counts.other}</span></div>
+    <div class="metric-row"><span>Total Events</span><span class="metric-val">${recent.length}</span></div>
+  `;
+}
+
+// ─── Period filter buttons ─────────────────────────────────────
+document.querySelectorAll('.filter-btn[data-range]').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    const range = btn.dataset.range;
+    _rangeDays = range === 'all' ? Infinity : parseInt(range);
+    loadAnalytics();
+  });
+});
+
+// ─── Init ─────────────────────────────────────────────────────
+
+  // ─── Behavioral Analytics (from AnalyticsTracker) ───────────
+  if (window.AnalyticsTracker) {
+    const tData = AnalyticsTracker.getAllData();
+    // Update session/pageview KPIs if we have better data
+    const sessEl = document.getElementById('kpi-sessions');
+    const pvEl   = document.getElementById('kpi-pageviews');
+    const convEl = document.getElementById('kpi-conversion');
+    if (sessEl) sessEl.textContent = tData.total_sessions.toLocaleString();
+    if (pvEl)   pvEl.textContent   = tData.total_pageviews.toLocaleString();
+    if (convEl) convEl.textContent = tData.conversion_rate + '%';
+
+    // Top searched terms
+    renderTopSearches(tData.search_terms);
+    // Top viewed products
+    renderTopViewed(tData.product_view_counts);
+    // Daily visits chart
+    renderDailyVisits(tData.daily_visits);
+    // Top vehicle lookups
+    renderTopVehicles(tData.vehicle_lookup_counts);
+  }
+
+loadAnalytics();
+</script>
+</body>
+</html>

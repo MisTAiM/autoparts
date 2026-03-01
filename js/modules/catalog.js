@@ -46,16 +46,22 @@ const Catalog = (() => {
   function applyFilters() {
     let results = [..._allParts];
 
-    // Vehicle fitment filter
+    // Vehicle fitment filter — uses VehicleDB.getCompatibleParts for accurate matching
     if (_vehicleFilter?.year) {
-      results = results.filter(p => {
-        if (!p.fitment || p.fitment.length === 0) return true; // universal
-        return p.fitment.some(f =>
-          (!f.year  || f.year  === _vehicleFilter.year)  &&
-          (!f.makeId || f.makeId === _vehicleFilter.makeId) &&
-          (!f.modelId || f.modelId === _vehicleFilter.modelId)
-        );
-      });
+      if (window.VehicleDB) {
+        const compatible = VehicleDB.getCompatibleParts(_vehicleFilter, results);
+        results = compatible; // already filtered + scored
+      } else {
+        results = results.filter(p => {
+          if (!p.fitment) return true;
+          const f = p.fitment;
+          const yr = parseInt(_vehicleFilter.year);
+          const makeOk  = !f.makes  || f.makes.some(m => _vehicleFilter.makeName?.toLowerCase().includes(m.toLowerCase()));
+          const modelOk = !f.models || f.models.some(m => _vehicleFilter.modelName?.toLowerCase().includes(m.toLowerCase()));
+          const yearOk  = !f.yearStart || (yr >= f.yearStart && yr <= f.yearEnd);
+          return yearOk && makeOk && modelOk;
+        });
+      }
     }
 
     // Category filter

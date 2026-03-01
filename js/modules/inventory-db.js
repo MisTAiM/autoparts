@@ -227,20 +227,20 @@ const InventoryDB = (() => {
    * Run on first launch so the store isn't empty.
    */
   function seedFromSampleData() {
-    if (localStorage.getItem('ap_inventory_seeded')) return;
-    const existing = _getAll();
-    if (existing.length > 0) { localStorage.setItem('ap_inventory_seeded', '1'); return; }
+    const SEED_VERSION = 'v4'; // bump to force re-seed with new images/fitment
+    if (localStorage.getItem('ap_inventory_seeded') === SEED_VERSION) return;
     const samples = window.SAMPLE_PARTS || [];
-    const seeded  = samples.map((p, i) => ({
+    if (!samples.length) return;
+    const seeded = samples.map((p, i) => ({
       ...p,
       id: 1000 + i,
-      warrantyText: p.specs?.Warranty || '',
+      warrantyText: p.warrantyText || p.specs?.Warranty || '',
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
     }));
     _save(seeded);
     localStorage.setItem(COUNTER_KEY, String(1000 + samples.length));
-    localStorage.setItem('ap_inventory_seeded', '1');
+    localStorage.setItem('ap_inventory_seeded', SEED_VERSION);
   }
 
   return {

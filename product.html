@@ -63,7 +63,7 @@
 </div>
 
 <script src="js/data/parts-data.js"></script>
-<script src="js/modules/ymm.js"></script>
+<script src="js/modules/vehicle-db.js"></script>
 <script src="js/modules/cart.js"></script>
 <script src="js/modules/catalog.js"></script>
 <script src="js/modules/shipping.js"></script>
@@ -97,6 +97,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   // Track recently viewed
   if (window.RecentlyViewed) RecentlyViewed.track(part);
+  if (window.AnalyticsTracker) AnalyticsTracker.trackProductView(part.id, part.name, part.brand, part.price);
 
   // Render recently viewed (excluding current)
   if (window.RecentlyViewed) {
@@ -122,14 +123,12 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
   }
 
-  const vehicle = YMM.getState();
+  const vehicle    = window.VehicleDB ? VehicleDB.getState() : (YMM?.getState() || {});
   const hasVehicle = !!vehicle.year;
-  const isCompatible = !hasVehicle || part.fitment.length === 0 ||
-    part.fitment.some(f =>
-      (!f.year    || f.year    === vehicle.year)    &&
-      (!f.makeId  || f.makeId  === vehicle.makeId)  &&
-      (!f.modelId || f.modelId === vehicle.modelId)
-    );
+  const fitResult  = hasVehicle && part.fitment
+    ? VehicleDB.checkFitment(part, vehicle)
+    : { fits: true, confidence: 'unknown', notes: [] };
+  const isCompatible = !hasVehicle || fitResult.fits;
 
   const stockClass = part.inStock ? (part.stockQty <= 3 ? 'low-stock' : 'in-stock') : 'out-stock';
   const stockLabel = part.inStock ? (part.stockQty <= 3 ? `Low Stock — ${part.stockQty} left` : 'In Stock') : 'Out of Stock';
@@ -248,12 +247,36 @@ document.addEventListener('DOMContentLoaded', async () => {
       </div>` : ''}
 
       <div class="tab-panel" id="tab-fitment">
-        ${part.fitment.length === 0
-          ? `<div class="alert alert-warning">Please verify fitment by checking the part number against your vehicle's OEM parts catalog before ordering. Compatibility data may vary.</div>`
-          : `<table class="compat-table">
-               <thead><tr><th>Year</th><th>Make</th><th>Model</th><th>Engine</th></tr></thead>
-               <tbody>${part.fitment.map(f => `<tr><td>${f.year||'All'}</td><td>${f.makeName||'—'}</td><td>${f.modelName||'—'}</td><td>${f.engine||'All'}</td></tr>`).join('')}</tbody>
-             </table>`}
+        ${!part.fitment ? `<div class="alert alert-warning">No fitment data available. Verify part number with your vehicle's OEM catalog before ordering.</div>` : (() => {
+          const f = part.fitment;
+          const confidenceBadge = hasVehicle
+            ? fitResult.confidence === 'verified'
+              ? `<span style="background:rgba(34,197,94,.15);color:#22c55e;border:1px solid rgba(34,197,94,.3);padding:3px 10px;border-radius:999px;font-size:.75rem;font-weight:700"><i class="fa-solid fa-circle-check"></i> Verified Fit</span>`
+              : fitResult.confidence === 'likely'
+              ? `<span style="background:rgba(59,130,246,.12);color:#60a5fa;border:1px solid rgba(59,130,246,.3);padding:3px 10px;border-radius:999px;font-size:.75rem;font-weight:700"><i class="fa-solid fa-circle-info"></i> Likely Compatible</span>`
+              : `<span style="background:rgba(245,158,11,.12);color:var(--c-accent);border:1px solid rgba(245,158,11,.3);padding:3px 10px;border-radius:999px;font-size:.75rem;font-weight:700"><i class="fa-solid fa-triangle-exclamation"></i> Verify Fitment</span>`
+            : '';
+          return `
+          <div style="margin-bottom:16px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px">
+            <div style="font-weight:700;font-size:.9rem">Vehicle Compatibility</div>
+            ${confidenceBadge}
+          </div>
+          ${hasVehicle && fitResult.notes?.length ? `<div class="alert alert-warning" style="margin-bottom:14px;font-size:.8rem">${fitResult.notes.join('<br>')}</div>` : ''}
+          <table class="compat-table">
+            <thead><tr><th>Years</th><th>Makes</th><th>Models</th><th>Engines</th><th>Drive</th></tr></thead>
+            <tbody>
+              <tr>
+                <td>${f.yearStart}–${f.yearEnd}</td>
+                <td>${(f.makes||[]).join(', ') || '—'}</td>
+                <td>${(f.models||[]).join(', ') || '—'}</td>
+                <td>${(f.engines||[]).join(', ') || 'All'}</td>
+                <td>${(f.driveTypes||[]).join(' / ') || '—'}</td>
+              </tr>
+            </tbody>
+          </table>
+          ${f.brakeCode ? `<div style="margin-top:12px;font-size:.8rem"><i class="fa-solid fa-gear" style="color:var(--c-accent)"></i> <strong>Brake Code:</strong> ${f.brakeCode} &nbsp;|&nbsp; <strong>Caliper:</strong> ${f.caliperPistons || 'Verify'}</div>` : ''}
+          ${f.notes ? `<div style="margin-top:10px;font-size:.78rem;color:var(--c-text-3);background:var(--c-surface-2);padding:10px 14px;border-radius:var(--radius);border-left:3px solid var(--c-accent)"><i class="fa-solid fa-circle-info"></i> ${f.notes}</div>` : ''}`;
+        })()}
       </div>
 
       <div class="tab-panel" id="tab-shipping">
@@ -319,6 +342,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     stickyBtn.addEventListener('click', () => {
       const qty = parseInt(document.getElementById('qty-input')?.value) || 1;
       Cart.addItem(part, qty);
+      if (window.AnalyticsTracker) AnalyticsTracker.trackAddToCart(part.id, part.name, part.price, qty);
       UI.toast(`${qty}× ${part.name} added to cart!`);
     });
     const observer = new IntersectionObserver(([e]) => {
@@ -331,6 +355,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   document.getElementById('add-to-cart-btn').addEventListener('click', () => {
     const qty = parseInt(qtyInput.value) || 1;
     Cart.addItem(part, qty);
+    if (window.AnalyticsTracker) AnalyticsTracker.trackAddToCart(part.id, part.name, part.price, qty);
     UI.toast(`${qty}× ${part.name} added to cart!`);
   });
 
@@ -377,5 +402,6 @@ document.addEventListener('DOMContentLoaded', async () => {
       <i class="fa-solid fa-cart-plus"></i> Add
     </button>
   </div>
+<script src="js/modules/analytics-tracker.js"></script>
 </body>
 </html>

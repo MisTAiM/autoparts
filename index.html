@@ -367,7 +367,7 @@
 
 <!-- Scripts -->
 <script src="js/data/parts-data.js"></script>
-<script src="js/modules/ymm.js"></script>
+<script src="js/modules/vehicle-db.js"></script>
 <script src="js/modules/cart.js"></script>
 <script src="js/modules/catalog.js"></script>
 <script src="js/modules/shipping.js"></script>
@@ -452,44 +452,48 @@ document.addEventListener('DOMContentLoaded', () => {
   // Category nav
   buildCatNav();
 
-  // YMM
-  YMM.mount({ yearId:'ymm-year', makeId:'ymm-make', modelId:'ymm-model', engineId:'ymm-engine' });
-  document.getElementById('ymm-submit').addEventListener('click', () => {
-    const state = YMM.getState();
-    if (state.year && state.makeId && state.modelId) {
-      if (Auth.isLoggedIn()) Auth.saveVehicle(state);
-      window.location.href = 'catalog.html';
-    }
-  });
+  // Vehicle Lookup — powered by VehicleDB (NHTSA + fueleconomy.gov APIs)
+  const ymmContainer = document.querySelector('.ymm-selects')?.parentElement || document.querySelector('.ymm-widget');
+  if (ymmContainer) {
+    // Clear static markup and let VehicleDB render the full widget
+    ymmContainer.innerHTML = '<div id="vdb-hero-widget"></div>';
+    VehicleDB.mountWidget(document.getElementById('vdb-hero-widget'), (state) => {
+      if (state.year && state.makeName && state.modelName) {
+        if (window.AnalyticsTracker) AnalyticsTracker.trackVehicleLookup(state.year, state.makeName, state.modelName, state.trimName || '');
+        if (Auth.isLoggedIn()) Auth.saveVehicle(state);
+        window.location.href = 'catalog.html';
+      }
+    });
+  }
 
-  // Restore vehicle
-  const v = YMM.getState();
+  // Restore vehicle banner
+  const v = VehicleDB.loadState();
   if (v.year && v.makeName && v.modelName) {
-    const label = `${v.year} ${v.makeName} ${v.modelName}`;
-    document.getElementById('ymm-active-label').textContent = label;
-    document.getElementById('ymm-active-bar').classList.remove('hidden');
+    const label = VehicleDB.getVehicleLabel() || `${v.year} ${v.makeName} ${v.modelName}`;
+    const activeLabel = document.getElementById('ymm-active-label');
+    const activeBar   = document.getElementById('ymm-active-bar');
+    if (activeLabel) activeLabel.textContent = label;
+    if (activeBar)   activeBar.classList.remove('hidden');
     updateHeaderVehicle(label);
   }
-  document.getElementById('ymm-year')?.addEventListener('change', () => { document.getElementById('ymm-submit').disabled = false; });
-  document.getElementById('ymm-submit').addEventListener('click', () => {
-    document.getElementById('ymm-submit').disabled = !YMM.getState().year;
-  });
+
   document.getElementById('ymm-clear-btn')?.addEventListener('click', () => {
-    YMM.clear();
-    document.getElementById('ymm-active-bar').classList.add('hidden');
+    VehicleDB.clearState();
+    document.getElementById('ymm-active-bar')?.classList.add('hidden');
     updateHeaderVehicle(null);
   });
 
-  // Watch YMM changes
-  document.getElementById('ymm-model')?.addEventListener('change', () => {
-    const s = YMM.getState();
+  // Listen for vehicle changes
+  window.addEventListener('vehicle:changed', (e) => {
+    const s = e.detail;
     if (s.year && s.makeName && s.modelName) {
-      const label = `${s.year} ${s.makeName} ${s.modelName}`;
-      document.getElementById('ymm-active-label').textContent = label;
-      document.getElementById('ymm-active-bar').classList.remove('hidden');
+      const label = VehicleDB.getVehicleLabel() || `${s.year} ${s.makeName} ${s.modelName}`;
+      const activeLabel = document.getElementById('ymm-active-label');
+      const activeBar   = document.getElementById('ymm-active-bar');
+      if (activeLabel) activeLabel.textContent = label;
+      if (activeBar)   activeBar.classList.remove('hidden');
       updateHeaderVehicle(label);
     }
-    document.getElementById('ymm-submit').disabled = false;
   });
 
   // Search
@@ -652,5 +656,6 @@ function showToast(html, type='info') {
   setTimeout(() => toast.remove(), 3500);
 }
 </script>
+<script src="js/modules/analytics-tracker.js"></script>
 </body>
 </html>
