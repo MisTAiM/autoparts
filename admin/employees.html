@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Employees — AutoParts Admin</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" crossorigin="anonymous">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;900&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../css/variables.css">
+  <link rel="stylesheet" href="../css/base.css">
+  <link rel="stylesheet" href="../css/admin.css">
+  <style>
+    .emp-card{background:var(--c-surface);border:1px solid var(--c-border);border-radius:var(--radius-lg);padding:20px;display:flex;align-items:center;gap:16px;transition:border-color .15s}
+    .emp-card:hover{border-color:var(--c-accent)}
+    .emp-avatar{width:48px;height:48px;border-radius:50%;background:var(--c-accent);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:1.1rem;color:#0B0D11;flex-shrink:0;font-family:var(--font-display)}
+    .emp-info{flex:1;min-width:0}
+    .emp-name{font-weight:700;font-size:.95rem}
+    .emp-role{font-size:.78rem;color:var(--c-text-3);margin-top:2px}
+    .emp-meta{display:flex;gap:16px;margin-top:6px;flex-wrap:wrap}
+    .emp-meta-item{font-size:.75rem;color:var(--c-text-2);display:flex;align-items:center;gap:5px}
+    .emp-actions{display:flex;gap:8px;flex-shrink:0}
+    .emp-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+    @media(max-width:768px){.emp-grid{grid-template-columns:1fr}.emp-card{flex-direction:column;align-items:flex-start}.emp-actions{width:100%;justify-content:flex-end}}
+    .emp-status-active{color:var(--c-success)}.emp-status-inactive{color:var(--c-danger)}.emp-status-leave{color:var(--c-accent)}
+  </style>
+</head>
+<body>
+<div id="admin-toast-container" class="admin-toast-container"></div>
+<button class="admin-menu-toggle" id="menu-toggle" onclick="toggleSidebar()"><i class="fa-solid fa-bars"></i></button>
+<div class="admin-overlay" id="admin-overlay" onclick="toggleSidebar()"></div>
+
+<div class="admin-layout">
+  <aside class="admin-sidebar" id="admin-sidebar">
+    <div class="admin-logo"><div class="logo-icon"><i class="fa-solid fa-gear"></i></div>Auto<span>Parts</span></div>
+    <nav class="admin-nav">
+      <div class="admin-nav-section">
+        <div class="admin-nav-label">Main</div>
+        <a href="dashboard.html"><i class="fa-solid fa-chart-line"></i> Dashboard</a>
+        <a href="inventory.html"><i class="fa-solid fa-boxes-stacked"></i> Inventory</a>
+        <a href="orders.html"><i class="fa-solid fa-receipt"></i> Orders</a>
+        <a href="customers.html"><i class="fa-solid fa-users"></i> Customers</a>
+        <a href="analytics.html"><i class="fa-solid fa-chart-bar"></i> Analytics</a>
+        <a href="coupons.html"><i class="fa-solid fa-tag"></i> Coupons</a>
+        <a href="content.html"><i class="fa-solid fa-pen-to-square"></i> Content</a>
+      </div>
+      <div class="admin-nav-section">
+        <div class="admin-nav-label">Operations</div>
+        <a href="employees.html" class="active"><i class="fa-solid fa-id-badge"></i> Employees</a>
+        <a href="payroll.html"><i class="fa-solid fa-money-check-dollar"></i> Payroll</a>
+        <a href="schedule.html"><i class="fa-solid fa-calendar-days"></i> Schedule</a>
+        <a href="settings.html"><i class="fa-solid fa-sliders"></i> Settings</a>
+      </div>
+      <div class="admin-nav-section">
+        <a href="../index.html" target="_blank"><i class="fa-solid fa-globe"></i> View Store</a>
+        <a href="#" id="logout-link"><i class="fa-solid fa-right-from-bracket"></i> Sign Out</a>
+      </div>
+    </nav>
+    <div class="admin-user">
+      <div class="admin-user-avatar" id="admin-avatar">A</div>
+      <div class="admin-user-info"><div class="admin-user-name" id="admin-name">Admin</div><div class="admin-user-role" id="admin-role">Owner</div></div>
+    </div>
+  </aside>
+
+  <main class="admin-main">
+    <div class="page-header">
+      <div class="page-header-left">
+        <h2><i class="fa-solid fa-id-badge" style="color:var(--c-accent);margin-right:10px"></i>Employees</h2>
+        <p class="text-muted text-sm" id="emp-count">Loading...</p>
+      </div>
+      <div class="page-header-actions" style="flex-wrap:wrap">
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          <input type="text" id="emp-search" placeholder="Search employees..." class="form-input" style="min-width:160px;flex:1" oninput="renderEmployees()">
+          <select id="emp-filter-dept" class="form-select" style="min-width:130px;flex:1" onchange="renderEmployees()">
+            <option value="">All Departments</option>
+            <option>Sales</option><option>Warehouse</option><option>Management</option><option>Delivery</option><option>Customer Service</option>
+          </select>
+          <select id="emp-filter-status" class="form-select" style="min-width:120px;flex:1" onchange="renderEmployees()">
+            <option value="">All Status</option>
+            <option value="active">Active</option>
+            <option value="inactive">Inactive</option>
+            <option value="leave">On Leave</option>
+          </select>
+        </div>
+        <button class="btn btn-primary" onclick="openAddModal()"><i class="fa-solid fa-plus"></i> Hire Employee</button>
+      </div>
+    </div>
+
+    <!-- Stats -->
+    <div class="stats-grid" style="margin-bottom:24px">
+      <div class="stat-card green"><div class="stat-icon"><i class="fa-solid fa-users"></i></div><div class="stat-num" id="stat-total">0</div><div class="stat-label">Total Employees</div></div>
+      <div class="stat-card amber"><div class="stat-icon"><i class="fa-solid fa-check-circle"></i></div><div class="stat-num" id="stat-active">0</div><div class="stat-label">Active</div></div>
+      <div class="stat-card blue"><div class="stat-icon"><i class="fa-solid fa-dollar-sign"></i></div><div class="stat-num" id="stat-payroll">$0</div><div class="stat-label">Monthly Payroll</div></div>
+      <div class="stat-card red"><div class="stat-icon"><i class="fa-solid fa-calendar-xmark"></i></div><div class="stat-num" id="stat-leave">0</div><div class="stat-label">On Leave</div></div>
+    </div>
+
+    <!-- Employee Grid -->
+    <div class="emp-grid" id="emp-grid">
+      <div class="text-center text-muted" style="grid-column:1/-1;padding:48px"><i class="fa-solid fa-users" style="font-size:2.5rem;opacity:.3;display:block;margin-bottom:12px"></i>No employees yet. Click "Hire Employee" to add your first team member.</div>
+    </div>
+  </main>
+</div>
+
+<!-- Add/Edit Employee Modal -->
+<div class="modal-backdrop hidden" id="emp-modal">
+  <div class="modal modal-lg">
+    <div class="modal-header">
+      <div class="modal-title" id="modal-title">Hire New Employee</div>
+      <button class="modal-close" onclick="closeModal()"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+    <div class="form-row">
+      <div class="field-group"><label class="field-label">First Name *</label><input class="form-input" id="f-first" placeholder="John"></div>
+      <div class="field-group"><label class="field-label">Last Name *</label><input class="form-input" id="f-last" placeholder="Smith"></div>
+    </div>
+    <div class="form-row">
+      <div class="field-group"><label class="field-label">Email *</label><input class="form-input" id="f-email" type="email" placeholder="john@example.com"></div>
+      <div class="field-group"><label class="field-label">Phone</label><input class="form-input" id="f-phone" placeholder="(555) 000-0000"></div>
+    </div>
+    <div class="form-row">
+      <div class="field-group"><label class="field-label">Job Title *</label><input class="form-input" id="f-title" placeholder="Parts Specialist"></div>
+      <div class="field-group"><label class="field-label">Department *</label>
+        <select class="form-select" id="f-dept">
+          <option>Sales</option><option>Warehouse</option><option>Management</option><option>Delivery</option><option>Customer Service</option>
+        </select>
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="field-group"><label class="field-label">Pay Type</label>
+        <select class="form-select" id="f-paytype" onchange="updatePayLabel()">
+          <option value="hourly">Hourly</option>
+          <option value="salary">Salary (Annual)</option>
+        </select>
+      </div>
+      <div class="field-group"><label class="field-label" id="pay-label">Hourly Rate ($)</label><input class="form-input" id="f-pay" type="number" min="0" step="0.01" placeholder="18.00"></div>
+    </div>
+    <div class="form-row">
+      <div class="field-group"><label class="field-label">Start Date</label><input class="form-input" id="f-start" type="date"></div>
+      <div class="field-group"><label class="field-label">Status</label>
+        <select class="form-select" id="f-status">
+          <option value="active">Active</option>
+          <option value="inactive">Inactive</option>
+          <option value="leave">On Leave</option>
+        </select>
+      </div>
+    </div>
+    <div class="field-group"><label class="field-label">Address</label><input class="form-input" id="f-address" placeholder="123 Main St, City, State 00000"></div>
+    <div class="field-group"><label class="field-label">Emergency Contact</label><input class="form-input" id="f-emergency" placeholder="Name — (555) 000-0000"></div>
+    <div class="field-group"><label class="field-label">Notes</label><textarea class="form-textarea" id="f-notes" rows="2" placeholder="Any additional notes..."></textarea></div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal()">Cancel</button>
+      <button class="btn btn-danger btn-sm" id="delete-btn" onclick="deleteEmployee()" style="margin-right:auto;display:none"><i class="fa-solid fa-trash"></i> Terminate</button>
+      <button class="btn btn-primary" onclick="saveEmployee()"><i class="fa-solid fa-check"></i> Save Employee</button>
+    </div>
+  </div>
+</div>
+
+<script src="../js/modules/security.js"></script>
+<script src="../js/modules/admin-auth.js"></script>
+<script>
+var _employees = [], _editId = null;
+var COLORS = ['#f59e0b','#3b82f6','#22c55e','#8b5cf6','#ef4444','#14b8a6','#f97316','#ec4899'];
+
+document.addEventListener('DOMContentLoaded', function() {
+  if (!AdminAuth.requireAdmin()) return;
+  var user = AdminAuth.getSession();
+  document.getElementById('admin-name').textContent = user && user.username ? user.username : 'Admin';
+  document.getElementById('admin-role').textContent = user && user.role ? user.role : 'Owner';
+  var av = document.getElementById('admin-avatar');
+  if (av) av.textContent = (user && user.username ? user.username : 'A').charAt(0).toUpperCase();
+  document.getElementById('logout-link').addEventListener('click', function(e) { e.preventDefault(); AdminAuth.logout(); });
+  loadEmployees();
+  document.getElementById('f-start').valueAsDate = new Date();
+});
+
+function toggleSidebar() {
+  document.getElementById('admin-sidebar').classList.toggle('mobile-open');
+  document.getElementById('admin-overlay').classList.toggle('open');
+}
+
+function loadEmployees() {
+  try { _employees = JSON.parse(localStorage.getItem('ap_employees') || '[]'); } catch(e) { _employees = []; }
+  renderEmployees();
+  updateStats();
+}
+
+function saveData() {
+  localStorage.setItem('ap_employees', JSON.stringify(_employees));
+}
+
+function updateStats() {
+  var active = _employees.filter(function(e) { return e.status === 'active'; }).length;
+  var leave  = _employees.filter(function(e) { return e.status === 'leave'; }).length;
+  var payroll = _employees.filter(function(e) { return e.status === 'active'; }).reduce(function(s, e) {
+    var pay = Number(e.pay) || 0;
+    return s + (e.payType === 'salary' ? pay / 12 : pay * 40 * 4.33);
+  }, 0);
+  document.getElementById('stat-total').textContent = _employees.length;
+  document.getElementById('stat-active').textContent = active;
+  document.getElementById('stat-payroll').textContent = '$' + Math.round(payroll).toLocaleString();
+  document.getElementById('stat-leave').textContent = leave;
+  document.getElementById('emp-count').textContent = _employees.length + ' employees';
+}
+
+function renderEmployees() {
+  var q = (document.getElementById('emp-search').value || '').toLowerCase();
+  var dept = document.getElementById('emp-filter-dept').value;
+  var status = document.getElementById('emp-filter-status').value;
+
+  var list = _employees.filter(function(e) {
+    var name = ((e.firstName || '') + ' ' + (e.lastName || '')).toLowerCase();
+    var matchQ = !q || name.includes(q) || (e.email || '').toLowerCase().includes(q) || (e.title || '').toLowerCase().includes(q);
+    var matchDept = !dept || e.department === dept;
+    var matchStatus = !status || e.status === status;
+    return matchQ && matchDept && matchStatus;
+  });
+
+  var grid = document.getElementById('emp-grid');
+  if (!list.length) {
+    grid.innerHTML = '<div class="text-center text-muted" style="grid-column:1/-1;padding:48px"><i class="fa-solid fa-users" style="font-size:2rem;opacity:.3;display:block;margin-bottom:12px"></i>No employees match your filters.</div>';
+    return;
+  }
+
+  grid.innerHTML = list.map(function(emp) {
+    var initials = ((emp.firstName || '?').charAt(0) + (emp.lastName || '?').charAt(0)).toUpperCase();
+    var color = COLORS[emp.id % COLORS.length];
+    var statusClass = 'emp-status-' + (emp.status || 'active');
+    var statusLabel = (emp.status || 'active').charAt(0).toUpperCase() + (emp.status || 'active').slice(1);
+    var payStr = emp.payType === 'salary'
+      ? '$' + Number(emp.pay || 0).toLocaleString() + '/yr'
+      : '$' + Number(emp.pay || 0).toFixed(2) + '/hr';
+
+    return '<div class="emp-card">' +
+      '<div class="emp-avatar" style="background:' + color + '">' + initials + '</div>' +
+      '<div class="emp-info">' +
+        '<div class="emp-name">' + (emp.firstName || '') + ' ' + (emp.lastName || '') + '</div>' +
+        '<div class="emp-role">' + (emp.title || 'Employee') + ' &bull; ' + (emp.department || '—') + '</div>' +
+        '<div class="emp-meta">' +
+          '<span class="emp-meta-item"><i class="fa-solid fa-envelope"></i>' + (emp.email || '—') + '</span>' +
+          '<span class="emp-meta-item"><i class="fa-solid fa-phone"></i>' + (emp.phone || '—') + '</span>' +
+          '<span class="emp-meta-item"><i class="fa-solid fa-dollar-sign"></i>' + payStr + '</span>' +
+          '<span class="emp-meta-item ' + statusClass + '"><i class="fa-solid fa-circle" style="font-size:.5rem"></i>' + statusLabel + '</span>' +
+        '</div>' +
+      '</div>' +
+      '<div class="emp-actions">' +
+        '<button class="btn btn-ghost btn-sm" onclick="viewEmployee(' + emp.id + ')"><i class="fa-solid fa-eye"></i></button>' +
+        '<button class="btn btn-outline btn-sm" onclick="editEmployee(' + emp.id + ')"><i class="fa-solid fa-pen"></i> Edit</button>' +
+      '</div>' +
+    '</div>';
+  }).join('');
+}
+
+function openAddModal() {
+  _editId = null;
+  document.getElementById('modal-title').textContent = 'Hire New Employee';
+  document.getElementById('delete-btn').style.display = 'none';
+  ['f-first','f-last','f-email','f-phone','f-title','f-address','f-emergency','f-notes'].forEach(function(id) {
+    var el = document.getElementById(id); if (el) el.value = '';
+  });
+  document.getElementById('f-dept').value = 'Sales';
+  document.getElementById('f-paytype').value = 'hourly';
+  document.getElementById('f-pay').value = '';
+  document.getElementById('f-status').value = 'active';
+  document.getElementById('f-start').valueAsDate = new Date();
+  document.getElementById('emp-modal').classList.remove('hidden');
+}
+
+function editEmployee(id) {
+  var emp = _employees.find(function(e) { return e.id === id; });
+  if (!emp) return;
+  _editId = id;
+  document.getElementById('modal-title').textContent = 'Edit Employee';
+  document.getElementById('delete-btn').style.display = 'inline-flex';
+  document.getElementById('f-first').value = emp.firstName || '';
+  document.getElementById('f-last').value = emp.lastName || '';
+  document.getElementById('f-email').value = emp.email || '';
+  document.getElementById('f-phone').value = emp.phone || '';
+  document.getElementById('f-title').value = emp.title || '';
+  document.getElementById('f-dept').value = emp.department || 'Sales';
+  document.getElementById('f-paytype').value = emp.payType || 'hourly';
+  document.getElementById('f-pay').value = emp.pay || '';
+  document.getElementById('f-status').value = emp.status || 'active';
+  document.getElementById('f-start').value = emp.startDate || '';
+  document.getElementById('f-address').value = emp.address || '';
+  document.getElementById('f-emergency').value = emp.emergency || '';
+  document.getElementById('f-notes').value = emp.notes || '';
+  updatePayLabel();
+  document.getElementById('emp-modal').classList.remove('hidden');
+}
+
+function viewEmployee(id) { editEmployee(id); }
+
+function saveEmployee() {
+  var first = (document.getElementById('f-first').value || '').trim();
+  var last  = (document.getElementById('f-last').value || '').trim();
+  var email = (document.getElementById('f-email').value || '').trim();
+  if (!first || !last || !email) { showToast('First name, last name, and email are required.', 'error'); return; }
+
+  var emp = {
+    id: _editId !== null ? _editId : Date.now(),
+    firstName: first, lastName: last, email: email,
+    phone: document.getElementById('f-phone').value.trim(),
+    title: document.getElementById('f-title').value.trim(),
+    department: document.getElementById('f-dept').value,
+    payType: document.getElementById('f-paytype').value,
+    pay: parseFloat(document.getElementById('f-pay').value) || 0,
+    status: document.getElementById('f-status').value,
+    startDate: document.getElementById('f-start').value,
+    address: document.getElementById('f-address').value.trim(),
+    emergency: document.getElementById('f-emergency').value.trim(),
+    notes: document.getElementById('f-notes').value.trim(),
+    updatedAt: new Date().toISOString(),
+  };
+  if (_editId === null) emp.createdAt = new Date().toISOString();
+  else emp.createdAt = (_employees.find(function(e){return e.id===_editId;})||{}).createdAt || emp.updatedAt;
+
+  if (_editId !== null) {
+    var idx = _employees.findIndex(function(e) { return e.id === _editId; });
+    if (idx >= 0) _employees[idx] = emp; else _employees.push(emp);
+  } else {
+    _employees.push(emp);
+  }
+
+  saveData();
+  renderEmployees();
+  updateStats();
+  closeModal();
+  showToast(_editId === null ? 'Employee hired!' : 'Employee updated!', 'success');
+}
+
+function deleteEmployee() {
+  if (!_editId) return;
+  var emp = _employees.find(function(e) { return e.id === _editId; });
+  if (!emp) return;
+  if (!confirm('Terminate ' + emp.firstName + ' ' + emp.lastName + '? This cannot be undone.')) return;
+  _employees = _employees.filter(function(e) { return e.id !== _editId; });
+  saveData(); renderEmployees(); updateStats(); closeModal();
+  showToast('Employee terminated.', 'info');
+}
+
+function closeModal() { document.getElementById('emp-modal').classList.add('hidden'); }
+
+function updatePayLabel() {
+  var type = document.getElementById('f-paytype').value;
+  document.getElementById('pay-label').textContent = type === 'salary' ? 'Annual Salary ($)' : 'Hourly Rate ($)';
+}
+
+function showToast(msg, type) {
+  type = type || 'info';
+  var c = document.getElementById('admin-toast-container'); if (!c) return;
+  var t = document.createElement('div'); t.className = 'admin-toast toast-' + type;
+  var icons = {success:'fa-check-circle',error:'fa-xmark-circle',info:'fa-circle-info'};
+  t.innerHTML = '<i class="fa-solid ' + (icons[type]||'fa-circle-info') + '" style="color:var(--c-accent)"></i> ' + msg;
+  c.appendChild(t); setTimeout(function(){t.remove();}, 3500);
+}
+</script>
+</body>
+</html>

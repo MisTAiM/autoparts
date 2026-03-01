@@ -8,6 +8,7 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
   <link rel="stylesheet" href="../css/variables.css">
   <link rel="stylesheet" href="../css/base.css">
+  <link rel="stylesheet" href="../css/admin.css">
   <style>
     *{box-sizing:border-box;margin:0;padding:0}
     body{background:var(--c-bg);color:var(--c-text);font-family:var(--font-body);display:flex;min-height:100vh}
@@ -43,6 +44,9 @@
   </style>
 </head>
 <body>
+<div id="admin-toast-container" class="admin-toast-container"></div>
+<button class="admin-menu-toggle" id="menu-toggle" onclick="document.getElementById('admin-sidebar').classList.toggle('mobile-open');document.getElementById('admin-overlay').classList.toggle('open')"><i class="fa-solid fa-bars"></i></button>
+<div class="admin-overlay" id="admin-overlay" onclick="document.getElementById('admin-sidebar').classList.toggle('mobile-open');this.classList.toggle('open')"></div>
   <aside class="sidebar">
     <div class="sidebar-logo">
       <span><i class="fa-solid fa-gear" style="margin-right:6px"></i>AutoParts</span>
@@ -59,6 +63,11 @@
 <div style="border-top:1px solid var(--c-border);margin:8px 0"></div>
 <a href="../index.html" class="nav-item" target="_blank"><i class="fa-solid fa-globe"></i> View Store</a>
 <a href="#" class="nav-item" id="logout-link"><i class="fa-solid fa-right-from-bracket"></i> Logout</a>
+    </div>
+
+    <div class="admin-user">
+      <div class="admin-user-avatar" id="admin-avatar">A</div>
+      <div class="admin-user-info"><div class="admin-user-name" id="admin-name">Admin</div><div class="admin-user-role" id="admin-role">Owner</div></div>
     </div>
   </aside>
 
@@ -93,6 +102,14 @@
   </div>
 
   <script src="../js/modules/security.js"></script>
+<script>
+
+function toggleSidebar() {
+  document.getElementById('admin-sidebar').classList.toggle('mobile-open');
+  document.getElementById('admin-overlay').classList.toggle('open');
+}
+
+</script>
   <script src="../js/modules/admin-auth.js"></script>
   <script>
   document.addEventListener('DOMContentLoaded', () => {
@@ -155,6 +172,7 @@
       </tr>`;
     }).join('') : `<tr><td colspan="7" style="text-align:center;padding:48px;color:var(--c-text-3)">No customers registered yet.</td></tr>`;
   }
-  </script>
+  
+</script>
 </body>
 </html>

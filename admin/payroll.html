@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Payroll — AutoParts Admin</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" crossorigin="anonymous">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;900&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../css/variables.css">
+  <link rel="stylesheet" href="../css/base.css">
+  <link rel="stylesheet" href="../css/admin.css">
+  <style>
+    .pay-row{display:flex;align-items:center;gap:12px;padding:11px 0;border-bottom:1px solid var(--c-border)}
+    .pay-row:last-child{border-bottom:none}
+    .pay-avatar{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:.85rem;color:#0B0D11;flex-shrink:0}
+    .pay-name{font-weight:600;font-size:.88rem;flex:1;min-width:0}
+    .pay-role{font-size:.73rem;color:var(--c-text-3)}
+    .pay-rate{font-size:.82rem;color:var(--c-text-2);width:110px;text-align:right}
+    .pay-hours{width:70px;text-align:center}
+    .pay-hours input{width:100%;padding:4px 8px;background:var(--c-surface-2);border:1px solid var(--c-border);border-radius:var(--radius);color:var(--c-text);font-size:.82rem;text-align:center}
+    .pay-amount{font-family:var(--font-display);font-weight:700;font-size:.95rem;width:90px;text-align:right;color:var(--c-text)}
+    .pay-status{width:100px;text-align:right}
+    .pay-actions{width:80px;text-align:right}
+    .period-selector{display:flex;align-items:center;gap:10px}
+    .history-item{display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--c-border)}
+    .history-item:last-child{border-bottom:none}
+    @media(max-width:768px){.pay-rate,.pay-hours{display:none}.pay-amount{width:70px}.pay-actions{width:60px}}
+  </style>
+</head>
+<body>
+<div id="admin-toast-container" class="admin-toast-container"></div>
+<button class="admin-menu-toggle" id="menu-toggle" onclick="toggleSidebar()"><i class="fa-solid fa-bars"></i></button>
+<div class="admin-overlay" id="admin-overlay" onclick="toggleSidebar()"></div>
+
+<div class="admin-layout">
+  <aside class="admin-sidebar" id="admin-sidebar">
+    <div class="admin-logo"><div class="logo-icon"><i class="fa-solid fa-gear"></i></div>Auto<span>Parts</span></div>
+    <nav class="admin-nav">
+      <div class="admin-nav-section">
+        <div class="admin-nav-label">Main</div>
+        <a href="dashboard.html"><i class="fa-solid fa-chart-line"></i> Dashboard</a>
+        <a href="inventory.html"><i class="fa-solid fa-boxes-stacked"></i> Inventory</a>
+        <a href="orders.html"><i class="fa-solid fa-receipt"></i> Orders</a>
+        <a href="customers.html"><i class="fa-solid fa-users"></i> Customers</a>
+        <a href="analytics.html"><i class="fa-solid fa-chart-bar"></i> Analytics</a>
+        <a href="coupons.html"><i class="fa-solid fa-tag"></i> Coupons</a>
+        <a href="content.html"><i class="fa-solid fa-pen-to-square"></i> Content</a>
+      </div>
+      <div class="admin-nav-section">
+        <div class="admin-nav-label">Operations</div>
+        <a href="employees.html"><i class="fa-solid fa-id-badge"></i> Employees</a>
+        <a href="payroll.html" class="active"><i class="fa-solid fa-money-check-dollar"></i> Payroll</a>
+        <a href="schedule.html"><i class="fa-solid fa-calendar-days"></i> Schedule</a>
+        <a href="settings.html"><i class="fa-solid fa-sliders"></i> Settings</a>
+      </div>
+      <div class="admin-nav-section">
+        <a href="../index.html" target="_blank"><i class="fa-solid fa-globe"></i> View Store</a>
+        <a href="#" id="logout-link"><i class="fa-solid fa-right-from-bracket"></i> Sign Out</a>
+      </div>
+    </nav>
+    <div class="admin-user">
+      <div class="admin-user-avatar" id="admin-avatar">A</div>
+      <div class="admin-user-info"><div class="admin-user-name" id="admin-name">Admin</div><div class="admin-user-role" id="admin-role">Owner</div></div>
+    </div>
+  </aside>
+
+  <main class="admin-main">
+    <div class="page-header">
+      <div class="page-header-left">
+        <h2><i class="fa-solid fa-money-check-dollar" style="color:var(--c-accent);margin-right:10px"></i>Payroll</h2>
+        <p class="text-muted text-sm" id="period-label">Current Pay Period</p>
+      </div>
+      <div class="page-header-actions">
+        <div class="period-selector">
+          <button class="btn btn-ghost btn-sm" onclick="prevPeriod()"><i class="fa-solid fa-chevron-left"></i></button>
+          <span class="text-sm font-bold" id="period-display" style="min-width:160px;text-align:center"></span>
+          <button class="btn btn-ghost btn-sm" onclick="nextPeriod()"><i class="fa-solid fa-chevron-right"></i></button>
+        </div>
+        <button class="btn btn-outline btn-sm" onclick="exportPayroll()"><i class="fa-solid fa-download"></i> Export</button>
+        <button class="btn btn-primary" onclick="runPayroll()" id="run-btn"><i class="fa-solid fa-play"></i> Run Payroll</button>
+      </div>
+    </div>
+
+    <!-- KPIs -->
+    <div class="stats-grid" style="margin-bottom:24px">
+      <div class="stat-card green"><div class="stat-icon"><i class="fa-solid fa-dollar-sign"></i></div><div class="stat-num" id="total-payroll">$0</div><div class="stat-label">Total This Period</div></div>
+      <div class="stat-card amber"><div class="stat-icon"><i class="fa-solid fa-users"></i></div><div class="stat-num" id="total-emp">0</div><div class="stat-label">Employees Paid</div></div>
+      <div class="stat-card blue"><div class="stat-icon"><i class="fa-solid fa-clock"></i></div><div class="stat-num" id="total-hours">0</div><div class="stat-label">Total Hours Worked</div></div>
+      <div class="stat-card purple"><div class="stat-icon"><i class="fa-solid fa-calendar"></i></div><div class="stat-num" id="annual-est">$0</div><div class="stat-label">Annual Payroll Est.</div></div>
+    </div>
+
+    <!-- Payroll Table -->
+    <div class="panel" style="margin-bottom:24px">
+      <div class="panel-title">
+        Pay Period Breakdown
+        <div style="display:flex;gap:8px;align-items:center">
+          <span class="badge badge-neutral" id="period-status">Draft</span>
+          <button class="btn btn-ghost btn-xs" onclick="resetAllHours()"><i class="fa-solid fa-rotate-right"></i> Reset Hours</button>
+        </div>
+      </div>
+
+      <!-- Table header -->
+      <div style="display:flex;align-items:center;gap:12px;padding:6px 0;border-bottom:2px solid var(--c-border);font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--c-text-3)">
+        <div style="width:36px"></div>
+        <div style="flex:1">Employee</div>
+        <div class="pay-rate">Rate</div>
+        <div class="pay-hours" style="text-align:center">Hours</div>
+        <div class="pay-amount">Gross Pay</div>
+        <div class="pay-status">Status</div>
+        <div class="pay-actions">Action</div>
+      </div>
+
+      <div id="payroll-list">
+        <div class="text-center text-muted" style="padding:40px"><i class="fa-solid fa-users" style="font-size:2rem;opacity:.3;display:block;margin-bottom:12px"></i>No active employees found. <a href="employees.html" class="text-accent">Add employees</a> first.</div>
+      </div>
+
+      <div style="display:flex;align-items:center;justify-content:flex-end;gap:16px;padding-top:16px;margin-top:8px;border-top:2px solid var(--c-border)">
+        <span class="text-muted text-sm">Period Total</span>
+        <span id="footer-total" style="font-family:var(--font-display);font-size:1.4rem;font-weight:900;color:var(--c-accent)">$0.00</span>
+      </div>
+    </div>
+
+    <!-- Payroll History -->
+    <div class="panel">
+      <div class="panel-title">Payroll History</div>
+      <div id="payroll-history">
+        <div class="empty-state" style="padding:28px;text-align:center;color:var(--c-text-3)"><i class="fa-solid fa-clock-rotate-left" style="font-size:1.5rem;opacity:.4;display:block;margin-bottom:10px"></i>No payroll history yet. Run your first payroll above.</div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<!-- Pay Detail Modal -->
+<div class="modal-backdrop hidden" id="pay-modal">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title" id="pay-modal-title">Pay Details</div>
+      <button class="modal-close" onclick="document.getElementById('pay-modal').classList.add('hidden')"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+    <div id="pay-modal-body"></div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="document.getElementById('pay-modal').classList.add('hidden')">Close</button>
+      <button class="btn btn-success" onclick="markPaid()"><i class="fa-solid fa-check"></i> Mark as Paid</button>
+    </div>
+  </div>
+</div>
+
+<script src="../js/modules/security.js"></script>
+<script src="../js/modules/admin-auth.js"></script>
+<script>
+var _employees = [], _periodData = {}, _history = [], _currentPeriodIdx = 0, _currentPayEmpId = null;
+var COLORS = ['#f59e0b','#3b82f6','#22c55e','#8b5cf6','#ef4444','#14b8a6','#f97316','#ec4899'];
+
+function getPeriodKey(offset) {
+  var now = new Date();
+  var d = new Date(now.getFullYear(), now.getMonth() + offset, 1);
+  return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0');
+}
+
+function getPeriodLabel(offset) {
+  var now = new Date();
+  var d = new Date(now.getFullYear(), now.getMonth() + offset, 1);
+  return d.toLocaleDateString('en-US', {month:'long', year:'numeric'});
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+  if (!AdminAuth.requireAdmin()) return;
+  var user = AdminAuth.getSession();
+  document.getElementById('admin-name').textContent = user && user.username ? user.username : 'Admin';
+  document.getElementById('admin-role').textContent = user && user.role ? user.role : 'Owner';
+  var av = document.getElementById('admin-avatar');
+  if (av) av.textContent = (user && user.username ? user.username : 'A').charAt(0).toUpperCase();
+  document.getElementById('logout-link').addEventListener('click', function(e) { e.preventDefault(); AdminAuth.logout(); });
+  loadAll();
+});
+
+function toggleSidebar() {
+  document.getElementById('admin-sidebar').classList.toggle('mobile-open');
+  document.getElementById('admin-overlay').classList.toggle('open');
+}
+
+function loadAll() {
+  try { _employees = JSON.parse(localStorage.getItem('ap_employees') || '[]'); } catch(e) { _employees = []; }
+  try { _periodData = JSON.parse(localStorage.getItem('ap_payroll_periods') || '{}'); } catch(e) { _periodData = {}; }
+  try { _history = JSON.parse(localStorage.getItem('ap_payroll_history') || '[]'); } catch(e) { _history = []; }
+  renderPeriod();
+  renderHistory();
+}
+
+function prevPeriod() { _currentPeriodIdx--; renderPeriod(); }
+function nextPeriod() { if (_currentPeriodIdx < 0) { _currentPeriodIdx++; renderPeriod(); } }
+
+function renderPeriod() {
+  var key = getPeriodKey(_currentPeriodIdx);
+  var label = getPeriodLabel(_currentPeriodIdx);
+  document.getElementById('period-display').textContent = label;
+  document.getElementById('period-label').textContent = _currentPeriodIdx === 0 ? 'Current Period — ' + label : label;
+
+  // Initialize period data if missing
+  if (!_periodData[key]) {
+    _periodData[key] = { status: 'draft', employees: {} };
+    _employees.filter(function(e){return e.status==='active';}).forEach(function(e) {
+      _periodData[key].employees[e.id] = { hours: e.payType === 'salary' ? 0 : 80, paid: false };
+    });
+  }
+
+  var period = _periodData[key];
+  var statusEl = document.getElementById('period-status');
+  if (period.status === 'paid') { statusEl.textContent = 'Paid'; statusEl.className = 'badge badge-success'; }
+  else if (period.status === 'processing') { statusEl.textContent = 'Processing'; statusEl.className = 'badge badge-warning'; }
+  else { statusEl.textContent = 'Draft'; statusEl.className = 'badge badge-neutral'; }
+
+  var runBtn = document.getElementById('run-btn');
+  runBtn.disabled = period.status === 'paid';
+  if (period.status === 'paid') { runBtn.textContent = 'Payroll Complete'; runBtn.className = 'btn btn-success'; }
+  else { runBtn.innerHTML = '<i class="fa-solid fa-play"></i> Run Payroll'; runBtn.className = 'btn btn-primary'; }
+
+  var active = _employees.filter(function(e) { return e.status === 'active'; });
+  var html = '';
+  var total = 0;
+  var totalHours = 0;
+
+  active.forEach(function(emp) {
+    var empData = period.employees[emp.id] || { hours: emp.payType === 'salary' ? 0 : 80, paid: false };
+    var hours = Number(empData.hours) || 0;
+    var rate = Number(emp.pay) || 0;
+    var gross = emp.payType === 'salary' ? rate / 12 : hours * rate;
+    total += gross;
+    totalHours += hours;
+    var color = COLORS[emp.id % COLORS.length];
+    var initials = ((emp.firstName||'?').charAt(0) + (emp.lastName||'?').charAt(0)).toUpperCase();
+    var statusBadge = empData.paid
+      ? '<span class="badge badge-success">Paid</span>'
+      : '<span class="badge badge-neutral">Pending</span>';
+
+    html += '<div class="pay-row" id="row-' + emp.id + '">' +
+      '<div class="pay-avatar" style="background:' + color + '">' + initials + '</div>' +
+      '<div style="flex:1;min-width:0"><div class="pay-name">' + emp.firstName + ' ' + emp.lastName + '</div><div class="pay-role">' + (emp.title||'Employee') + '</div></div>' +
+      '<div class="pay-rate" style="text-align:right;font-size:.8rem">' +
+        (emp.payType==='salary' ? '$'+Number(rate).toLocaleString()+'/yr' : '$'+rate.toFixed(2)+'/hr') +
+      '</div>' +
+      '<div class="pay-hours">' +
+        (emp.payType==='salary' ? '<span class="text-muted text-xs">Salary</span>' :
+        '<input type="number" min="0" max="300" value="'+hours+'" onchange="updateHours('+emp.id+',this.value)" style="width:100%;padding:4px 6px;background:var(--c-surface-2);border:1px solid var(--c-border);border-radius:var(--radius);color:var(--c-text);font-size:.82rem;text-align:center">') +
+      '</div>' +
+      '<div class="pay-amount">$' + gross.toFixed(2) + '</div>' +
+      '<div class="pay-status">' + statusBadge + '</div>' +
+      '<div class="pay-actions" style="text-align:right">' +
+        '<button class="btn btn-ghost btn-xs" onclick="showPayDetail(' + emp.id + ')" title="Details"><i class="fa-solid fa-eye"></i></button>' +
+      '</div>' +
+    '</div>';
+  });
+
+  if (!active.length) {
+    html = '<div class="text-center text-muted" style="padding:40px"><i class="fa-solid fa-users" style="font-size:2rem;opacity:.3;display:block;margin-bottom:12px"></i>No active employees. <a href="employees.html" class="text-accent">Add employees</a> first.</div>';
+  }
+
+  document.getElementById('payroll-list').innerHTML = html;
+  document.getElementById('footer-total').textContent = '$' + total.toFixed(2);
+  document.getElementById('total-payroll').textContent = '$' + Math.round(total).toLocaleString();
+  document.getElementById('total-emp').textContent = active.length;
+  document.getElementById('total-hours').textContent = totalHours;
+  document.getElementById('annual-est').textContent = '$' + Math.round(total * 12).toLocaleString();
+}
+
+function updateHours(empId, val) {
+  var key = getPeriodKey(_currentPeriodIdx);
+  if (!_periodData[key]) return;
+  if (!_periodData[key].employees[empId]) _periodData[key].employees[empId] = {};
+  _periodData[key].employees[empId].hours = parseFloat(val) || 0;
+  localStorage.setItem('ap_payroll_periods', JSON.stringify(_periodData));
+  // Recalculate total live
+  var emp = _employees.find(function(e){return e.id===empId;});
+  if (emp) {
+    var gross = (Number(emp.pay)||0) * (parseFloat(val)||0);
+    var row = document.getElementById('row-' + empId);
+    if (row) row.querySelector('.pay-amount').textContent = '$'+gross.toFixed(2);
+  }
+  // Update footer
+  var total = 0;
+  _employees.filter(function(e){return e.status==='active';}).forEach(function(e) {
+    var ed = _periodData[key].employees[e.id]||{hours:80};
+    var rate = Number(e.pay)||0;
+    total += e.payType==='salary' ? rate/12 : (Number(ed.hours)||0)*rate;
+  });
+  document.getElementById('footer-total').textContent = '$'+total.toFixed(2);
+  document.getElementById('total-payroll').textContent = '$'+Math.round(total).toLocaleString();
+}
+
+function resetAllHours() {
+  if (!confirm('Reset all hours to 80 (2 weeks standard)?')) return;
+  var key = getPeriodKey(_currentPeriodIdx);
+  if (!_periodData[key]) return;
+  _employees.filter(function(e){return e.status==='active';}).forEach(function(e) {
+    if (!_periodData[key].employees[e.id]) _periodData[key].employees[e.id] = {};
+    _periodData[key].employees[e.id].hours = e.payType==='salary'?0:80;
+  });
+  localStorage.setItem('ap_payroll_periods', JSON.stringify(_periodData));
+  renderPeriod();
+}
+
+function runPayroll() {
+  var key = getPeriodKey(_currentPeriodIdx);
+  var label = getPeriodLabel(_currentPeriodIdx);
+  if (!_periodData[key]) return;
+  if (!confirm('Run payroll for ' + label + '? This will mark the period as processing.')) return;
+  _periodData[key].status = 'processing';
+  localStorage.setItem('ap_payroll_periods', JSON.stringify(_periodData));
+  // Add to history
+  var active = _employees.filter(function(e){return e.status==='active';});
+  var total = active.reduce(function(s,e) {
+    var ed = _periodData[key].employees[e.id]||{hours:80};
+    var rate = Number(e.pay)||0;
+    return s + (e.payType==='salary' ? rate/12 : (Number(ed.hours)||0)*rate);
+  },0);
+  _history.unshift({ id: Date.now(), period: key, label: label, total: total, employees: active.length, status: 'processing', runAt: new Date().toISOString() });
+  localStorage.setItem('ap_payroll_history', JSON.stringify(_history));
+  renderPeriod(); renderHistory();
+  showToast('Payroll running for ' + label + '!', 'success');
+}
+
+function showPayDetail(empId) {
+  var emp = _employees.find(function(e){return e.id===empId;});
+  if (!emp) return;
+  _currentPayEmpId = empId;
+  var key = getPeriodKey(_currentPeriodIdx);
+  var ed = (_periodData[key]||{employees:{}}).employees[empId]||{hours:80,paid:false};
+  var hours = Number(ed.hours)||0;
+  var rate = Number(emp.pay)||0;
+  var gross = emp.payType==='salary' ? rate/12 : hours*rate;
+  var fica = gross*0.0765; // estimated 7.65% FICA
+  var net = gross - fica;
+  document.getElementById('pay-modal-title').textContent = emp.firstName + ' ' + emp.lastName + ' — Pay Stub';
+  document.getElementById('pay-modal-body').innerHTML =
+    '<div style="background:var(--c-surface-2);border-radius:var(--radius);padding:16px;margin-bottom:16px">' +
+      '<div class="metric-row"><span>Employee</span><strong>'+emp.firstName+' '+emp.lastName+'</strong></div>' +
+      '<div class="metric-row"><span>Title</span><span>'+emp.title+'</span></div>' +
+      '<div class="metric-row"><span>Pay Type</span><span>'+emp.payType+'</span></div>' +
+      '<div class="metric-row"><span>Rate</span><span>'+(emp.payType==='salary'?'$'+rate.toLocaleString()+'/yr':'$'+rate.toFixed(2)+'/hr')+'</span></div>' +
+      (emp.payType!=='salary'?'<div class="metric-row"><span>Hours Worked</span><span>'+hours+'</span></div>':'') +
+    '</div>' +
+    '<div class="metric-row"><span class="text-success">Gross Pay</span><strong class="text-success">$'+gross.toFixed(2)+'</strong></div>' +
+    '<div class="metric-row"><span class="text-muted">Est. FICA (7.65%)</span><span class="text-danger">-$'+fica.toFixed(2)+'</span></div>' +
+    '<div class="metric-row" style="font-size:1.05rem"><span><strong>Est. Net Pay</strong></span><strong style="color:var(--c-accent)">$'+net.toFixed(2)+'</strong></div>' +
+    '<div class="alert alert-info" style="margin-top:12px;font-size:.78rem"><i class="fa-solid fa-circle-info"></i> Federal/state tax withholding not included. Consult your accountant for exact amounts.</div>';
+  document.getElementById('pay-modal').classList.remove('hidden');
+}
+
+function markPaid() {
+  if (!_currentPayEmpId) return;
+  var key = getPeriodKey(_currentPeriodIdx);
+  if (!_periodData[key]) return;
+  if (!_periodData[key].employees[_currentPayEmpId]) _periodData[key].employees[_currentPayEmpId] = {};
+  _periodData[key].employees[_currentPayEmpId].paid = true;
+  localStorage.setItem('ap_payroll_periods', JSON.stringify(_periodData));
+  // Check if all paid
+  var active = _employees.filter(function(e){return e.status==='active';});
+  var allPaid = active.every(function(e){return (_periodData[key].employees[e.id]||{}).paid;});
+  if (allPaid) { _periodData[key].status = 'paid'; localStorage.setItem('ap_payroll_periods', JSON.stringify(_periodData)); }
+  document.getElementById('pay-modal').classList.add('hidden');
+  renderPeriod();
+  showToast('Marked as paid!', 'success');
+}
+
+function renderHistory() {
+  var el = document.getElementById('payroll-history');
+  if (!_history.length) {
+    el.innerHTML = '<div class="text-center text-muted" style="padding:28px"><i class="fa-solid fa-clock-rotate-left" style="font-size:1.5rem;opacity:.4;display:block;margin-bottom:10px"></i>No history yet.</div>';
+    return;
+  }
+  el.innerHTML = _history.slice(0,12).map(function(h) {
+    var statusBadge = h.status==='paid' ? '<span class="badge badge-success">Paid</span>' : h.status==='processing' ? '<span class="badge badge-warning">Processing</span>' : '<span class="badge badge-neutral">Draft</span>';
+    return '<div class="history-item">' +
+      '<div><div class="font-bold" style="font-size:.88rem">'+h.label+'</div><div class="text-muted text-xs">Run: '+new Date(h.runAt).toLocaleDateString()+'</div></div>' +
+      '<div style="display:flex;align-items:center;gap:16px">' +
+        '<span class="text-muted text-sm">'+h.employees+' employees</span>' +
+        statusBadge +
+        '<span style="font-family:var(--font-display);font-weight:700;color:var(--c-accent)">$'+Number(h.total).toFixed(2)+'</span>' +
+      '</div>' +
+    '</div>';
+  }).join('');
+}
+
+function exportPayroll() {
+  var key = getPeriodKey(_currentPeriodIdx);
+  var period = _periodData[key];
+  if (!period) { showToast('No data to export', 'info'); return; }
+  var rows = [['Employee','Title','Department','Pay Type','Rate','Hours','Gross Pay','Status']];
+  _employees.filter(function(e){return e.status==='active';}).forEach(function(e) {
+    var ed = period.employees[e.id]||{hours:80,paid:false};
+    var rate = Number(e.pay)||0, hours = Number(ed.hours)||0;
+    var gross = e.payType==='salary' ? rate/12 : hours*rate;
+    rows.push([e.firstName+' '+e.lastName, e.title||'', e.department||'', e.payType||'hourly', rate.toFixed(2), hours, gross.toFixed(2), ed.paid?'Paid':'Pending']);
+  });
+  var csv = rows.map(function(r){return r.map(function(c){return '"'+String(c).replace(/"/g,'""')+'"';}).join(',');}).join('\n');
+  var a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob([csv],{type:'text/csv'}));
+  a.download = 'payroll-'+key+'.csv'; a.click();
+  showToast('Exported!', 'success');
+}
+
+function showToast(msg, type) {
+  type = type||'info';
+  var c = document.getElementById('admin-toast-container'); if(!c) return;
+  var t = document.createElement('div'); t.className = 'admin-toast toast-'+type;
+  var icons={success:'fa-check-circle',error:'fa-xmark-circle',info:'fa-circle-info'};
+  t.innerHTML = '<i class="fa-solid '+(icons[type]||'fa-circle-info')+'" style="color:var(--c-accent)"></i> '+msg;
+  c.appendChild(t); setTimeout(function(){t.remove();},3500);
+}
+</script>
+</body>
+</html>

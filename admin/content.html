@@ -41,10 +41,13 @@
   </style>
 </head>
 <body>
+<div id="admin-toast-container" class="admin-toast-container"></div>
+<button class="admin-menu-toggle" id="menu-toggle" onclick="document.getElementById('admin-sidebar').classList.toggle('mobile-open');document.getElementById('admin-overlay').classList.toggle('open')"><i class="fa-solid fa-bars"></i></button>
+<div class="admin-overlay" id="admin-overlay" onclick="document.getElementById('admin-sidebar').classList.toggle('mobile-open');this.classList.toggle('open')"></div>
 <div class="admin-layout">
 
   <!-- Sidebar -->
-  <aside class="admin-sidebar">
+  <aside class="admin-sidebar" id="admin-sidebar">
     <div class="admin-logo"><i class="fa-solid fa-gears"></i> AutoParts</div>
     <nav class="admin-nav">
 
@@ -73,6 +76,11 @@
     <div class="admin-nav-footer">
       <a href="../index.html" target="_blank"><i class="fa-solid fa-arrow-up-right-from-square"></i> View Store</a>
       <a href="login.html" id="logout-btn"><i class="fa-solid fa-right-from-bracket"></i> Logout</a>
+    </div>
+
+    <div class="admin-user">
+      <div class="admin-user-avatar" id="admin-avatar">A</div>
+      <div class="admin-user-info"><div class="admin-user-name" id="admin-name">Admin</div><div class="admin-user-role" id="admin-role">Owner</div></div>
     </div>
   </aside>
 
@@ -290,6 +298,14 @@
 </div>
 
 <script src="../js/modules/security.js"></script>
+<script>
+
+function toggleSidebar() {
+  document.getElementById('admin-sidebar').classList.toggle('mobile-open');
+  document.getElementById('admin-overlay').classList.toggle('open');
+}
+
+</script>
 <script src="../js/modules/admin-auth.js"></script>
 <script src="../js/data/parts-data.js"></script>
 <script>

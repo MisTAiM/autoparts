@@ -198,7 +198,7 @@ const SAMPLE_PARTS = [
     stockQty: 38,
     inStock: true,
     weight: 0.6,
-    thumbnail: 'https://m.media-amazon.com/images/I/91liArnqwNL._AC_SL400_.jpg',
+    thumbnail: 'https://www.knfilters.com/media/catalog/product/3/3/33-2304.jpg',
     description: 'K&N High-Performance replacement air filter. Washable and reusable — guaranteed for 1 million miles. Cotton gauze construction provides superior airflow vs. paper filters. Direct drop-in replacement requiring no modification.',
     warrantyText: 'Million Mile Limited Warranty',
     tags: 'air filter kn performance reusable washable high flow',

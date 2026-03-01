@@ -8,51 +8,15 @@
   <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;900&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="../css/variables.css">
   <link rel="stylesheet" href="../css/base.css">
-  <style>
-    .admin-layout{display:grid;grid-template-columns:220px 1fr;min-height:100vh}
-    .admin-sidebar{background:var(--c-surface);border-right:1px solid var(--c-border);padding:24px 0;position:sticky;top:0;height:100vh;overflow-y:auto}
-    .admin-logo{padding:0 20px 24px;border-bottom:1px solid var(--c-border);font-family:var(--font-display);font-weight:900;font-size:1.1rem;text-transform:uppercase}
-    .admin-logo span{color:var(--c-accent)}
-    .admin-nav-section{padding:12px 0}
-    .admin-nav-label{padding:4px 20px 8px;font-size:.7rem;text-transform:uppercase;letter-spacing:.1em;color:var(--c-text-3)}
-    .admin-nav a{display:flex;align-items:center;gap:10px;padding:10px 20px;color:var(--c-text-2);font-size:.88rem;transition:all var(--t-fast)}
-    .admin-nav a:hover,.admin-nav a.active{background:var(--c-surface-2);color:var(--c-text)}
-    .admin-nav a.active{border-left:2px solid var(--c-accent);color:var(--c-accent)}
-    .admin-user{padding:16px 20px;border-top:1px solid var(--c-border);position:absolute;bottom:0;left:0;right:0;background:var(--c-surface)}
-    .admin-main{padding:32px;background:var(--c-bg)}
-    .page-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:32px}
-    .stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:20px;margin-bottom:32px}
-    .stat-card{background:var(--c-surface);border:1px solid var(--c-border);border-radius:var(--radius-lg);padding:20px;position:relative;overflow:hidden}
-    .stat-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px}
-    .stat-card.green::before{background:var(--c-success)}
-    .stat-card.amber::before{background:var(--c-accent)}
-    .stat-card.blue::before{background:var(--c-info)}
-    .stat-card.red::before{background:var(--c-danger)}
-    .stat-icon{font-size:1.8rem;margin-bottom:8px;opacity:.7}
-    .stat-num{font-family:var(--font-display);font-size:2rem;font-weight:900;line-height:1}
-    .stat-label{font-size:.78rem;color:var(--c-text-3);text-transform:uppercase;letter-spacing:.06em;margin-top:4px}
-    .stat-sub{font-size:.78rem;color:var(--c-text-2);margin-top:6px}
-    .grid-2{display:grid;grid-template-columns:1fr 1fr;gap:24px}
-    .panel{background:var(--c-surface);border:1px solid var(--c-border);border-radius:var(--radius-lg);padding:24px}
-    .panel-title{font-family:var(--font-display);font-size:.9rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--c-text-2);margin-bottom:16px;display:flex;align-items:center;justify-content:space-between}
-    .recent-order{display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--c-border);gap:12px}
-    .recent-order:last-child{border-bottom:none}
-    .ro-num{font-family:var(--font-mono);font-size:.8rem;color:var(--c-accent)}
-    .ro-customer{font-size:.85rem;font-weight:600}
-    .ro-date{font-size:.75rem;color:var(--c-text-3)}
-    .ro-total{font-family:var(--font-display);font-weight:700;color:var(--c-text)}
-    .low-stock-item{display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--c-border);gap:12px}
-    .low-stock-item:last-child{border-bottom:none}
-    .stock-bar{height:6px;background:var(--c-surface-2);border-radius:3px;overflow:hidden;margin-top:4px;width:80px}
-    .stock-fill{height:100%;background:var(--c-danger);border-radius:3px}
-    canvas{max-height:200px}
-    @media(max-width:1024px){.stats-grid{grid-template-columns:1fr 1fr}.grid-2{grid-template-columns:1fr}}
-  </style>
+  <link rel="stylesheet" href="../css/admin.css">
 </head>
 <body>
+<div id="admin-toast-container" class="admin-toast-container"></div>
+<button class="admin-menu-toggle" id="menu-toggle" onclick="document.getElementById('admin-sidebar').classList.toggle('mobile-open');document.getElementById('admin-overlay').classList.toggle('open')"><i class="fa-solid fa-bars"></i></button>
+<div class="admin-overlay" id="admin-overlay" onclick="document.getElementById('admin-sidebar').classList.toggle('mobile-open');this.classList.toggle('open')"></div>
 <div class="admin-layout">
-  <aside class="admin-sidebar">
-    <div class="admin-logo">⚙ Admin<span>Panel</span></div>
+  <aside class="admin-sidebar" id="admin-sidebar">
+    <div class="admin-logo"><div class="logo-icon"><i class="fa-solid fa-gear"></i></div>Auto<span>Parts</span></div>
     <nav class="admin-nav">
       <div class="admin-nav-section">
         <div class="admin-nav-label">Main</div>
@@ -63,8 +27,15 @@
         <a href="coupons.html"><i class="fa-solid fa-tag"></i> Coupons</a>
         <a href="analytics.html"><i class="fa-solid fa-chart-bar"></i> Analytics</a>
         <a href="content.html"><i class="fa-solid fa-pen-to-square"></i> Content</a>
-        <a href="settings.html"><i class="fa-solid fa-sliders"></i> Settings</a>
 
+
+      </div>
+      <div class="admin-nav-section">
+        <div class="admin-nav-label">Operations</div>
+        <a href="employees.html"><i class="fa-solid fa-id-badge"></i> Employees</a>
+        <a href="payroll.html"><i class="fa-solid fa-money-check-dollar"></i> Payroll</a>
+        <a href="schedule.html"><i class="fa-solid fa-calendar-days"></i> Schedule</a>
+        <a href="settings.html"><i class="fa-solid fa-sliders"></i> Settings</a>
       </div>
       <div class="admin-nav-section" style="border-top:1px solid var(--c-border)">
         <a href="../index.html" target="_blank"><i class="fa-solid fa-globe"></i> View Store</a>
@@ -154,7 +125,12 @@
   </main>
 </div>
 
-<script src="../js/data/parts-data.js"></script>
+<script src="../js/data/parts-data.js">
+function toggleSidebar() {
+  document.getElementById('admin-sidebar').classList.toggle('mobile-open');
+  document.getElementById('admin-overlay').classList.toggle('open');
+}
+</script>
 <script src="../js/modules/security.js"></script>
 <script src="../js/modules/admin-auth.js"></script>
 <script src="../js/modules/inventory-db.js"></script>

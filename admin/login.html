@@ -8,6 +8,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;900&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="../css/variables.css">
   <link rel="stylesheet" href="../css/base.css">
+  <link rel="stylesheet" href="../css/admin.css">
   <style>
     body { min-height:100vh; display:flex; align-items:center; justify-content:center; background:var(--c-bg); }
     .login-card { background:var(--c-surface); border:1px solid var(--c-border); border-radius:var(--radius-lg); padding:40px; width:100%; max-width:380px; }
@@ -22,6 +23,9 @@
   </style>
 </head>
 <body>
+<div id="admin-toast-container" class="admin-toast-container"></div>
+<button class="admin-menu-toggle" id="menu-toggle" onclick="document.getElementById('admin-sidebar').classList.toggle('mobile-open');document.getElementById('admin-overlay').classList.toggle('open')"><i class="fa-solid fa-bars"></i></button>
+<div class="admin-overlay" id="admin-overlay" onclick="document.getElementById('admin-sidebar').classList.toggle('mobile-open');this.classList.toggle('open')"></div>
 <div class="login-card">
   <div class="login-logo">
     <div class="login-logo-text">⚙ Auto<span>Parts</span></div>

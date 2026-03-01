@@ -422,3 +422,20 @@
   vertical-align: middle;
   margin-right: 4px;
 }
+
+/* ─── Enhanced Mobile Fixes ─────────────────────────────────── */
+@media (max-width: 480px) {
+  :root { --header-h: 56px; }
+  .header-main { height: 56px; }
+  main { padding-top: 56px; }
+  .header-main-inner { gap: 10px; padding: 0 12px; }
+  .header-search { max-width: none; }
+  .site-logo .logo-text { font-size: 1.1rem; }
+  /* Hide text labels on action buttons, icon only */
+  .header-action-btn span { display: none; }
+  .header-action-btn { padding: 8px; min-width: 36px; justify-content: center; }
+}
+
+/* Prevent header-actions from ever overflowing */
+.header-main-inner { overflow: hidden; }
+.header-actions { max-width: 50%; overflow: visible; }

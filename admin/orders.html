@@ -8,6 +8,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;900&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="../css/variables.css">
   <link rel="stylesheet" href="../css/base.css">
+  <link rel="stylesheet" href="../css/admin.css">
   <link rel="stylesheet" href="../css/layout.css">
   <style>
     .admin-layout{display:grid;grid-template-columns:220px 1fr;min-height:100vh}
@@ -35,8 +36,11 @@
   </style>
 </head>
 <body>
+<div id="admin-toast-container" class="admin-toast-container"></div>
+<button class="admin-menu-toggle" id="menu-toggle" onclick="document.getElementById('admin-sidebar').classList.toggle('mobile-open');document.getElementById('admin-overlay').classList.toggle('open')"><i class="fa-solid fa-bars"></i></button>
+<div class="admin-overlay" id="admin-overlay" onclick="document.getElementById('admin-sidebar').classList.toggle('mobile-open');this.classList.toggle('open')"></div>
 <div class="admin-layout">
-  <aside class="admin-sidebar">
+  <aside class="admin-sidebar" id="admin-sidebar">
     <div class="admin-sidebar-logo"> Admin<span>Panel</span></div>
     <nav class="admin-nav">
 
@@ -62,6 +66,11 @@
 
       <a href="#" id="logout-link"><i class="fa-solid fa-right-from-bracket"></i> Sign Out</a>
   </nav>
+
+    <div class="admin-user">
+      <div class="admin-user-avatar" id="admin-avatar">A</div>
+      <div class="admin-user-info"><div class="admin-user-name" id="admin-name">Admin</div><div class="admin-user-role" id="admin-role">Owner</div></div>
+    </div>
   </aside>
   <main class="admin-main">
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:28px">
@@ -107,6 +116,13 @@
   </div>
 </div>
 <script src="../js/data/parts-data.js"></script>
+<script>
+function toggleSidebar() {
+  document.getElementById('admin-sidebar').classList.toggle('mobile-open');
+  document.getElementById('admin-overlay').classList.toggle('open');
+}
+
+</script>
 <script src="../js/modules/security.js"></script>
 <script src="../js/modules/admin-auth.js"></script>
 <script src="../js/modules/vehicle-db.js"></script>
@@ -179,7 +195,7 @@ function viewOrder(num){
     </div>`;
   document.getElementById('modal-ship-btn')?.addEventListener('click',()=>{ markShipped(o.orderNumber); });
   document.getElementById('order-modal').classList.add('open');
-}document.getElementById('order-modal').classList.add('open');}
+}
 function closeModal(){document.getElementById('order-modal').classList.remove('open');}
 function markShipped(num){updateStatus(num,'shipped');closeModal();renderTable();}
 function exportOrders(){if(!_orders.length){alert('No orders.');return;}const h=['Order #','Date','First','Last','Email','Address','City','State','ZIP','Method','Subtotal','Shipping','Tax','Total','Status'];const r=_orders.map(o=>[o.orderNumber,new Date(o.createdAt).toLocaleDateString(),o.shipping?.firstName||'',o.shipping?.lastName||'',o.shipping?.email||'','"'+(o.shipping?.address||'')+'"',o.shipping?.city||'',o.shipping?.state||'',o.shipping?.zip||'',o.shippingMethod?.name||'',(o.subtotal||0).toFixed(2),(o.shippingCost||0).toFixed(2),(o.tax||0).toFixed(2),(o.total||0).toFixed(2),o.status||'pending']);const csv=[h,...r].map(x=>x.join(',')).join('\n');const a=document.createElement('a');a.href='data:text/csv;charset=utf-8,'+encodeURIComponent(csv);a.download='orders-'+new Date().toISOString().split('T')[0]+'.csv';a.click();}

@@ -347,3 +347,17 @@
 .parts-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
 @media(max-width: 900px) { .parts-grid { grid-template-columns: repeat(2, 1fr); } }
 @media(max-width: 600px) { .parts-grid { grid-template-columns: 1fr; } }
+
+/* ─── Mobile fixes ───────────────────────────────────────────── */
+@media (max-width: 600px) {
+  .specs-table td:first-child { width: 120px; font-size: .78rem; }
+  .specs-table td { padding: 8px 10px; font-size: .82rem; }
+  .tab-btn { padding: 10px 12px; font-size: .8rem; }
+  .product-image-main { height: 260px; }
+  .product-title { font-size: 1.3rem; }
+  .product-price .price-current { font-size: 1.6rem; }
+  .cart-item { flex-wrap: wrap; }
+  .cart-item-image { width: 60px; height: 60px; }
+  .qty-btn { width: 28px; height: 28px; }
+  .checkout-form { padding: 16px; }
+}
