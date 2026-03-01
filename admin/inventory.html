@@ -58,18 +58,28 @@
 <div class="admin-layout">
   <aside class="admin-sidebar" style="display:flex;flex-direction:column">
     <div class="admin-logo"><div class="logo-icon"><i class="fa-solid fa-gear"></i></div>Auto<span>Parts</span></div>
-    <nav class="admin-nav" style="flex:1">
-      <a href="dashboard.html"><i class="fa-solid fa-chart-line"></i> Dashboard</a>
-      <a href="inventory.html" class="active"><i class="fa-solid fa-boxes-stacked"></i> Inventory</a>
-      <a href="orders.html"><i class="fa-solid fa-receipt"></i> Orders</a>
-      <a href="customers.html"><i class="fa-solid fa-users"></i> Customers</a>
-      <a href="coupons.html"><i class="fa-solid fa-tag"></i> Coupons</a>
-      <a href="analytics.html"><i class="fa-solid fa-chart-bar"></i> Analytics</a>
-      <a href="content.html"><i class="fa-solid fa-pen-to-square"></i> Content</a>
-      <a href="settings.html"><i class="fa-solid fa-sliders"></i> Settings</a>
-      <div style="border-top:1px solid var(--c-border);margin:8px 0"></div>
-      <a href="../index.html" target="_blank"><i class="fa-solid fa-globe"></i> View Store</a>
-      <a href="#" id="logout-link"><i class="fa-solid fa-right-from-bracket"></i> Sign Out</a>
+        <nav class="admin-nav">
+      <div class="admin-nav-section">
+        <div class="admin-nav-label">Main</div>
+        <a href="dashboard.html"><i class="fa-solid fa-chart-line"></i> Dashboard</a>
+        <a href="inventory.html" class="active"><i class="fa-solid fa-boxes-stacked"></i> Inventory</a>
+        <a href="orders.html"><i class="fa-solid fa-receipt"></i> Orders</a>
+        <a href="customers.html"><i class="fa-solid fa-users"></i> Customers</a>
+        <a href="analytics.html"><i class="fa-solid fa-chart-bar"></i> Analytics</a>
+        <a href="coupons.html"><i class="fa-solid fa-tag"></i> Coupons</a>
+        <a href="content.html"><i class="fa-solid fa-pen-to-square"></i> Content</a>
+      </div>
+      <div class="admin-nav-section">
+        <div class="admin-nav-label">Operations</div>
+        <a href="employees.html"><i class="fa-solid fa-id-badge"></i> Employees</a>
+        <a href="payroll.html"><i class="fa-solid fa-money-check-dollar"></i> Payroll</a>
+        <a href="schedule.html"><i class="fa-solid fa-calendar-days"></i> Schedule</a>
+        <a href="settings.html"><i class="fa-solid fa-sliders"></i> Settings</a>
+      </div>
+      <div class="admin-nav-section">
+        <a href="../index.html" target="_blank"><i class="fa-solid fa-globe"></i> View Store</a>
+        <a href="#" id="logout-link"><i class="fa-solid fa-right-from-bracket"></i> Sign Out</a>
+      </div>
     </nav>
     <div class="admin-user">
       <div style="font-size:.85rem;font-weight:600" id="admin-name">—</div>
@@ -244,12 +254,13 @@ let _photoFile = null;
 
 document.addEventListener('DOMContentLoaded', () => {
   if (!AdminAuth.requireAdmin()) return;
-  var _u = AdminAuth.getSession ? AdminAuth.getSession() : AdminAuth.getUser ? AdminAuth.getUser() : null;
+    var _u = AdminAuth.getSession();
   if (_u) {
-    var _un = document.getElementById('admin-name'); if(_un) _un.textContent = _u.username || 'Admin';
-    var _ur = document.getElementById('admin-role'); if(_ur) _ur.textContent = _u.role || 'Owner';
-    var _ua = document.getElementById('admin-avatar'); if(_ua) _ua.textContent = (_u.username||'A').charAt(0).toUpperCase();
+    var _n = document.getElementById('admin-name'); if (_n) _n.textContent = _u.username || 'Admin';
+    var _r = document.getElementById('admin-role'); if (_r) _r.textContent = _u.role || 'Owner';
+    var _a = document.getElementById('admin-avatar'); if (_a) _a.textContent = (_u.username||'A').charAt(0).toUpperCase();
   }
+  var _ll = document.getElementById('logout-link'); if (_ll) _ll.addEventListener('click', function(e) { e.preventDefault(); AdminAuth.logout(); });
 
   const session = AdminAuth.getSession();
   document.getElementById('admin-name').textContent = session.name;

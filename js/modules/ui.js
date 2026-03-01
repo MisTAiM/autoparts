@@ -180,4 +180,17 @@ const UI = (() => {
   return { toast, showLoader, showError, initCartCounter, updateVehicleBanner, initVehicleBanner, initMobileNav, setActiveNav, initHeaderSearch, setBreadcrumbs, fmt$$, fmtCondition, getParam, setParam, init };
 })();
 
+// ─── Global image fallback ───────────────────────────────────
+(function() {
+  const PLACEHOLDER = '/images/part-placeholder.svg';
+  document.addEventListener('error', function(e) {
+    var el = e.target;
+    if (el.tagName === 'IMG' && el.src !== window.location.origin + PLACEHOLDER) {
+      el.src = PLACEHOLDER;
+      el.onerror = null;
+    }
+  }, true);
+})();
+
+
 window.UI = UI;
