@@ -4,96 +4,99 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Content Editor — AutoParts Admin</title>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" crossorigin="anonymous">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;900&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../css/variables.css">
+  <link rel="stylesheet" href="../css/base.css">
   <link rel="stylesheet" href="../css/admin.css">
   <style>
-    .content-tabs { display:flex; border-bottom:1px solid var(--border); margin-bottom:24px; gap:0; }
-    .content-tab { padding:10px 20px; cursor:pointer; font-size:.85rem; font-weight:600; color:var(--text-3); border-bottom:2px solid transparent; transition:all .15s; white-space:nowrap; }
-    .content-tab.active { color:var(--accent); border-bottom-color:var(--accent); }
-    .content-tab:hover:not(.active) { color:var(--text-1); }
+    /* ── Content Editor specific ────────────────────── */
+    .content-tabs { display:flex; border-bottom:1px solid var(--c-border); margin-bottom:24px; gap:0; overflow-x:auto; scrollbar-width:none; }
+    .content-tabs::-webkit-scrollbar { display:none; }
+    .content-tab { padding:10px 18px; cursor:pointer; font-size:.85rem; font-weight:600; color:var(--c-text-3); border-bottom:2px solid transparent; transition:all .15s; white-space:nowrap; }
+    .content-tab.active { color:var(--c-accent); border-bottom-color:var(--c-accent); }
+    .content-tab:hover:not(.active) { color:var(--c-text); }
     .content-panel { display:none; }
     .content-panel.active { display:block; }
-    .field-group { margin-bottom:20px; }
-    .field-label { font-size:.78rem; font-weight:700; color:var(--text-2); text-transform:uppercase; letter-spacing:.06em; margin-bottom:6px; }
-    .field-hint { font-size:.72rem; color:var(--text-3); margin-top:4px; }
-    .form-input { width:100%; padding:9px 12px; background:var(--surface-2); border:1px solid var(--border); border-radius:var(--radius); color:var(--text-1); font-size:.875rem; box-sizing:border-box; transition:border-color .15s; }
-    .form-input:focus { outline:none; border-color:var(--accent); }
-    textarea.form-input { min-height:100px; resize:vertical; font-family:inherit; }
+    .field-group { margin-bottom:18px; }
+    .field-label { font-size:.78rem; font-weight:700; text-transform:uppercase; letter-spacing:.06em; color:var(--c-text-3); margin-bottom:6px; }
+    .field-hint { font-size:.73rem; color:var(--c-text-3); margin-top:4px; }
     .form-row { display:grid; grid-template-columns:1fr 1fr; gap:16px; }
-    .save-bar { position:sticky; bottom:0; background:var(--surface-1); border-top:1px solid var(--border); padding:12px 0; margin-top:32px; display:flex; align-items:center; justify-content:space-between; z-index:10; }
-    .save-status { font-size:.82rem; color:var(--text-3); }
-    .save-status.saved { color:#22c55e; }
-    .part-editor-card { background:var(--surface-2); border:1px solid var(--border); border-radius:var(--radius-lg); padding:20px; margin-bottom:16px; }
-    .part-editor-header { display:flex; align-items:center; gap:12px; margin-bottom:16px; cursor:pointer; }
-    .part-editor-thumb { width:60px; height:60px; object-fit:contain; border-radius:8px; background:var(--surface-3); padding:4px; }
-    .part-editor-name { font-weight:700; font-size:.95rem; }
-    .part-editor-pn { font-size:.75rem; color:var(--text-3); }
-    .part-editor-body { display:none; }
+    .color-row { display:flex; align-items:center; gap:10px; }
+    .color-preview { width:36px; height:36px; border-radius:var(--radius); border:1px solid var(--c-border); flex-shrink:0; }
+    .char-count { font-size:.72rem; color:var(--c-text-3); margin-top:4px; text-align:right; }
+    .char-count.warn { color:var(--c-accent); }
+    .char-count.over { color:var(--c-danger); }
+    .save-bar { position:sticky; bottom:0; background:var(--c-surface); border-top:1px solid var(--c-border); padding:14px 28px; display:flex; align-items:center; justify-content:space-between; gap:16px; z-index:30; margin:0 -28px; }
+    .save-status { font-size:.82rem; color:var(--c-text-3); }
+    .save-status.saved { color:var(--c-success); font-weight:600; }
+    .hero-preview { background:var(--c-surface-2); border:1px solid var(--c-border); border-radius:var(--radius-lg); padding:20px; margin-top:12px; font-size:.82rem; color:var(--c-text-3); }
+    .part-editor-card { background:var(--c-surface); border:1px solid var(--c-border); border-radius:var(--radius-lg); margin-bottom:14px; overflow:hidden; }
+    .part-editor-header { display:flex; align-items:center; justify-content:space-between; padding:14px 18px; cursor:pointer; gap:12px; }
+    .part-editor-header:hover { background:var(--c-surface-2); }
+    .part-editor-body { padding:18px; border-top:1px solid var(--c-border); display:none; }
     .part-editor-body.open { display:block; }
-    .fitment-grid { display:grid; grid-template-columns:1fr 1fr 1fr; gap:12px; margin-top:12px; }
-    .img-preview { width:100%; height:140px; object-fit:contain; border-radius:8px; background:var(--surface-3); padding:8px; margin-top:8px; }
-    .color-row { display:flex; align-items:center; gap:12px; }
-    .color-preview { width:36px; height:36px; border-radius:50%; border:2px solid var(--border); flex-shrink:0; }
-    .hero-preview { background:var(--surface-2); border:1px solid var(--border); border-radius:var(--radius-lg); padding:20px; margin-top:12px; font-size:.82rem; color:var(--text-3); }
-    .badge-pill { display:inline-flex;align-items:center;gap:4px;padding:3px 10px;border-radius:999px;font-size:.72rem;font-weight:700; }
-    .badge-new { background:rgba(34,197,94,.15);color:#22c55e; }
-    .badge-reman { background:rgba(59,130,246,.12);color:#3b82f6; }
+    @media(max-width:768px){
+      .form-row{grid-template-columns:1fr}
+      .save-bar{margin:0 -16px;padding:12px 16px}
+    }
   </style>
 </head>
 <body>
 <div id="admin-toast-container" class="admin-toast-container"></div>
-<button class="admin-menu-toggle" id="menu-toggle" onclick="document.getElementById('admin-sidebar').classList.toggle('mobile-open');document.getElementById('admin-overlay').classList.toggle('open')"><i class="fa-solid fa-bars"></i></button>
-<div class="admin-overlay" id="admin-overlay" onclick="document.getElementById('admin-sidebar').classList.toggle('mobile-open');this.classList.toggle('open')"></div>
+<button class="admin-menu-toggle" id="menu-toggle" onclick="toggleSidebar()"><i class="fa-solid fa-bars"></i></button>
+<div class="admin-overlay" id="admin-overlay" onclick="toggleSidebar()"></div>
+
 <div class="admin-layout">
-
-  <!-- Sidebar -->
   <aside class="admin-sidebar" id="admin-sidebar">
-    <div class="admin-logo"><i class="fa-solid fa-gears"></i> AutoParts</div>
+    <div class="admin-logo"><div class="logo-icon"><i class="fa-solid fa-gear"></i></div>Auto<span>Parts</span></div>
     <nav class="admin-nav">
-
-      <a href="dashboard.html"><i class="fa-solid fa-chart-line"></i> Dashboard</a>
-
-      <a href="inventory.html"><i class="fa-solid fa-boxes-stacked"></i> Inventory</a>
-
-      <a href="orders.html"><i class="fa-solid fa-receipt"></i> Orders</a>
-
-      <a href="customers.html"><i class="fa-solid fa-users"></i> Customers</a>
-
-      <a href="coupons.html"><i class="fa-solid fa-tag"></i> Coupons</a>
-
-      <a href="analytics.html"><i class="fa-solid fa-chart-bar"></i> Analytics</a>
-
-      <a href="content.html" class="active"><i class="fa-solid fa-pen-to-square"></i> Content</a>
-
-      <a href="settings.html"><i class="fa-solid fa-sliders"></i> Settings</a>
-
-      <div style="border-top:1px solid var(--c-border);margin:8px 0"></div>
-
-      <a href="../index.html" target="_blank"><i class="fa-solid fa-globe"></i> View Store</a>
-
-      <a href="#" id="logout-link"><i class="fa-solid fa-right-from-bracket"></i> Sign Out</a>
-  </nav>
-    <div class="admin-nav-footer">
-      <a href="../index.html" target="_blank"><i class="fa-solid fa-arrow-up-right-from-square"></i> View Store</a>
-      <a href="login.html" id="logout-btn"><i class="fa-solid fa-right-from-bracket"></i> Logout</a>
-    </div>
-
+      <div class="admin-nav-section">
+        <div class="admin-nav-label">Main</div>
+        <a href="dashboard.html"><i class="fa-solid fa-chart-line"></i> Dashboard</a>
+        <a href="inventory.html"><i class="fa-solid fa-boxes-stacked"></i> Inventory</a>
+        <a href="orders.html"><i class="fa-solid fa-receipt"></i> Orders</a>
+        <a href="customers.html"><i class="fa-solid fa-users"></i> Customers</a>
+        <a href="analytics.html"><i class="fa-solid fa-chart-bar"></i> Analytics</a>
+        <a href="coupons.html"><i class="fa-solid fa-tag"></i> Coupons</a>
+        <a href="content.html" class="active"><i class="fa-solid fa-pen-to-square"></i> Content</a>
+      </div>
+      <div class="admin-nav-section">
+        <div class="admin-nav-label">Operations</div>
+        <a href="employees.html"><i class="fa-solid fa-id-badge"></i> Employees</a>
+        <a href="payroll.html"><i class="fa-solid fa-money-check-dollar"></i> Payroll</a>
+        <a href="schedule.html"><i class="fa-solid fa-calendar-days"></i> Schedule</a>
+        <a href="settings.html"><i class="fa-solid fa-sliders"></i> Settings</a>
+      </div>
+      <div class="admin-nav-section">
+        <a href="../index.html" target="_blank"><i class="fa-solid fa-globe"></i> View Store</a>
+        <a href="#" id="logout-link"><i class="fa-solid fa-right-from-bracket"></i> Sign Out</a>
+      </div>
+    </nav>
     <div class="admin-user">
       <div class="admin-user-avatar" id="admin-avatar">A</div>
-      <div class="admin-user-info"><div class="admin-user-name" id="admin-name">Admin</div><div class="admin-user-role" id="admin-role">Owner</div></div>
+      <div class="admin-user-info">
+        <div class="admin-user-name" id="admin-name">Admin</div>
+        <div class="admin-user-role" id="admin-role">Owner</div>
+      </div>
     </div>
   </aside>
 
-  <!-- Main -->
   <main class="admin-main">
-    <div class="admin-topbar">
-      <div>
-        <h1 class="admin-page-title">Content Editor</h1>
-        <div class="admin-breadcrumb">Manage all website content — homepage, parts, branding, SEO</div>
+    <div class="page-header">
+      <div class="page-header-left">
+        <h2><i class="fa-solid fa-pen-to-square" style="color:var(--c-accent);margin-right:10px"></i>Content Editor</h2>
+        <p class="text-muted text-sm">Manage homepage copy, catalog, branding, SEO & banners</p>
+      </div>
+      <div class="page-header-actions">
+        <button class="btn btn-ghost btn-sm" id="reset-btn"><i class="fa-solid fa-rotate-left"></i> Reset Defaults</button>
+        <button class="btn btn-primary" id="save-content-btn">
+          <i class="fa-solid fa-floppy-disk"></i> Save All Changes
+        </button>
       </div>
     </div>
 
-    <!-- Tabs -->
     <div class="content-tabs">
       <div class="content-tab active" data-tab="homepage">🏠 Homepage</div>
       <div class="content-tab" data-tab="parts">🔩 Parts Catalog</div>
@@ -288,8 +291,21 @@
     <div class="save-bar">
       <div class="save-status" id="save-status">Unsaved changes</div>
       <div style="display:flex;gap:10px">
-        <button class="btn btn-ghost" id="reset-btn">Reset to Defaults</button>
-        <button class="btn btn-primary" id="save-content-btn">
+        <button class="btn btn-ghost" id="reset-btn-2">Reset to Defaults</button>
+        <button class="btn btn-primary" id="save-content-btn-2">
+          <i class="fa-solid fa-floppy-disk"></i> Save All Changes
+        </button>
+      </div>
+    </div>
+  </main>
+
+
+    <!-- Sticky save bar -->
+    <div class="save-bar">
+      <div class="save-status" id="save-status">All changes auto-saved</div>
+      <div style="display:flex;gap:10px">
+        <button class="btn btn-ghost btn-sm" id="reset-btn-2"><i class="fa-solid fa-rotate-left"></i> Reset</button>
+        <button class="btn btn-primary" id="save-content-btn-2">
           <i class="fa-solid fa-floppy-disk"></i> Save All Changes
         </button>
       </div>
@@ -298,20 +314,15 @@
 </div>
 
 <script src="../js/modules/security.js"></script>
+<script src="../js/modules/admin-auth.js"></script>
+<script src="../js/data/parts-data.js"></script>
 <script>
-
 function toggleSidebar() {
   document.getElementById('admin-sidebar').classList.toggle('mobile-open');
   document.getElementById('admin-overlay').classList.toggle('open');
 }
 
-</script>
-<script src="../js/modules/admin-auth.js"></script>
-<script src="../js/data/parts-data.js"></script>
-<script>
-AdminAuth.requireAdmin();
-document.getElementById("logout-btn").addEventListener("click", () => AdminAuth.logout());
-  const ll = document.getElementById("logout-link"); if(ll) ll.addEventListener("click", (e) => { e.preventDefault(); AdminAuth.logout(); });
+// ── Auth ──────────────────────────────────────────────────────
 
 const CONTENT_KEY = 'ap_site_content';
 
@@ -342,6 +353,94 @@ const DEFAULTS = {
   saleBannerEnabled: false,
 };
 
+
+document.addEventListener('DOMContentLoaded', function() {
+  if (!AdminAuth.requireAdmin()) return;
+  var user = AdminAuth.getSession();
+  if (user) {
+    var n = document.getElementById('admin-name'); if(n) n.textContent = user.username || 'Admin';
+    var r = document.getElementById('admin-role'); if(r) r.textContent = user.role || 'Owner';
+    var a = document.getElementById('admin-avatar'); if(a) a.textContent = (user.username||'A').charAt(0).toUpperCase();
+  }
+  document.getElementById('logout-link').addEventListener('click', function(e) { e.preventDefault(); AdminAuth.logout(); });
+
+  // Init content
+  const savedContent = loadContent();
+  populateFields(savedContent);
+
+  // ── Tabs ──────────────────────────────────────────────────
+  document.querySelectorAll('.content-tab').forEach(tab => {
+    tab.addEventListener('click', () => {
+      document.querySelectorAll('.content-tab').forEach(t => t.classList.remove('active'));
+      document.querySelectorAll('.content-panel').forEach(p => p.classList.remove('active'));
+      tab.classList.add('active');
+      const panel = document.getElementById('tab-' + tab.dataset.tab);
+      if (panel) panel.classList.add('active');
+      if (tab.dataset.tab === 'parts') renderPartsEditor();
+    });
+  });
+
+  // ── Color pickers ──────────────────────────────────────────
+  const accentInput = document.getElementById('brand-accent');
+  const accentHex = document.getElementById('brand-accent-hex');
+  const announceColor = document.getElementById('announce-color');
+  if (accentInput) accentInput.addEventListener('input', (e) => {
+    if (accentHex) accentHex.value = e.target.value;
+    const prev = document.getElementById('color-preview-accent');
+    if (prev) prev.style.background = e.target.value;
+  });
+  if (accentHex) accentHex.addEventListener('input', (e) => {
+    const v = e.target.value;
+    if (/^#[0-9a-f]{6}$/i.test(v)) {
+      if (accentInput) accentInput.value = v;
+      const prev = document.getElementById('color-preview-accent');
+      if (prev) prev.style.background = v;
+    }
+  });
+  if (announceColor) announceColor.addEventListener('input', (e) => {
+    const prev = document.getElementById('color-preview-announce');
+    if (prev) prev.style.background = e.target.value;
+  });
+
+  // ── Char counts ────────────────────────────────────────────
+  ['seo-home-title', 'seo-home-desc'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.addEventListener('input', updateCharCounts);
+  });
+
+  // ── Save / Reset buttons ───────────────────────────────────
+  const saveBtn = document.getElementById('save-content-btn');
+  const saveBtn2 = document.getElementById('save-content-btn-2');
+  const resetBtn = document.getElementById('reset-btn');
+  const resetBtn2 = document.getElementById('reset-btn-2');
+
+  function doSave() {
+    const content = getCurrentValues();
+    saveContent(content);
+  }
+  function doReset() {
+    if (!confirm('Reset all content to defaults? Your changes will be lost.')) return;
+    localStorage.removeItem(CONTENT_KEY);
+    populateFields(DEFAULTS);
+    const status = document.getElementById('save-status');
+    if (status) { status.textContent = 'Reset to defaults'; status.className = 'save-status'; }
+  }
+
+  if (saveBtn) saveBtn.addEventListener('click', doSave);
+  if (saveBtn2) saveBtn2.addEventListener('click', doSave);
+  if (resetBtn) resetBtn.addEventListener('click', doReset);
+  if (resetBtn2) resetBtn2.addEventListener('click', doReset);
+
+  // ── Category editor add btn ────────────────────────────────
+  const addCatBtn = document.getElementById('add-category-btn');
+  if (addCatBtn) addCatBtn.addEventListener('click', addCategory);
+
+  // ── Parts editor add btn ───────────────────────────────────
+  const addPartBtn = document.getElementById('add-part-btn');
+  if (addPartBtn) addPartBtn.addEventListener('click', addNewPart);
+
+}); // end DOMContentLoaded
+
 // ─── Load / Save ──────────────────────────────────────────────
 function loadContent() {
   try {
@@ -358,7 +457,7 @@ function saveContent(content) {
     status.className = 'save-status saved';
     setTimeout(() => { status.textContent = 'All changes saved'; }, 2000);
     // Track admin action
-    AdminAuth.log('CONTENT_SAVED', 'Content editor save');
+    // content saved
   } catch(e) {
     alert('Error saving content: ' + e.message);
   }
@@ -622,7 +721,7 @@ function savePart(id) {
   btn.innerHTML = '<i class="fa-solid fa-check"></i> Saved!';
   btn.style.background = '#22c55e';
   setTimeout(() => { btn.innerHTML = '<i class="fa-solid fa-floppy-disk"></i> Save Part'; btn.style.background = ''; }, 2000);
-  AdminAuth.log('PART_UPDATED', `Part ID ${id} updated`);
+  
 }
 
 function deletePart(id) {
@@ -630,59 +729,45 @@ function deletePart(id) {
   window.SAMPLE_PARTS = (window.SAMPLE_PARTS || []).filter(p => p.id !== id);
   try { localStorage.setItem('ap_parts_overrides', JSON.stringify(window.SAMPLE_PARTS)); } catch {}
   renderPartsEditor();
-  AdminAuth.log('PART_DELETED', `Part ID ${id} removed`);
+  
 }
 
-// ─── Tabs ─────────────────────────────────────────────────────
-document.querySelectorAll('.content-tab').forEach(tab => {
-  tab.addEventListener('click', () => {
-    document.querySelectorAll('.content-tab').forEach(t => t.classList.remove('active'));
-    document.querySelectorAll('.content-panel').forEach(p => p.classList.remove('active'));
-    tab.classList.add('active');
-    const panel = document.getElementById('tab-' + tab.dataset.tab);
-    if (panel) panel.classList.add('active');
-    if (tab.dataset.tab === 'parts') renderPartsEditor();
-  });
-});
+// (tab listeners moved into DOMContentLoaded)
 
-// ─── Color pickers ────────────────────────────────────────────
-document.getElementById('brand-accent').addEventListener('input', (e) => {
-  document.getElementById('brand-accent-hex').value = e.target.value;
-  document.getElementById('color-preview-accent').style.background = e.target.value;
-});
-document.getElementById('brand-accent-hex').addEventListener('input', (e) => {
-  const v = e.target.value;
-  if (/^#[0-9a-f]{6}$/i.test(v)) {
-    document.getElementById('brand-accent').value = v;
-    document.getElementById('color-preview-accent').style.background = v;
-  }
-});
-document.getElementById('announce-color').addEventListener('input', (e) => {
-  document.getElementById('color-preview-announce').style.background = e.target.value;
-});
 
-// ─── Char counts ──────────────────────────────────────────────
-['seo-home-title', 'seo-home-desc'].forEach(id => {
-  document.getElementById(id).addEventListener('input', updateCharCounts);
-});
 
-// ─── Save / Reset ─────────────────────────────────────────────
-document.getElementById('save-content-btn').addEventListener('click', () => {
-  const content = getCurrentValues();
-  saveContent(content);
-});
 
-document.getElementById('reset-btn').addEventListener('click', () => {
-  if (!confirm('Reset all content to defaults? Your changes will be lost.')) return;
-  localStorage.removeItem(CONTENT_KEY);
-  populateFields(DEFAULTS);
-  document.getElementById('save-status').textContent = 'Reset to defaults — click Save to apply';
-  document.getElementById('save-status').className = 'save-status';
-});
 
-// ─── Init ─────────────────────────────────────────────────────
-const content = loadContent();
-populateFields(content);
+// Wire up secondary save/reset buttons
+
+// ── Category helpers ──────────────────────────────────────────
+function addCategory() {
+  const container = document.getElementById('categories-editor');
+  if (!container) return;
+  const idx = container.children.length;
+  const div = document.createElement('div');
+  div.style.cssText = 'background:var(--c-surface-2);border:1px solid var(--c-border);border-radius:var(--radius);padding:12px;position:relative';
+  div.innerHTML = `
+    <input class="form-input" placeholder="Category name" style="margin-bottom:8px" oninput="this.dataset.name=this.value">
+    <input class="form-input" placeholder="Icon (e.g. fa-car)" style="margin-bottom:8px">
+    <input class="form-input" placeholder="Link URL (e.g. /catalog.html?cat=brakes)">
+    <button onclick="this.closest('div').remove()" style="position:absolute;top:8px;right:8px;background:none;border:none;color:var(--c-text-3);cursor:pointer;font-size:.8rem"><i class="fa-solid fa-xmark"></i></button>`;
+  container.appendChild(div);
+}
+
+function addNewPart() {
+  showToast('Use the Inventory page to add new parts to the catalog.', 'info');
+}
+
+function showToast(msg, type) {
+  type = type || 'info';
+  var c = document.getElementById('admin-toast-container'); if (!c) return;
+  var t = document.createElement('div'); t.className = 'admin-toast toast-' + type;
+  var icons = {success:'fa-check-circle', error:'fa-xmark-circle', info:'fa-circle-info'};
+  t.innerHTML = '<i class="fa-solid ' + (icons[type]||'fa-circle-info') + '" style="color:var(--c-accent)"></i> ' + msg;
+  c.appendChild(t); setTimeout(function(){t.remove();}, 3500);
+}
+
 </script>
 </body>
 </html>
