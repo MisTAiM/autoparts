@@ -74,7 +74,8 @@
   <script src="js/modules/auth.js"></script>
   <script src="js/modules/inventory-db.js"></script>
   <script src="js/modules/ui.js"></script>
-  <script src="js/components/header.js"></script>
+  <script src="js/modules/icons.js"></script>
+<script src="js/components/header.js"></script>
   <script>
     document.addEventListener('DOMContentLoaded', () => {
       InventoryDB.seedFromSampleData();
@@ -82,5 +83,6 @@
       SiteHeader.init();
     });
   </script>
+<script>document.addEventListener('DOMContentLoaded', function(){ if(window.APIcons) APIcons.patchFA(); });</script>
 </body>
 </html>

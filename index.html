@@ -152,7 +152,7 @@
   <div class="trust-bar">
     <div class="container">
       <div class="trust-bar-inner">
-        <div class="trust-item"><i class="fa-solid fa-shield-check"></i><div><strong>Genuine Parts</strong><br>OEM & trusted brands only</div></div>
+        <div class="trust-item"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20" fill="none" style="vertical-align:-3px;display:inline-block"><path d="M10 2L3 5v5.5C3 14.65 6.13 18.28 10 19c3.87-.72 7-4.35 7-8.5V5L10 2Z" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/><path d="M7 10l2 2 4-4" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg><div><strong>Genuine Parts</strong><br>OEM &amp; trusted brands only</div></div>
         <div class="trust-item"><i class="fa-solid fa-truck-fast"></i><div><strong>Fast Shipping</strong><br>Ships within 1 business day</div></div>
         <div class="trust-item"><i class="fa-solid fa-rotate-left"></i><div><strong>Easy Core Returns</strong><br>90-day return window</div></div>
         <div class="trust-item"><i class="fa-solid fa-headset"></i><div><strong>Expert Support</strong><br>Real people, real answers</div></div>
@@ -288,16 +288,16 @@
         <div class="footer-trust">
           <div class="footer-trust-badge"><i class="fa-solid fa-lock"></i> SSL Secure</div>
           <div class="footer-trust-badge"><i class="fa-brands fa-stripe-s"></i> Stripe Payments</div>
-          <div class="footer-trust-badge"><i class="fa-solid fa-shield-check"></i> Verified Parts</div>
+          <div class="footer-trust-badge"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20" fill="none" style="vertical-align:-3px;display:inline-block"><path d="M10 2l2 4 4.5.65-3.25 3.17.77 4.48L10 12.1l-4.02 2.2.77-4.48L3.5 6.65 8 6 10 2Z" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/><path d="M7.5 10l1.5 1.5 3-3" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg> Verified Parts</div>
         </div>
       </div>
       <div class="footer-col">
         <h5>Quick Links</h5>
         <a href="catalog.html"><i class="fa-solid fa-list"></i> All Parts</a>
-        <a href="catalog.html?cat=brakes"><i class="fa-solid fa-circle-dot"></i> Brake Parts</a>
-        <a href="catalog.html?cat=engine"><i class="fa-solid fa-engine"></i> Engine Parts</a>
+        <a href="catalog.html?cat=brakes"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20" fill="none" style="vertical-align:-3px;display:inline-block"><circle cx="10" cy="10" r="8" stroke="currentColor" stroke-width="1.4"/><circle cx="10" cy="10" r="3.5" stroke="currentColor" stroke-width="1.4"/><path d="M10 2v2.5M10 15.5V18M2 10h2.5M15.5 10H18M4.1 4.1l1.77 1.77M14.13 14.13l1.77 1.77M4.1 15.9l1.77-1.77M14.13 5.87l1.77-1.77" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg> Brake Parts</a>
+        <a href="catalog.html?cat=engine"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20" fill="none" style="vertical-align:-3px;display:inline-block"><rect x="1" y="6" width="4" height="8" rx="1" stroke="currentColor" stroke-width="1.4"/><path d="M5 8.5h3l1.5-2h3L14 8.5h1.5a1 1 0 011 1v1a1 1 0 01-1 1H14l-1.5 2h-3L8 11.5H5" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/><circle cx="10" cy="10" r="1.2" fill="currentColor"/></svg> Engine Parts</a>
         <a href="catalog.html?cat=electrical"><i class="fa-solid fa-bolt"></i> Electrical</a>
-        <a href="catalog.html?cat=suspension"><i class="fa-solid fa-car-bump"></i> Suspension</a>
+        <a href="catalog.html?cat=suspension"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20" fill="none" style="vertical-align:-3px;display:inline-block"><path d="M6 2h8" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/><path d="M14 2c0 1.33-1.5 2-3 2s-3 .67-3 2 1.5 2 3 2-3 .67-3 2 1.5 2 3 2-3 .67-3 2 1.5 2 3 2" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/><path d="M6 18h8" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg> Suspension</a>
       </div>
       <div class="footer-col">
         <h5>My Account</h5>
@@ -353,11 +353,11 @@
 <script>
 // ─── Category definitions ────────────────────────────────
 const CATEGORIES = window.CATEGORIES || [
-  { id:'brakes',    name:'Brakes',        icon:'fa-circle-dot' },
-  { id:'engine',    name:'Engine',        icon:'fa-engine' },
-  { id:'electrical',name:'Electrical',    icon:'fa-bolt' },
-  { id:'cooling',   name:'Cooling',       icon:'fa-temperature-low' },
-  { id:'suspension',name:'Suspension',    icon:'fa-car-bump' },
+  { id:'brakes',    name:'Brakes',        icon:'fa-circle-dot', svgIcon:'brakes'     },
+  { id:'engine',    name:'Engine',        icon:'fa-engine',    svgIcon:'engine'     },
+  { id:'electrical',name:'Electrical',    icon:'fa-bolt',       svgIcon:'electrical' },
+  { id:'cooling',   name:'Cooling',       icon:'fa-temperature-low', svgIcon:'cooling' },
+  { id:'suspension',name:'Suspension',    icon:'fa-car-bump',  svgIcon:'suspension' },
   { id:'exhaust',   name:'Exhaust',       icon:'fa-wind' },
   { id:'filters',   name:'Filters',       icon:'fa-filter' },
   { id:'drivetrain',name:'Drivetrain',    icon:'fa-gears' },
@@ -626,5 +626,20 @@ function showToast(html, type='info') {
 }
 </script>
 <script src="js/modules/analytics-tracker.js"></script>
+<script src="js/modules/icons.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  if (!window.APIcons) return;
+  var gi = document.getElementById('genuine-icon');
+  if (gi) gi.innerHTML = APIcons.get('shield', {size:'22px', style:'color:var(--c-accent)'});
+  var fi = document.getElementById('footer-engine-icon');
+  if (fi) fi.innerHTML = APIcons.get('engine', {size:'1em', style:'vertical-align:-.125em'});
+  var si = document.getElementById('footer-sus-icon');
+  if (si) si.innerHTML = APIcons.get('suspension', {size:'1em', style:'vertical-align:-.125em'});
+  var vi = document.getElementById('footer-verified-icon');
+  if (vi) vi.innerHTML = APIcons.get('verified', {size:'1em', style:'vertical-align:-.125em;color:var(--c-accent)'});
+  APIcons.patchFA();
+});
+</script>
 </body>
 </html>

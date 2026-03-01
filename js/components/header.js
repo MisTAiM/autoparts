@@ -8,18 +8,18 @@
 const SiteHeader = (() => {
 
   const CATEGORIES = [
-    { id:'brakes',    name:'Brakes',       icon:'fa-circle-dot'    },
-    { id:'engine',    name:'Engine',       icon:'fa-engine'         },
-    { id:'electrical',name:'Electrical',   icon:'fa-bolt'           },
-    { id:'cooling',   name:'Cooling',      icon:'fa-temperature-low'},
-    { id:'suspension',name:'Suspension',   icon:'fa-car-bump'       },
-    { id:'exhaust',   name:'Exhaust',      icon:'fa-wind'           },
-    { id:'filters',   name:'Filters',      icon:'fa-filter'         },
-    { id:'drivetrain',name:'Drivetrain',   icon:'fa-gears'          },
-    { id:'fuel',      name:'Fuel System',  icon:'fa-gas-pump'       },
-    { id:'body',      name:'Body & Trim',  icon:'fa-car-side'       },
-    { id:'lighting',  name:'Lighting',     icon:'fa-lightbulb'      },
-    { id:'ac',        name:'A/C & Heating',icon:'fa-snowflake'      },
+    { id:'brakes',    name:'Brakes',       icon:'fa-circle-dot',   svgIcon:'brakes'     },
+    { id:'engine',    name:'Engine',       icon:'fa-engine',    svgIcon:'engine'     },
+    { id:'electrical',name:'Electrical',   icon:'fa-bolt',      svgIcon:'electrical' },
+    { id:'cooling',   name:'Cooling',      icon:'fa-temperature-low', svgIcon:'cooling' },
+    { id:'suspension',name:'Suspension',   icon:'fa-car-bump',  svgIcon:'suspension' },
+    { id:'exhaust',   name:'Exhaust',      icon:'fa-wind',      svgIcon:'exhaust'    },
+    { id:'filters',   name:'Filters',      icon:'fa-filter',    svgIcon:'filters'    },
+    { id:'drivetrain',name:'Drivetrain',   icon:'fa-gears',         svgIcon:'drivetrain' },
+    { id:'fuel',      name:'Fuel System',  icon:'fa-gas-pump',      svgIcon:'fuel'       },
+    { id:'body',      name:'Body & Trim',  icon:'fa-car-side',      svgIcon:'body'       },
+    { id:'lighting',  name:'Lighting',     icon:'fa-lightbulb',     svgIcon:'lighting'   },
+    { id:'ac',        name:'A/C & Heating',icon:'fa-snowflake',     svgIcon:'ac'         },
   ];
 
   // Resolve relative paths from any depth (admin pages need ../)
@@ -30,19 +30,18 @@ const SiteHeader = (() => {
   }
 
   function _catNavHTML(root) {
-    return CATEGORIES.map(c =>
-      `<a href="${root}catalog.html?cat=${c.id}" class="nav-cat">
-        <i class="fa-solid ${c.icon}"></i>${c.name}
-      </a>`
-    ).join('');
+    const CAT_SVGS = {"engine": "<svg xmlns=\\"http://www.w3.org/2000/svg\\" width=\\"16\\" height=\\"16\\" viewBox=\\"0 0 20 20\\" fill=\\"none\\" style=\\"vertical-align:-2px;display:inline-block\\"><rect x=\\"1\\" y=\\"6\\" width=\\"4\\" height=\\"8\\" rx=\\"1\\" stroke=\\"currentColor\\" stroke-width=\\"1.5\\"/><path d=\\"M5 8.5h3l1.5-2h3L14 8.5h1.5a1 1 0 011 1v1a1 1 0 01-1 1H14l-1.5 2h-3L8 11.5H5\\" stroke=\\"currentColor\\" stroke-width=\\"1.5\\" stroke-linejoin=\\"round\\"/><circle cx=\\"10\\" cy=\\"10\\" r=\\"1.2\\" fill=\\"currentColor\\"/></svg>", "suspension": "<svg xmlns=\\"http://www.w3.org/2000/svg\\" width=\\"16\\" height=\\"16\\" viewBox=\\"0 0 20 20\\" fill=\\"none\\" style=\\"vertical-align:-2px;display:inline-block\\"><path d=\\"M6 2h8\\" stroke=\\"currentColor\\" stroke-width=\\"1.5\\" stroke-linecap=\\"round\\"/><path d=\\"M14 2c0 1.33-1.5 2-3 2s-3 .67-3 2 1.5 2 3 2-3 .67-3 2 1.5 2 3 2-3 .67-3 2 1.5 2 3 2\\" stroke=\\"currentColor\\" stroke-width=\\"1.5\\" stroke-linecap=\\"round\\"/><path d=\\"M6 18h8\\" stroke=\\"currentColor\\" stroke-width=\\"1.5\\" stroke-linecap=\\"round\\"/></svg>", "brakes": "<svg xmlns=\\"http://www.w3.org/2000/svg\\" width=\\"16\\" height=\\"16\\" viewBox=\\"0 0 20 20\\" fill=\\"none\\" style=\\"vertical-align:-2px;display:inline-block\\"><circle cx=\\"10\\" cy=\\"10\\" r=\\"8\\" stroke=\\"currentColor\\" stroke-width=\\"1.4\\"/><circle cx=\\"10\\" cy=\\"10\\" r=\\"3.5\\" stroke=\\"currentColor\\" stroke-width=\\"1.4\\"/><path d=\\"M10 2v2.5M10 15.5V18M2 10h2.5M15.5 10H18M4.1 4.1l1.77 1.77M14.13 14.13l1.77 1.77M4.1 15.9l1.77-1.77M14.13 5.87l1.77-1.77\\" stroke=\\"currentColor\\" stroke-width=\\"1.2\\" stroke-linecap=\\"round\\"/></svg>", "cooling": "<svg xmlns=\\"http://www.w3.org/2000/svg\\" width=\\"16\\" height=\\"16\\" viewBox=\\"0 0 20 20\\" fill=\\"none\\" style=\\"vertical-align:-2px;display:inline-block\\"><circle cx=\\"10\\" cy=\\"10\\" r=\\"3\\" stroke=\\"currentColor\\" stroke-width=\\"1.5\\"/><path d=\\"M10 2v3M10 15v3M2 10h3M15 10h3M4.22 4.22l2.12 2.12M13.66 13.66l2.12 2.12M4.22 15.78l2.12-2.12M13.66 6.34l2.12-2.12\\" stroke=\\"currentColor\\" stroke-width=\\"1.3\\" stroke-linecap=\\"round\\"/></svg>", "exhaust": "<svg xmlns=\\"http://www.w3.org/2000/svg\\" width=\\"16\\" height=\\"16\\" viewBox=\\"0 0 20 20\\" fill=\\"none\\" style=\\"vertical-align:-2px;display:inline-block\\"><path d=\\"M2 15h5a2 2 0 002-2V9a2 2 0 012-2h5\\" stroke=\\"currentColor\\" stroke-width=\\"1.5\\" stroke-linecap=\\"round\\"/><circle cx=\\"17\\" cy=\\"7\\" r=\\"2\\" stroke=\\"currentColor\\" stroke-width=\\"1.4\\"/><path d=\\"M9.5 5c.5-1.5 1.5-2.5 2.5-2.5\\" stroke=\\"currentColor\\" stroke-width=\\"1.4\\" stroke-linecap=\\"round\\"/><path d=\\"M12 3.5c.5-1 1-1.5 1.5-1.5\\" stroke=\\"currentColor\\" stroke-width=\\"1.4\\" stroke-linecap=\\"round\\"/></svg>", "drivetrain": "<svg xmlns=\\"http://www.w3.org/2000/svg\\" width=\\"16\\" height=\\"16\\" viewBox=\\"0 0 20 20\\" fill=\\"none\\" style=\\"vertical-align:-2px;display:inline-block\\"><circle cx=\\"5\\" cy=\\"10\\" r=\\"3\\" stroke=\\"currentColor\\" stroke-width=\\"1.5\\"/><circle cx=\\"15\\" cy=\\"10\\" r=\\"3\\" stroke=\\"currentColor\\" stroke-width=\\"1.5\\"/><path d=\\"M8 10h4\\" stroke=\\"currentColor\\" stroke-width=\\"1.5\\" stroke-linecap=\\"round\\"/><path d=\\"M5 7V4l2-1.5M15 7V4l-2-1.5M5 13v3l2 1.5M15 13v3l-2 1.5\\" stroke=\\"currentColor\\" stroke-width=\\"1.3\\" stroke-linecap=\\"round\\"/></svg>", "fuel": "<svg xmlns=\\"http://www.w3.org/2000/svg\\" width=\\"16\\" height=\\"16\\" viewBox=\\"0 0 20 20\\" fill=\\"none\\" style=\\"vertical-align:-2px;display:inline-block\\"><path d=\\"M3 18V4a1 1 0 011-1h8a1 1 0 011 1v14H3Z\\" stroke=\\"currentColor\\" stroke-width=\\"1.4\\"/><path d=\\"M13 9l3.5 1.5V14a1.5 1.5 0 01-3 0v-2.5\\" stroke=\\"currentColor\\" stroke-width=\\"1.4\\" stroke-linecap=\\"round\\"/><path d=\\"M6 7h4M6 11h4\\" stroke=\\"currentColor\\" stroke-width=\\"1.3\\" stroke-linecap=\\"round\\"/></svg>", "lighting": "<svg xmlns=\\"http://www.w3.org/2000/svg\\" width=\\"16\\" height=\\"16\\" viewBox=\\"0 0 20 20\\" fill=\\"none\\" style=\\"vertical-align:-2px;display:inline-block\\"><path d=\\"M13.5 8A3.5 3.5 0 1010 4.5c0 1.5.6 2.3 1.5 3.2.7.7 1.2 1.5 1.5 2.3h-6c.3-.8.8-1.6 1.5-2.3C9.4 6.8 10 6 10 4.5\\" stroke=\\"currentColor\\" stroke-width=\\"1.4\\" stroke-linecap=\\"round\\"/><path d=\\"M8 13.5h4M8.5 17h3\\" stroke=\\"currentColor\\" stroke-width=\\"1.4\\" stroke-linecap=\\"round\\"/></svg>", "ac": "<svg xmlns=\\"http://www.w3.org/2000/svg\\" width=\\"16\\" height=\\"16\\" viewBox=\\"0 0 20 20\\" fill=\\"none\\" style=\\"vertical-align:-2px;display:inline-block\\"><path d=\\"M10 2v16M2 10h16M4.93 4.93l10.14 10.14M15.07 4.93L4.93 15.07\\" stroke=\\"currentColor\\" stroke-width=\\"1.3\\" stroke-linecap=\\"round\\"/><circle cx=\\"10\\" cy=\\"10\\" r=\\"2.5\\" stroke=\\"currentColor\\" stroke-width=\\"1.4\\"/></svg>", "body": "<svg xmlns=\\"http://www.w3.org/2000/svg\\" width=\\"16\\" height=\\"16\\" viewBox=\\"0 0 20 20\\" fill=\\"none\\" style=\\"vertical-align:-2px;display:inline-block\\"><path d=\\"M2 13h16M4 13V9l3-4h6l3 4v4\\" stroke=\\"currentColor\\" stroke-width=\\"1.4\\" stroke-linecap=\\"round\\" stroke-linejoin=\\"round\\"/><circle cx=\\"6\\" cy=\\"14.5\\" r=\\"1.5\\" stroke=\\"currentColor\\" stroke-width=\\"1.3\\"/><circle cx=\\"14\\" cy=\\"14.5\\" r=\\"1.5\\" stroke=\\"currentColor\\" stroke-width=\\"1.3\\"/><path d=\\"M7 9h6\\" stroke=\\"currentColor\\" stroke-width=\\"1.3\\" stroke-linecap=\\"round\\"/></svg>", "filters": "<svg xmlns=\\"http://www.w3.org/2000/svg\\" width=\\"16\\" height=\\"16\\" viewBox=\\"0 0 20 20\\" fill=\\"none\\" style=\\"vertical-align:-2px;display:inline-block\\"><path d=\\"M18 3H2l6.5 7.5V17l3-1.5V10.5L18 3Z\\" stroke=\\"currentColor\\" stroke-width=\\"1.4\\" stroke-linecap=\\"round\\" stroke-linejoin=\\"round\\"/></svg>", "electrical": "<svg xmlns=\\"http://www.w3.org/2000/svg\\" width=\\"16\\" height=\\"16\\" viewBox=\\"0 0 20 20\\" fill=\\"none\\" style=\\"vertical-align:-2px;display:inline-block\\"><path d=\\"M11 2L3 11h7l-1 7 8-9h-7l1-7Z\\" stroke=\\"currentColor\\" stroke-width=\\"1.4\\" stroke-linejoin=\\"round\\"/></svg>"};
+    return CATEGORIES.map(c => {
+      const svg = CAT_SVGS[c.id] || `<i class="fa-solid ${c.icon}"></i>`;
+      return `<a href="${root}catalog.html?cat=${c.id}" class="nav-cat">${svg}${c.name}</a>`;
+    }).join('');
   }
 
   function _mobileCatHTML(root) {
-    return CATEGORIES.map(c =>
-      `<a href="${root}catalog.html?cat=${c.id}">
-        <i class="fa-solid ${c.icon}" style="color:var(--c-text-3);width:18px;text-align:center"></i>${c.name}
-      </a>`
-    ).join('');
+    return CATEGORIES.map(c => {
+      const svg = CAT_SVGS[c.id] || `<i class="fa-solid ${c.icon}"></i>`;
+      return `<a href="${root}catalog.html?cat=${c.id}">${svg}${c.name}</a>`;
+    }).join('');
   }
 
   function _build(root) {
