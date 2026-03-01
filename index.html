@@ -399,7 +399,7 @@ document.addEventListener('DOMContentLoaded', () => {
     try {
       const subs = JSON.parse(localStorage.getItem('ap_newsletter') || '[]');
       if (subs.includes(email.toLowerCase())) {
-        msg.innerHTML = '<span style="color:var(--c-accent)">You're already subscribed!</span>';
+        msg.innerHTML = '<span style="color:var(--c-accent)">You\'re already subscribed!</span>';
       } else {
         subs.push(email.toLowerCase());
         localStorage.setItem('ap_newsletter', JSON.stringify(subs));

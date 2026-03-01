@@ -231,8 +231,16 @@ const SiteHeader = (() => {
     badge.classList.toggle('hidden', count === 0);
   }
 
+  function _updateWishlistCount() {
+    const count = window.Wishlist?.getCount?.() || 0;
+    const badge = document.getElementById('wishlist-count');
+    if (!badge) return;
+    badge.textContent = count;
+    badge.classList.toggle('hidden', count === 0);
+  }
+
   function _updateVehicleBanner() {
-    const state = window.YMM?.getState?.();
+    const state = window.VehicleDB?.getState?.();
     const el = document.getElementById('header-vb-text');
     const banner = document.getElementById('header-vehicle-compact');
     if (!el || !banner) return;
@@ -306,6 +314,16 @@ const SiteHeader = (() => {
     root = root || _root();
     const q = document.getElementById('header-search-input')?.value?.trim();
     if (q) window.location.href = `${root}catalog.html?q=${encodeURIComponent(q)}`;
+  }
+
+  function _markActiveNav() {
+    const path = window.location.pathname.split('/').pop() || 'index.html';
+    document.querySelectorAll('.nav-cat, .header-action-btn, .mobile-nav a').forEach(el => {
+      const href = el.getAttribute('href') || '';
+      if (href && href !== '#' && path && href.includes(path.replace('.html', ''))) {
+        el.classList.add('active');
+      }
+    });
   }
 
   return { init, submitSearch, updateCart: _updateCartCount, updateVehicle: _updateVehicleBanner };
