@@ -96,7 +96,7 @@ const Print = (() => {
         .print-btn { position:fixed; top:16px; right:16px; background:#111; color:#fff; border:none; padding:10px 24px; cursor:pointer; font-size:11pt; border-radius:4px; }
       </style>
     </head><body>
-      <button class="no-print print-btn" onclick="window.print()">🖨 Print Invoice</button>
+      <button class="no-print print-btn" onclick="window.print()"><i class="fa-solid fa-print"></i> Print Invoice</button>
 
       <div class="header">
         <div>
@@ -232,7 +232,7 @@ const Print = (() => {
         .print-btn { position:fixed; top:16px; right:16px; background:#111; color:#fff; border:none; padding:10px 24px; cursor:pointer; font-size:11pt; border-radius:4px; }
       </style>
     </head><body>
-      <button class="no-print print-btn" onclick="window.print()">🖨 Print</button>
+      <button class="no-print print-btn" onclick="window.print()"><i class="fa-solid fa-print"></i> Print</button>
 
       <div class="header">
         <div>
@@ -375,7 +375,7 @@ const Print = (() => {
         .deadline { background:#fffbeb; border:2px solid #f59e0b; padding:12px; border-radius:4px; font-size:11pt; font-weight:700; }
       </style>
     </head><body>
-      <button class="no-print print-btn" onclick="window.print()">🖨 Print</button>
+      <button class="no-print print-btn" onclick="window.print()"><i class="fa-solid fa-print"></i> Print</button>
       <div style="display:flex;justify-content:space-between;margin-bottom:24px">
         <div><div style="font-size:22pt;font-weight:900">${COMPANY.logo} Auto<span style="color:#e8a020">Parts</span></div><div style="color:#444">${COMPANY.name}</div></div>
         <div style="text-align:right"><h1 style="border:none;margin:0;font-size:18pt">CORE RETURN FORM</h1><div style="font-family:monospace;font-size:12pt;color:#e8a020">${order.orderNumber}</div></div>

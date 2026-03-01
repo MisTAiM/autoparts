@@ -381,7 +381,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Cart count
   updateCartCount();
-  document.addEventListener('cart:updated', updateCartCount);
+  window.addEventListener('cart:updated', updateCartCount);
 
   // Mobile nav
   document.getElementById('menu-toggle').addEventListener('click', () => {

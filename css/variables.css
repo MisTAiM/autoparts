@@ -38,6 +38,7 @@
   --shadow-sm:  0 1px 3px rgba(0,0,0,.4);
   --shadow:     0 4px 16px rgba(0,0,0,.5);
   --shadow-lg:  0 8px 32px rgba(0,0,0,.6);
+  --shadow-xl:  0 16px 48px rgba(0,0,0,.7);
   --shadow-accent: 0 4px 24px rgba(245,158,11,.2);
 
   --t-fast:80ms ease;--t-base:150ms ease;--t-slow:280ms ease;

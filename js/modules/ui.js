@@ -14,7 +14,7 @@ const UI = (() => {
       container.id = 'toast-container';
       document.body.appendChild(container);
     }
-    const icons = { success: '✅', danger: '❌', warning: '⚠️', info: 'ℹ️' };
+    const icons = { success: '<i class="fa-solid fa-circle-check"></i>', danger: '<i class="fa-solid fa-circle-xmark"></i>', warning: '<i class="fa-solid fa-triangle-exclamation"></i>', info: '<i class="fa-solid fa-circle-info"></i>' };
     const el = document.createElement('div');
     el.className = 'toast';
     el.innerHTML = `
@@ -112,7 +112,7 @@ const UI = (() => {
         if (!parts.length) { results.classList.remove('open'); return; }
         results.innerHTML = parts.slice(0, 6).map(p => `
           <div class="search-result-item" data-id="${p.id}">
-            <div class="sri-thumb">${p.thumbnail ? `<img src="${p.thumbnail}" alt="">` : '🔩'}</div>
+            <div class="sri-thumb">${p.thumbnail ? `<img src="${p.thumbnail}" alt="">` : '<i class="fa-solid fa-gear"></i>'}</div>
             <div>
               <div class="sri-name">${p.name}</div>
               <div class="sri-cat">${p.categoryName || ''}</div>

@@ -55,12 +55,12 @@
   <aside class="admin-sidebar" style="display:flex;flex-direction:column">
     <div class="admin-logo">⚙ Admin<span>Panel</span></div>
     <nav class="admin-nav" style="flex:1">
-      <a href="dashboard.html">📊 Dashboard</a>
-      <a href="orders.html">📦 Orders</a>
-      <a href="inventory.html" class="active">🔩 Inventory</a>
+      <a href="dashboard.html"><i class="fa-solid fa-chart-bar"></i> Dashboard</a>
+      <a href="orders.html"><i class="fa-solid fa-box"></i> Orders</a>
+      <a href="inventory.html" class="active"><i class="fa-solid fa-gear"></i> Inventory</a>
       <div style="border-top:1px solid var(--c-border);margin:8px 0"></div>
-      <a href="../index.html" target="_blank">🌐 View Store</a>
-      <a href="#" id="logout-link">🚪 Sign Out</a>
+      <a href="../index.html" target="_blank"><i class="fa-solid fa-globe"></i> View Store</a>
+      <a href="#" id="logout-link"><i class="fa-solid fa-right-from-bracket"></i> Sign Out</a>
     </nav>
     <div class="admin-user">
       <div style="font-size:.85rem;font-weight:600" id="admin-name">—</div>
@@ -149,7 +149,7 @@
           <div class="photo-upload" id="photo-drop" onclick="document.getElementById('photo-input').click()">
             <img id="photo-preview" src="" alt="" style="display:none;width:80px;height:80px;border-radius:6px;object-fit:cover;margin:0 auto 8px;display:none">
             <div id="photo-placeholder">
-              <div style="font-size:2rem;margin-bottom:8px">📷</div>
+              <div style="font-size:2rem;margin-bottom:8px"><i class="fa-solid fa-camera"></i></div>
               <div style="font-size:.88rem;color:var(--c-text-2)">Click or drag to upload photo</div>
               <div style="font-size:.78rem;color:var(--c-text-3);margin-top:4px">JPG, PNG, WEBP — max 5MB</div>
             </div>
@@ -203,7 +203,7 @@
     <div class="modal-header"><h3>Import Inventory from CSV</h3><button onclick="closeImport()" style="background:none;border:none;color:var(--c-text-2);font-size:1.3rem;cursor:pointer">✕</button></div>
     <div id="import-alert"></div>
     <div class="import-zone" id="import-zone" onclick="document.getElementById('csv-input').click()">
-      <div style="font-size:2.5rem;margin-bottom:12px">📂</div>
+      <div style="font-size:2.5rem;margin-bottom:12px"><i class="fa-solid fa-folder-open"></i></div>
       <div style="font-weight:600;margin-bottom:6px">Click to upload CSV file</div>
       <div class="text-muted text-sm">or drag and drop here</div>
     </div>
@@ -330,7 +330,7 @@ function renderTable() {
       <tr>
         <td>
           <div class="part-thumb">
-            ${p.thumbnail ? `<img src="${p.thumbnail}" alt="">` : '<span style="font-size:1.2rem">🔩</span>'}
+            ${p.thumbnail ? `<img src="${p.thumbnail}" alt="">` : '<span style="font-size:1.2rem"><i class="fa-solid fa-gear"></i></span>'}
           </div>
         </td>
         <td>
@@ -347,7 +347,7 @@ function renderTable() {
           <div style="display:flex;gap:6px">
             <button class="btn btn-outline btn-sm" onclick="openEdit(${p.id})">Edit</button>
             <button class="btn btn-ghost btn-sm" onclick="quickStock(${p.id})" title="Adjust stock">±</button>
-            <button class="btn btn-ghost btn-sm" style="color:var(--c-danger)" onclick="deletePart(${p.id})">🗑</button>
+            <button class="btn btn-ghost btn-sm" style="color:var(--c-danger)" onclick="deletePart(${p.id})"><i class="fa-solid fa-trash"></i></button>
           </div>
         </td>
       </tr>`;

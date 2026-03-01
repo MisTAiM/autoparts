@@ -14,18 +14,18 @@
 
 // ─── Categories ─────────────────────────────────────────────────────────────
 const CATEGORIES = [
-  { id: 'brakes',     name: 'Brakes',           icon: '🛑', count: 0 },
+  { id: 'brakes',     name: 'Brakes',           icon: 'fa-circle-dot', count: 0 },
   { id: 'engine',     name: 'Engine',            icon: '⚙️', count: 0 },
   { id: 'electrical', name: 'Electrical',        icon: '⚡', count: 0 },
-  { id: 'cooling',    name: 'Cooling System',    icon: '🌡️', count: 0 },
-  { id: 'suspension', name: 'Suspension',        icon: '🔩', count: 0 },
-  { id: 'exhaust',    name: 'Exhaust',           icon: '💨', count: 0 },
-  { id: 'filters',    name: 'Filters',           icon: '🔳', count: 0 },
+  { id: 'cooling',    name: 'Cooling System',    icon: 'fa-temperature-low', count: 0 },
+  { id: 'suspension', name: 'Suspension',        icon: 'fa-car-bump', count: 0 },
+  { id: 'exhaust',    name: 'Exhaust',           icon: 'fa-wind', count: 0 },
+  { id: 'filters',    name: 'Filters',           icon: 'fa-filter', count: 0 },
   { id: 'drivetrain', name: 'Drivetrain',        icon: '⚙️', count: 0 },
   { id: 'fuel',       name: 'Fuel System',       icon: '⛽', count: 0 },
-  { id: 'body',       name: 'Body & Exterior',   icon: '🚗', count: 0 },
-  { id: 'lighting',   name: 'Lighting',          icon: '💡', count: 0 },
-  { id: 'ac',         name: 'A/C & Heating',     icon: '❄️', count: 0 },
+  { id: 'body',       name: 'Body & Exterior',   icon: 'fa-car-side', count: 0 },
+  { id: 'lighting',   name: 'Lighting',          icon: 'fa-lightbulb', count: 0 },
+  { id: 'ac',         name: 'A/C & Heating',     icon: 'fa-snowflake', count: 0 },
 ];
 
 // ─── Sample Parts Catalog ────────────────────────────────────────────────────
@@ -212,6 +212,7 @@ const PartsData = (() => {
 
 window.PartsData = PartsData;
 window.CATEGORIES = CATEGORIES;
+window.SAMPLE_PARTS = SAMPLE_PARTS; // Required by inventory-db.js seedFromSampleData()
 
 // ─── Live delegation to InventoryDB ─────────────────────────────────────────
 // When InventoryDB is loaded (admin has added parts), use that as the source.
