@@ -45,6 +45,6 @@
 
   --container-max:1400px;
   --container-pad:clamp(16px,3vw,40px);
-  --header-h:116px;
+  --header-h:144px;
   --sidebar-w:260px;
 }

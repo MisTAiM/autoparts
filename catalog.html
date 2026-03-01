@@ -1,116 +1,204 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta charset="UTF-8" /><meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Parts Catalog | AutoParts Warehouse</title>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" crossorigin="anonymous" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" crossorigin="anonymous"/>
   <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600&family=JetBrains+Mono:wght@400;500" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/variables.css">
   <link rel="stylesheet" href="css/base.css">
   <link rel="stylesheet" href="css/layout.css">
   <link rel="stylesheet" href="css/pages/catalog.css">
+  <style>
+    /* Old catalog classes mapped to new design */
+    .filters-sidebar {
+      position: sticky;
+      top: calc(var(--header-h) + 16px);
+      height: fit-content;
+      max-height: calc(100vh - var(--header-h) - 32px);
+      overflow-y: auto;
+      scrollbar-width: thin;
+    }
+    /* Mobile filter overlay */
+    @media(max-width:900px){
+      .catalog-layout { grid-template-columns: 1fr; }
+      .filters-sidebar {
+        position: fixed;
+        left: -110%;
+        top: 0;
+        bottom: 0;
+        width: 300px;
+        z-index: 200;
+        background: var(--c-surface);
+        padding: 20px;
+        overflow-y: auto;
+        transition: left .28s ease;
+        border-right: 1px solid var(--c-border);
+        box-shadow: 4px 0 24px rgba(0,0,0,.5);
+        max-height: none;
+      }
+      .filters-sidebar.mobile-open { left: 0; }
+      .mobile-filter-btn { display: flex !important; margin-bottom: 16px; }
+    }
+    @media(max-width:600px){
+      .parts-grid { grid-template-columns: 1fr; }
+    }
+    .filters-header { display:flex;align-items:center;justify-content:space-between;padding:14px 18px;background:var(--c-surface);border:1px solid var(--c-border);border-radius:var(--radius-lg) var(--radius-lg) 0 0;border-bottom:none; }
+    .filters-header h3 { font-size:.85rem;text-transform:uppercase;letter-spacing:.08em;color:var(--c-text-2); }
+    .filters-clear { background:none;border:none;color:var(--c-danger);font-size:.75rem;cursor:pointer;display:flex;align-items:center;gap:4px; }
+    .filter-group { background:var(--c-surface);border:1px solid var(--c-border);border-radius:0;margin-top:-1px; }
+    .filter-group:last-child { border-radius:0 0 var(--radius-lg) var(--radius-lg); }
+    .filter-group-header { display:flex;align-items:center;justify-content:space-between;padding:12px 18px;cursor:pointer;border-bottom:1px solid var(--c-border); }
+    .filter-group-title { font-size:.78rem;text-transform:uppercase;letter-spacing:.07em;color:var(--c-text-3);font-weight:600; }
+    .filter-group-toggle { font-size:.65rem;color:var(--c-text-3);transition:transform .15s;display:inline-block; }
+    .filter-group-toggle:not(.open) { transform:rotate(-90deg); }
+    .filter-group-body { padding:10px 18px;border-bottom:1px solid var(--c-border);display:none; }
+    .filter-group-body.open { display:block; }
+    .filter-option { display:flex;align-items:center;gap:10px;padding:7px 0;cursor:pointer;font-size:.85rem;color:var(--c-text-2);border-bottom:1px solid rgba(255,255,255,.03); }
+    .filter-option:last-child { border-bottom:none; }
+    .filter-option input[type=checkbox] { accent-color:var(--c-accent);flex-shrink:0;cursor:pointer; }
+    .filter-option input { width:auto;border:none;box-shadow:none;background:none;padding:0; }
+    .filter-option-count { margin-left:auto;font-size:.72rem;color:var(--c-text-3); }
+    .filter-price-range .price-inputs { display:flex;align-items:center;gap:8px; }
+    .filter-price-range .price-inputs input { width:90px; }
+    .filter-price-range .price-sep { color:var(--c-text-3); }
+    /* Part cards in catalog */
+    .parts-grid { display:grid;grid-template-columns:repeat(3,1fr);gap:20px; }
+    .parts-list { display:flex;flex-direction:column;gap:12px; }
+    .part-card { background:var(--c-surface);border:1px solid var(--c-border);border-radius:var(--radius-lg);overflow:hidden;display:flex;flex-direction:column;transition:border-color .15s,box-shadow .15s,transform .28s; }
+    .part-card:hover { border-color:rgba(245,158,11,.35);box-shadow:0 8px 32px rgba(0,0,0,.5);transform:translateY(-2px); }
+    .part-card-img { aspect-ratio:4/3;background:var(--c-surface-2);display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden; }
+    .part-card-img img { width:100%;height:100%;object-fit:contain;padding:12px;transition:transform .28s; }
+    .part-card:hover .part-card-img img { transform:scale(1.04); }
+    .part-card-img .no-img { font-size:2.5rem;color:var(--c-border-2); }
+    .part-badges { position:absolute;top:8px;left:8px;display:flex;gap:4px; }
+    .part-card-body { padding:14px;flex:1;display:flex;flex-direction:column;gap:4px; }
+    .part-category { font-size:.68rem;text-transform:uppercase;letter-spacing:.08em;color:var(--c-text-3); }
+    .part-name { font-family:var(--font-display);font-size:1rem;font-weight:600;color:var(--c-text);line-height:1.2;flex:1; }
+    .part-number { font-family:var(--font-mono);font-size:.7rem;color:var(--c-text-3); }
+    .part-card-footer { display:flex;align-items:flex-end;justify-content:space-between;margin-top:8px;padding-top:10px;border-top:1px solid var(--c-border); }
+    .part-price { font-family:var(--font-display);font-size:1.4rem;font-weight:700;color:var(--c-accent);line-height:1; }
+    .part-price-core { font-size:.7rem;color:var(--c-text-3);margin-top:2px; }
+    /* List view */
+    .part-list-card { background:var(--c-surface);border:1px solid var(--c-border);border-radius:var(--radius-lg);overflow:hidden;display:flex;align-items:stretch;transition:border-color .15s; }
+    .part-list-card:hover { border-color:rgba(245,158,11,.35); }
+    .part-list-img { width:120px;min-width:120px;background:var(--c-surface-2);display:flex;align-items:center;justify-content:center; }
+    .part-list-img img { width:100%;height:100%;object-fit:contain;padding:8px; }
+    .part-list-img .no-img { font-size:2rem;color:var(--c-border-2); }
+    .part-list-body { flex:1;display:flex;align-items:center;justify-content:space-between;padding:16px 20px;gap:20px; }
+    .part-list-info { flex:1; }
+    .part-list-price { text-align:right;flex-shrink:0; }
+    /* Toolbar */
+    .catalog-toolbar { display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:20px;padding-bottom:16px;border-bottom:1px solid var(--c-border);flex-wrap:wrap; }
+    .results-count { font-size:.85rem;color:var(--c-text-2); }
+    .results-count strong { color:var(--c-text); }
+    .view-toggle { display:flex;gap:4px; }
+    .view-toggle button { width:34px;height:34px;background:var(--c-surface-2);border:1px solid var(--c-border);border-radius:var(--radius-sm);color:var(--c-text-3);cursor:pointer;font-size:1rem;transition:all .1s; }
+    .view-toggle button.active { background:var(--c-surface-3);border-color:var(--c-accent);color:var(--c-accent); }
+    /* Breadcrumb */
+    .catalog-breadcrumb { display:flex;align-items:center;gap:8px;padding:14px 0;font-size:.78rem;color:var(--c-text-3); }
+    .catalog-breadcrumb a { color:var(--c-text-3); }
+    .catalog-breadcrumb a:hover { color:var(--c-accent); }
+    .catalog-breadcrumb span { color:var(--c-text-2); }
+    /* Vehicle banner */
+    .vehicle-fitment-banner { display:flex;align-items:center;gap:12px;background:var(--c-accent-dim);border:1px solid rgba(245,158,11,.35);border-radius:var(--radius-lg);padding:12px 16px;margin-bottom:20px; }
+    .vehicle-fitment-banner i { color:var(--c-accent); }
+    .vfb-vehicle { font-family:var(--font-display);font-size:1rem;font-weight:700;color:var(--c-accent);text-transform:uppercase; }
+    .vfb-sub { font-size:.75rem;color:var(--c-text-3); }
+    /* Pagination */
+    .pagination { display:flex;align-items:center;gap:6px;justify-content:center;flex-wrap:wrap;margin-top:32px; }
+    .pagination button { width:36px;height:36px;background:var(--c-surface-2);border:1px solid var(--c-border);border-radius:var(--radius-sm);color:var(--c-text-2);font-size:.85rem;cursor:pointer;transition:all .1s; }
+    .pagination button:hover { border-color:var(--c-accent);color:var(--c-accent); }
+    .pagination button.active { background:var(--c-accent);border-color:var(--c-accent);color:#0B0D11;font-weight:700; }
+    .pagination button:disabled { opacity:.3;pointer-events:none; }
+    @media(max-width:1024px){ .parts-grid { grid-template-columns:repeat(2,1fr); } }
+  </style>
 </head>
 <body>
 
-<header id="site-header">
-  <div class="header-inner">
-    <a href="index.html" class="site-logo">⚙ Auto<span>Parts</span></a>
-    <nav class="header-nav">
-      <a href="index.html">Home</a>
-      <a href="catalog.html" class="active">All Parts</a>
-      <a href="catalog.html?cat=brakes">Brakes</a>
-      <a href="catalog.html?cat=engine">Engine</a>
-      <a href="catalog.html?cat=electrical">Electrical</a>
-    </nav>
-    <div class="header-search">
-      <span class="search-icon">🔍</span>
-      <input type="text" id="header-search-input" placeholder="Search parts, part numbers...">
-      <div class="header-search-results" id="header-search-results"></div>
-    </div>
-    <div class="header-actions">
-      <a href="cart.html" class="cart-btn">🛒 <span>Cart</span><span class="cart-count"></span></a>
-    </div>
-    <button class="menu-toggle">☰</button>
-  </div>
-</header>
+<header id="site-header"></header>
+<div class="mobile-nav" id="mobile-nav"></div>
 
-<div class="vehicle-banner" id="vehicle-banner">
-  <div class="vehicle-banner-inner">
-    <span class="vehicle-banner-label">Showing parts for:</span>
-    <span class="vehicle-banner-name"></span>
-    <a class="vehicle-banner-change" href="#" id="vehicle-change-btn">Change Vehicle</a>
-  </div>
-</div>
-
-<main class="catalog-page">
+<main>
   <div class="container">
+    <!-- Breadcrumb -->
     <div class="catalog-breadcrumb">
-      <a href="index.html">Home</a>
-      <span>›</span>
+      <a href="index.html"><i class="fa-solid fa-house" style="font-size:.7rem"></i> Home</a>
+      <i class="fa-solid fa-chevron-right" style="font-size:.6rem"></i>
+      <a href="catalog.html">Catalog</a>
+      <i class="fa-solid fa-chevron-right" style="font-size:.6rem"></i>
       <span id="breadcrumb-current">All Parts</span>
     </div>
 
-    <!-- Mobile filter toggle -->
-    <button class="btn btn-outline mobile-filter-btn" id="mobile-filter-toggle" style="margin-bottom:16px">
-      ⚙ Filters
+    <!-- Vehicle fitment banner (shown when vehicle selected) -->
+    <div class="vehicle-fitment-banner hidden" id="vehicle-fitment-banner">
+      <i class="fa-solid fa-car-side fa-lg"></i>
+      <div>
+        <div class="vfb-vehicle" id="vfb-vehicle-name"></div>
+        <div class="vfb-sub">Showing parts that fit your vehicle</div>
+      </div>
+      <a href="index.html" class="btn btn-outline btn-sm" style="margin-left:auto">
+        <i class="fa-solid fa-rotate-left"></i> Change Vehicle
+      </a>
+    </div>
+
+    <!-- Mobile filter button -->
+    <button class="btn btn-outline btn-sm mobile-filter-btn" id="mobile-filter-toggle" style="margin-bottom:16px">
+      <i class="fa-solid fa-sliders"></i> Filters
     </button>
 
     <div class="catalog-layout">
-      <!-- ── Sidebar Filters ─────────────────── -->
+      <!-- Sidebar -->
       <aside class="filters-sidebar" id="filters-sidebar">
         <div class="filters-header">
-          <h3>Filters</h3>
-          <button class="filters-clear" id="clear-filters">Clear All</button>
+          <h3><i class="fa-solid fa-sliders" style="margin-right:6px;color:var(--c-accent)"></i>Filters</h3>
+          <button class="filters-clear" id="clear-filters">
+            <i class="fa-solid fa-xmark"></i> Clear All
+          </button>
         </div>
 
-        <!-- Category filter -->
         <div class="filter-group" id="fg-category">
           <div class="filter-group-header" data-group="category">
             <span class="filter-group-title">Category</span>
-            <span class="filter-group-toggle open">▼</span>
+            <span class="filter-group-toggle open"><i class="fa-solid fa-chevron-down"></i></span>
           </div>
-          <div class="filter-group-body open" id="fgb-category">
-            <!-- Populated by JS -->
-          </div>
+          <div class="filter-group-body open" id="fgb-category"></div>
         </div>
 
-        <!-- Brand filter -->
         <div class="filter-group" id="fg-brand">
           <div class="filter-group-header" data-group="brand">
             <span class="filter-group-title">Brand</span>
-            <span class="filter-group-toggle open">▼</span>
+            <span class="filter-group-toggle open"><i class="fa-solid fa-chevron-down"></i></span>
           </div>
-          <div class="filter-group-body open" id="fgb-brand">
-            <!-- Populated by JS -->
-          </div>
+          <div class="filter-group-body open" id="fgb-brand"></div>
         </div>
 
-        <!-- Condition filter -->
         <div class="filter-group">
           <div class="filter-group-header" data-group="condition">
             <span class="filter-group-title">Condition</span>
-            <span class="filter-group-toggle open">▼</span>
+            <span class="filter-group-toggle open"><i class="fa-solid fa-chevron-down"></i></span>
           </div>
           <div class="filter-group-body open" id="fgb-condition">
             <label class="filter-option">
-              <input type="checkbox" value="new" data-filter="conditions"> New
+              <input type="checkbox" value="new" data-filter="conditions">
+              New <span class="filter-option-count"></span>
             </label>
             <label class="filter-option">
-              <input type="checkbox" value="reman" data-filter="conditions"> Remanufactured
+              <input type="checkbox" value="reman" data-filter="conditions">
+              Remanufactured
             </label>
             <label class="filter-option">
-              <input type="checkbox" value="used" data-filter="conditions"> Used / OE Pull
+              <input type="checkbox" value="used" data-filter="conditions">
+              Used / OE Pull
             </label>
           </div>
         </div>
 
-        <!-- Price range -->
         <div class="filter-group">
           <div class="filter-group-header" data-group="price">
             <span class="filter-group-title">Price Range</span>
-            <span class="filter-group-toggle open">▼</span>
+            <span class="filter-group-toggle open"><i class="fa-solid fa-chevron-down"></i></span>
           </div>
           <div class="filter-group-body open">
             <div class="filter-price-range">
@@ -119,18 +207,18 @@
                 <span class="price-sep">–</span>
                 <input type="number" id="price-max" placeholder="Max $" min="0">
               </div>
-              <button class="btn btn-outline btn-sm btn-full" style="margin-top:10px" id="apply-price">Apply</button>
+              <button class="btn btn-outline btn-sm btn-full" style="margin-top:10px" id="apply-price">
+                <i class="fa-solid fa-check"></i> Apply
+              </button>
             </div>
           </div>
         </div>
       </aside>
 
-      <!-- ── Results ────────────────────────── -->
+      <!-- Results -->
       <div>
         <div class="catalog-toolbar">
-          <div class="catalog-toolbar-left">
-            <div class="results-count" id="results-count">Loading...</div>
-          </div>
+          <div class="results-count" id="results-count">Loading…</div>
           <div style="display:flex;align-items:center;gap:10px">
             <select class="sort-select" id="sort-select">
               <option value="relevance">Sort: Relevance</option>
@@ -140,8 +228,8 @@
               <option value="newest">Newest First</option>
             </select>
             <div class="view-toggle">
-              <button id="view-grid" class="active" title="Grid view">⊞</button>
-              <button id="view-list" title="List view">☰</button>
+              <button id="view-grid" class="active" title="Grid view"><i class="fa-solid fa-grid-2"></i></button>
+              <button id="view-list" title="List view"><i class="fa-solid fa-list"></i></button>
             </div>
           </div>
         </div>
@@ -158,62 +246,30 @@
   </div>
 </main>
 
-<footer id="site-footer">
-  <div class="footer-grid">
-    <div class="footer-brand">
-      <div class="site-logo" style="margin-bottom:12px">⚙ Auto<span>Parts</span></div>
-      <p>Quality auto parts shipped direct from our warehouse nationwide.</p>
-    </div>
-    <div class="footer-col">
-      <h5>Shop</h5>
-      <a href="catalog.html?cat=brakes">Brakes</a>
-      <a href="catalog.html?cat=engine">Engine Parts</a>
-      <a href="catalog.html?cat=electrical">Electrical</a>
-      <a href="catalog.html?cat=suspension">Suspension</a>
-    </div>
-    <div class="footer-col">
-      <h5>Orders</h5>
-      <a href="cart.html">Shopping Cart</a>
-      <a href="checkout.html">Checkout</a>
-    </div>
-    <div class="footer-col">
-      <h5>Info</h5>
-      <a href="#">Shipping Policy</a>
-      <a href="#">Core Charges</a>
-      <a href="#">Contact</a>
-    </div>
-  </div>
-  <div class="footer-bottom">
-    <span>© 2025 AutoParts Warehouse.</span>
-    <span>Outbound shipping only · No in-store pickup</span>
-  </div>
-</footer>
+<!-- Footer injected by JS -->
+<div id="toast-container" class="toast-container"></div>
 
-<div id="mobile-nav" class="mobile-nav">
-  <div class="mobile-nav-inner">
-    <strong style="font-family:var(--font-display);margin-bottom:8px;display:block">Menu</strong>
-    <a href="index.html">Home</a>
-    <a href="catalog.html">All Parts</a>
-    <a href="cart.html">🛒 Cart</a>
-  </div>
-</div>
-
-<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
 <script src="js/data/parts-data.js"></script>
 <script src="js/modules/ymm.js"></script>
 <script src="js/modules/cart.js"></script>
 <script src="js/modules/catalog.js"></script>
 <script src="js/modules/shipping.js"></script>
 <script src="js/modules/notify.js"></script>
+<script src="js/modules/auth.js"></script>
+<script src="js/modules/inventory-db.js"></script>
+<script src="js/modules/print.js"></script>
 <script src="js/modules/ui.js"></script>
-
+<script src="js/components/header.js"></script>
 <script>
 let _currentPage = 1;
 let _viewMode = 'grid';
 let _pageData = null;
 
 document.addEventListener('DOMContentLoaded', async () => {
-  UI.init();
+  // Init shared modules
+  InventoryDB.seedFromSampleData();
+  Cart.init();
+  SiteHeader.init();
 
   const params  = new URLSearchParams(window.location.search);
   const catId   = params.get('cat');
@@ -222,10 +278,21 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   // Breadcrumb
   if (catId) {
-    const cat = PartsData.getCategories().find(c => c.id === catId);
+    const cats = window.CATEGORIES || [];
+    const cat = cats.find(c => c.id === catId);
     document.getElementById('breadcrumb-current').textContent = cat?.name || catId;
   } else if (query) {
     document.getElementById('breadcrumb-current').textContent = `Search: "${query}"`;
+  }
+
+  // Vehicle banner
+  if (vehicle.year && vehicle.makeName && vehicle.modelName) {
+    const banner = document.getElementById('vehicle-fitment-banner');
+    const nameEl = document.getElementById('vfb-vehicle-name');
+    if (banner && nameEl) {
+      nameEl.textContent = `${vehicle.year} ${vehicle.makeName} ${vehicle.modelName}`;
+      banner.classList.remove('hidden');
+    }
   }
 
   // Build category filter
@@ -240,13 +307,10 @@ document.addEventListener('DOMContentLoaded', async () => {
     await Catalog.loadParts(vehicle.year ? vehicle : null);
   }
 
-  // Build brand filter from facets
   buildBrandFilter();
-
-  // Render first page
   renderPage(Catalog.getPage(1));
 
-  // ── Events ────────────────────────────────────────
+  // Events
   document.getElementById('sort-select').addEventListener('change', (e) => {
     renderPage(Catalog.setSort(e.target.value));
   });
@@ -259,9 +323,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   });
 
   document.querySelectorAll('[data-filter]').forEach(cb => {
-    cb.addEventListener('change', () => {
-      renderPage(Catalog.toggleFilter(cb.dataset.filter, cb.value));
-    });
+    cb.addEventListener('change', () => renderPage(Catalog.toggleFilter(cb.dataset.filter, cb.value)));
   });
 
   document.getElementById('apply-price').addEventListener('click', () => {
@@ -270,13 +332,14 @@ document.addEventListener('DOMContentLoaded', async () => {
     renderPage(Catalog.setPriceRange(min, max));
   });
 
-  // Filter group toggles
+  // Filter toggles
   document.querySelectorAll('.filter-group-header').forEach(header => {
     header.addEventListener('click', () => {
-      const group = header.dataset.group;
-      const body  = document.querySelector(`#fgb-${group}`) || header.nextElementSibling;
+      const group  = header.dataset.group;
+      const body   = group ? document.getElementById(`fgb-${group}`) : header.nextElementSibling;
       const toggle = header.querySelector('.filter-group-toggle');
-      if (body) { body.classList.toggle('open'); toggle?.classList.toggle('open'); }
+      if (body)   body.classList.toggle('open');
+      if (toggle) toggle.classList.toggle('open');
     });
   });
 
@@ -287,6 +350,16 @@ document.addEventListener('DOMContentLoaded', async () => {
   // Mobile filter toggle
   document.getElementById('mobile-filter-toggle').addEventListener('click', () => {
     document.getElementById('filters-sidebar').classList.toggle('mobile-open');
+  });
+  // Close mobile filter on outside click
+  document.addEventListener('click', (e) => {
+    const sidebar = document.getElementById('filters-sidebar');
+    const toggle = document.getElementById('mobile-filter-toggle');
+    if (sidebar.classList.contains('mobile-open') &&
+        !sidebar.contains(e.target) &&
+        !toggle.contains(e.target)) {
+      sidebar.classList.remove('mobile-open');
+    }
   });
 });
 
@@ -308,11 +381,13 @@ function renderPage(data) {
 function renderPartsList(parts) {
   const el = document.getElementById('parts-results');
   if (!parts.length) {
-    el.innerHTML = `<div style="text-align:center;padding:60px 24px;color:var(--c-text-3)">
-      <div style="font-size:3rem;margin-bottom:12px">🔍</div>
-      <h3>No parts found</h3>
-      <p style="margin-top:8px">Try adjusting your filters or search terms.</p>
-    </div>`;
+    el.className = '';
+    el.innerHTML = `
+      <div style="text-align:center;padding:60px 24px;background:var(--c-surface);border:1px solid var(--c-border);border-radius:var(--radius-lg)">
+        <i class="fa-solid fa-magnifying-glass" style="font-size:2.5rem;color:var(--c-border-2);margin-bottom:16px;display:block"></i>
+        <h3>No parts found</h3>
+        <p style="margin-top:8px;color:var(--c-text-2)">Try adjusting your filters or <a href="catalog.html">browse all parts</a>.</p>
+      </div>`;
     return;
   }
   if (_viewMode === 'grid') {
@@ -324,95 +399,101 @@ function renderPartsList(parts) {
   }
   el.querySelectorAll('[data-id]').forEach(card => {
     card.addEventListener('click', (e) => {
-      if (e.target.classList.contains('btn')) return;
+      if (e.target.closest('.add-btn')) return;
       window.location.href = `product.html?id=${card.dataset.id}`;
     });
-    const addBtn = card.querySelector('.add-btn');
-    if (addBtn) {
-      addBtn.addEventListener('click', (e) => {
-        e.stopPropagation();
-        const part = findPart(parseInt(card.dataset.id));
-        if (part) { Cart.addItem(part, 1); UI.toast(`${part.name} added to cart!`); }
-      });
-    }
+    card.querySelector('.add-btn')?.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const part = InventoryDB.getById(parseInt(card.dataset.id));
+      if (part) {
+        Cart.addItem(part, 1);
+        showToast(`<i class="fa-solid fa-check"></i> ${part.name} added to cart`, 'success');
+      }
+    });
   });
 }
 
 function renderGridCard(p) {
-  const condBadge = p.condition !== 'new' ? `<span class="badge badge-info">${p.condition === 'reman' ? 'Reman' : 'Used'}</span>` : '';
-  const stockBadge = !p.inStock ? `<span class="badge badge-danger">Out of Stock</span>` : '';
+  const condLabel = { new:'New', reman:'Reman', used:'Used' }[p.condition] || 'New';
+  const condClass = { new:'cond-new', reman:'cond-reman', used:'cond-used' }[p.condition] || 'cond-new';
   return `
     <div class="part-card" data-id="${p.id}" style="cursor:pointer">
       <div class="part-card-img">
-        ${p.thumbnail ? `<img src="${p.thumbnail}" alt="">` : '<span class="no-img">🔩</span>'}
-        <div class="part-badges">${condBadge}${stockBadge}</div>
-      </div>
-      <div class="part-card-body">
-        <div class="part-category">${p.categoryName}</div>
-        <div class="part-name">${p.name}</div>
-        <div class="part-number">${p.brand} · ${p.partNumber}</div>
-        <div class="part-card-footer">
-          <div>
-            <div class="part-price">$${p.price.toFixed(2)}</div>
-            ${p.coreCharge > 0 ? `<div class="part-price-core">+$${p.coreCharge.toFixed(2)} core</div>` : ''}
-          </div>
-          ${p.inStock ? `<button class="btn btn-primary btn-sm add-btn">+ Cart</button>` : `<span class="badge badge-danger">N/A</span>`}
+        ${p.thumbnail ? `<img src="${p.thumbnail}" alt="${p.name}">` : '<i class="fa-solid fa-gear no-img"></i>'}
+        <div class="part-badges">
+          <span class="badge ${condClass}">${condLabel}</span>
+          ${!p.inStock ? '<span class="badge badge-danger">Out of Stock</span>' : ''}
         </div>
       </div>
-    </div>
-  `;
+      <div class="part-card-body">
+        <div class="part-category">${p.categoryName || p.categoryId}</div>
+        <div class="part-name">${p.name}</div>
+        <div class="part-number"><i class="fa-solid fa-barcode" style="font-size:.6rem;margin-right:4px"></i>${p.brand} · ${p.partNumber}</div>
+        <div class="part-card-footer">
+          <div>
+            <div class="part-price">$${Number(p.price).toFixed(2)}</div>
+            ${p.coreCharge > 0 ? `<div class="part-price-core"><i class="fa-solid fa-rotate-left" style="font-size:.6rem"></i> +$${Number(p.coreCharge).toFixed(2)} core</div>` : ''}
+          </div>
+          ${p.inStock
+            ? `<button class="btn btn-primary btn-sm add-btn"><i class="fa-solid fa-cart-plus"></i> Add</button>`
+            : `<span class="badge badge-danger">N/A</span>`}
+        </div>
+      </div>
+    </div>`;
 }
 
 function renderListCard(p) {
+  const condLabel = { new:'New', reman:'Reman', used:'Used' }[p.condition] || 'New';
+  const condClass = { new:'cond-new', reman:'cond-reman', used:'cond-used' }[p.condition] || 'cond-new';
   return `
     <div class="part-list-card" data-id="${p.id}" style="cursor:pointer">
       <div class="part-list-img">
-        ${p.thumbnail ? `<img src="${p.thumbnail}" alt="">` : '<span class="no-img">🔩</span>'}
+        ${p.thumbnail ? `<img src="${p.thumbnail}" alt="">` : '<i class="fa-solid fa-gear no-img"></i>'}
       </div>
       <div class="part-list-body">
         <div class="part-list-info">
-          <div class="part-category">${p.categoryName}</div>
-          <div class="part-name" style="font-size:1rem;margin:4px 0">${p.name}</div>
-          <div class="part-number">${p.brand} · ${p.partNumber}</div>
-          ${p.condition !== 'new' ? `<span class="badge badge-info" style="margin-top:8px">${p.condition === 'reman' ? 'Remanufactured' : 'Used'}</span>` : ''}
+          <div class="part-category" style="margin-bottom:4px">${p.categoryName}</div>
+          <div class="part-name" style="font-size:1rem;margin-bottom:4px">${p.name}</div>
+          <div class="part-number" style="margin-bottom:8px">${p.brand} · ${p.partNumber}</div>
+          <span class="badge ${condClass}">${condLabel}</span>
         </div>
         <div class="part-list-price">
-          <span class="part-price">$${p.price.toFixed(2)}</span>
-          ${p.coreCharge > 0 ? `<div class="part-price-core">+$${p.coreCharge.toFixed(2)} core</div>` : ''}
-          ${p.inStock ? `<button class="btn btn-primary btn-sm add-btn" style="margin-top:8px">Add to Cart</button>` : `<span class="badge badge-danger">Out of Stock</span>`}
+          <div class="part-price">$${Number(p.price).toFixed(2)}</div>
+          ${p.coreCharge > 0 ? `<div class="part-price-core">+$${Number(p.coreCharge).toFixed(2)} core</div>` : ''}
+          ${p.inStock
+            ? `<button class="btn btn-primary btn-sm add-btn" style="margin-top:10px"><i class="fa-solid fa-cart-plus"></i> Add to Cart</button>`
+            : `<span class="badge badge-danger" style="margin-top:8px;display:inline-block">Out of Stock</span>`}
         </div>
       </div>
-    </div>
-  `;
+    </div>`;
 }
 
 function renderPagination(data) {
   const el = document.getElementById('pagination');
   if (data.totalPages <= 1) { el.innerHTML = ''; return; }
   const pages = [];
-  pages.push(`<button onclick="goPage(${data.page - 1})" ${data.page === 1 ? 'disabled' : ''}>‹</button>`);
-  for (let i = 1; i <= data.totalPages; i++) {
-    if (i === 1 || i === data.totalPages || Math.abs(i - data.page) <= 2) {
-      pages.push(`<button onclick="goPage(${i})" class="${i === data.page ? 'active' : ''}">${i}</button>`);
-    } else if (Math.abs(i - data.page) === 3) {
-      pages.push(`<button disabled>...</button>`);
+  pages.push(`<button onclick="goPage(${data.page-1})" ${data.page===1?'disabled':''}><i class="fa-solid fa-chevron-left"></i></button>`);
+  for (let i=1;i<=data.totalPages;i++) {
+    if (i===1||i===data.totalPages||Math.abs(i-data.page)<=2) {
+      pages.push(`<button onclick="goPage(${i})" class="${i===data.page?'active':''}">${i}</button>`);
+    } else if (Math.abs(i-data.page)===3) {
+      pages.push(`<button disabled>…</button>`);
     }
   }
-  pages.push(`<button onclick="goPage(${data.page + 1})" ${data.page === data.totalPages ? 'disabled' : ''}>›</button>`);
+  pages.push(`<button onclick="goPage(${data.page+1})" ${data.page===data.totalPages?'disabled':''}><i class="fa-solid fa-chevron-right"></i></button>`);
   el.innerHTML = pages.join('');
 }
 
-function goPage(p) { renderPage(Catalog.getPage(p)); window.scrollTo({ top: 0, behavior: 'smooth' }); }
+function goPage(p) { renderPage(Catalog.getPage(p)); window.scrollTo({top:0,behavior:'smooth'}); }
 
 function buildCategoryFilter(activeCat) {
-  const cats = PartsData.getCategories();
+  const cats = window.CATEGORIES || [];
   document.getElementById('fgb-category').innerHTML = cats.map(c => `
     <label class="filter-option">
-      <input type="checkbox" value="${c.id}" data-filter="categories" ${activeCat === c.id ? 'checked' : ''}> 
+      <input type="checkbox" value="${c.id}" data-filter="categories" ${activeCat===c.id?'checked':''}>
+      <i class="fa-solid ${c.icon}" style="font-size:.7rem;color:var(--c-text-3);width:14px"></i>
       ${c.name}
-      <span class="filter-option-count">${c.count}</span>
-    </label>
-  `).join('');
+    </label>`).join('');
   document.querySelectorAll('#fgb-category [data-filter]').forEach(cb => {
     cb.addEventListener('change', () => renderPage(Catalog.toggleFilter('categories', cb.value)));
   });
@@ -422,17 +503,24 @@ function buildBrandFilter() {
   const { brands } = Catalog.getFacets();
   document.getElementById('fgb-brand').innerHTML = Object.entries(brands).map(([brand, count]) => `
     <label class="filter-option">
-      <input type="checkbox" value="${brand}" data-filter="brands"> 
+      <input type="checkbox" value="${brand}" data-filter="brands">
       ${brand}
       <span class="filter-option-count">${count}</span>
-    </label>
-  `).join('');
+    </label>`).join('');
   document.querySelectorAll('#fgb-brand [data-filter]').forEach(cb => {
     cb.addEventListener('change', () => renderPage(Catalog.toggleFilter('brands', cb.value)));
   });
 }
 
-async function findPart(id) { return await PartsData.getById(id); }
+function showToast(html, type='info') {
+  const container = document.getElementById('toast-container');
+  if (!container) return;
+  const toast = document.createElement('div');
+  toast.className = `toast toast-${type}`;
+  toast.innerHTML = html + `<button onclick="this.parentElement.remove()" style="margin-left:auto;background:none;border:none;color:var(--c-text-3);cursor:pointer"><i class="fa-solid fa-xmark"></i></button>`;
+  container.appendChild(toast);
+  setTimeout(() => toast.remove(), 3500);
+}
 </script>
 </body>
 </html>

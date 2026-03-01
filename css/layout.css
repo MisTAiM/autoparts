@@ -384,18 +384,20 @@
 
 /* ─── Responsive header ───────────────────────────────── */
 @media (max-width: 1024px) {
+  :root { --header-h: 64px; }
   .header-utility { display: none; }
   .header-nav { display: none; }
-  --header-h: 64px;
+  main { padding-top: 64px; }
   .vehicle-banner-compact .vb-text { display: none; }
   .vehicle-banner-compact { padding: 8px; }
   .footer-grid { grid-template-columns: 1fr 1fr; }
 }
 @media (max-width: 768px) {
+  :root { --header-h: 60px; }
   .header-main { height: 60px; }
   main { padding-top: 60px; }
   .header-actions .header-action-btn:not(.cart-btn):not(.account-btn) { display: none; }
-  .menu-toggle { display: flex; }
+  .menu-toggle { display: flex; align-items: center; justify-content: center; }
   .mobile-nav { display: flex; }
   .site-logo .logo-sub { display: none; }
   .footer-grid { grid-template-columns: 1fr; gap: 32px; }

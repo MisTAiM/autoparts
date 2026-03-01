@@ -72,12 +72,14 @@ const Cart = (() => {
 
   function hasItem(partId) { return _items.some(i => i.id === partId); }
   function getItemQty(partId) { return (_items.find(i => i.id === partId) || {}).qty || 0; }
+  function getCount() { return _items.reduce((t, i) => t + i.qty, 0); }
+  function init() { load(); }
 
   // ─── Formatting helpers ──────────────────────────────────
   function formatPrice(cents) { return `$${(cents/100).toFixed(2)}`; }
   function formatPriceNum(num) { return `$${Number(num).toFixed(2)}`; }
 
-  return { load, getCart, getItems, addItem, updateQty, removeItem, clearCart, getSubtotal, getCoreTotal, hasItem, getItemQty, onChange, formatPrice, formatPriceNum };
+  return { load, init, getCart, getItems, addItem, updateQty, removeItem, clearCart, getSubtotal, getCoreTotal, hasItem, getItemQty, getCount, onChange, formatPrice, formatPriceNum };
 })();
 
 window.Cart = Cart;

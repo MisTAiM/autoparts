@@ -28,6 +28,12 @@ const InventoryDB = (() => {
   function getAll()          { return [..._getAll()]; }
   function getById(id)       { return _getAll().find(p => p.id === parseInt(id)) || null; }
   function getByCategory(cat){ return _getAll().filter(p => p.categoryId === cat); }
+  function getRelated(part, limit = 4) {
+    if (!part) return [];
+    return _getAll()
+      .filter(p => p.id !== part.id && (p.categoryId === part.categoryId || p.brand === part.brand))
+      .slice(0, limit);
+  }
 
   function search(query) {
     const q = (query || '').toLowerCase();
@@ -238,7 +244,7 @@ const InventoryDB = (() => {
   }
 
   return {
-    getAll, getById, getByCategory, search, getLowStock, getOutOfStock,
+    getAll, getById, getByCategory, getRelated, search, getLowStock, getOutOfStock,
     addPart, updatePart, deletePart, adjustStock,
     importCSV, exportCSV, getStats, seedFromSampleData,
   };

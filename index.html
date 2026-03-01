@@ -580,7 +580,7 @@ async function loadFeaturedParts() {
 function addToCart(partId) {
   const part = InventoryDB.getById(partId);
   if (!part) return;
-  Cart.add(part, 1);
+  Cart.addItem(part, 1);
   showToast(`<i class="fa-solid fa-check"></i> ${part.name} added to cart`, 'success');
 }
 

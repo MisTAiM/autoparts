@@ -6,7 +6,7 @@
   <title>Cart | AutoParts Warehouse</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" crossorigin="anonymous" />
   <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600&family=JetBrains+Mono:wght@400;500" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/variables.css">
   <link rel="stylesheet" href="css/base.css">
   <link rel="stylesheet" href="css/layout.css">
@@ -14,31 +14,9 @@
 </head>
 <body>
 
-<header id="site-header">
-  <div class="header-inner">
-    <a href="index.html" class="site-logo">⚙ Auto<span>Parts</span></a>
-    <nav class="header-nav">
-      <a href="index.html">Home</a>
-      <a href="catalog.html">All Parts</a>
-    </nav>
-    <div class="header-search">
-      <span class="search-icon">🔍</span>
-      <input type="text" id="header-search-input" placeholder="Search parts...">
-      <div class="header-search-results" id="header-search-results"></div>
-    </div>
-    <div class="header-actions">
-      <a href="cart.html" class="cart-btn active">🛒 <span>Cart</span><span class="cart-count"></span></a>
-    </div>
-    <button class="menu-toggle">☰</button>
-  </div>
-</header>
+<header id="site-header"></header>
+<div class="mobile-nav" id="mobile-nav"></div>
 
-<div class="vehicle-banner" id="vehicle-banner">
-  <div class="vehicle-banner-inner">
-    <span class="vehicle-banner-label">Vehicle:</span>
-    <span class="vehicle-banner-name"></span>
-    <a class="vehicle-banner-change" href="#" id="vehicle-change-btn">Change</a>
-  </div>
 </div>
 
 <main class="cart-page">
@@ -53,7 +31,7 @@
 
 <footer id="site-footer">
   <div class="footer-grid">
-    <div class="footer-brand"><div class="site-logo" style="margin-bottom:12px">⚙ Auto<span>Parts</span></div><p>Quality parts, fast shipping.</p></div>
+    <div class="footer-brand"><div class="site-logo" style="margin-bottom:12px"><i class='fa-solid fa-gear'></i> Auto<span>Parts</span></div><p>Quality parts, fast shipping.</p></div>
     <div class="footer-col"><h5>Shop</h5><a href="catalog.html">All Parts</a></div>
     <div class="footer-col"><h5>Orders</h5><a href="checkout.html">Checkout</a></div>
     <div class="footer-col"><h5>Info</h5><a href="#">Shipping</a></div>
@@ -61,22 +39,19 @@
   <div class="footer-bottom"><span>© 2025 AutoParts Warehouse.</span></div>
 </footer>
 
-<div id="mobile-nav" class="mobile-nav">
-  <div class="mobile-nav-inner">
-    <a href="index.html">Home</a>
-    <a href="catalog.html">All Parts</a>
-    <a href="cart.html">🛒 Cart</a>
-  </div>
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
 <script src="js/data/parts-data.js"></script>
 <script src="js/modules/ymm.js"></script>
 <script src="js/modules/cart.js"></script>
 <script src="js/modules/catalog.js"></script>
 <script src="js/modules/shipping.js"></script>
 <script src="js/modules/notify.js"></script>
+<script src="js/modules/auth.js"></script>
+<script src="js/modules/inventory-db.js"></script>
+<script src="js/modules/print.js"></script>
 <script src="js/modules/ui.js"></script>
+<script src="js/components/header.js"></script>
 
 <script>
 let _shippingRates = [];
@@ -84,7 +59,10 @@ let _selectedRate = null;
 let _estimatedZip = '';
 
 document.addEventListener('DOMContentLoaded', () => {
-  UI.init();
+  InventoryDB.seedFromSampleData();
+  Cart.init();
+  SiteHeader.init();
+
   renderCart();
   window.addEventListener('cart:updated', renderCart);
 });
@@ -97,7 +75,7 @@ function renderCart() {
     root.innerHTML = `
       <div style="grid-column:1/-1">
         <div class="cart-empty">
-          <div class="cart-empty-icon">🛒</div>
+          <div class="cart-empty-icon"><i class="fa-solid fa-cart-shopping" style="font-size:3rem;color:var(--c-border-2)"></i></div>
           <h3>Your cart is empty</h3>
           <p>Browse our catalog to find the parts you need.</p>
           <a href="catalog.html" class="btn btn-primary btn-lg">Shop Parts</a>
@@ -113,7 +91,7 @@ function renderCart() {
     <div id="cart-items-col">
       ${items.map(renderCartItem).join('')}
       <div style="display:flex;justify-content:flex-end;margin-top:8px">
-        <button class="btn btn-ghost btn-sm" id="clear-cart-btn">🗑 Clear Cart</button>
+        <button class="btn btn-ghost btn-sm" id="clear-cart-btn"><i class='fa-regular fa-trash-can'></i> Clear Cart</button>
       </div>
     </div>
 
@@ -167,7 +145,7 @@ function renderCartItem(item) {
   return `
     <div class="cart-item" data-id="${item.id}">
       <div class="cart-item-img">
-        ${item.thumbnail ? `<img src="${item.thumbnail}" alt="">` : '<span class="no-img">🔩</span>'}
+        ${item.thumbnail ? `<img src="${item.thumbnail}" alt="">` : '<i class="fa-solid fa-gear no-img"></i>'}
       </div>
       <div class="cart-item-info">
         <div class="cart-item-name">${item.name}</div>
@@ -231,7 +209,7 @@ async function calcShipping() {
     <div class="shipping-option ${_selectedRate?.id === r.id ? 'selected' : ''}" data-rate="${r.id}" style="margin-bottom:8px">
       <input type="radio" name="ship-rate" value="${r.id}" ${_selectedRate?.id === r.id ? 'checked' : ''}>
       <div class="ship-info">
-        <div class="ship-name">${r.name} ${r.recommended ? '⭐' : ''}</div>
+        <div class="ship-name">${r.name} ${r.recommended ? '<i class="fa-solid fa-star"></i>' : ''}</div>
         <div class="ship-time">${r.carrier} · ${r.days}</div>
       </div>
       <div class="ship-price">${Shipping.formatRate(r.price)}</div>

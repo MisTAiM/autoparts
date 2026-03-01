@@ -5,7 +5,7 @@
   <title>Sign In | AutoParts Warehouse</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" crossorigin="anonymous" />
   <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600&family=JetBrains+Mono:wght@400;500" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/variables.css">
   <link rel="stylesheet" href="css/base.css">
   <link rel="stylesheet" href="css/layout.css">
@@ -34,16 +34,12 @@
   </style>
 </head>
 <body>
-<header id="site-header">
-  <div class="header-inner">
-    <a href="index.html" class="site-logo">⚙ Auto<span>Parts</span></a>
-    <div style="margin-left:auto"><a href="index.html" class="btn btn-ghost btn-sm">← Continue Shopping</a></div>
-  </div>
-</header>
+<header id="site-header"></header>
+<div class="mobile-nav" id="mobile-nav"></div>
 
 <div class="auth-page">
   <div class="auth-card">
-    <div class="auth-logo">⚙ Auto<span>Parts</span><br><span style="font-size:.75rem;color:var(--c-text-3);font-weight:400;text-transform:none">Customer Account</span></div>
+    <div class="auth-logo"><i class="fa-solid fa-gear"></i> Auto<span>Parts</span><br><span style="font-size:.75rem;color:var(--c-text-3);font-weight:400;text-transform:none">Customer Account</span></div>
 
     <div class="auth-tabs">
       <button class="auth-tab active" id="tab-login" onclick="switchTab('login')">Sign In</button>
@@ -72,10 +68,10 @@
     <div class="auth-panel" id="panel-register">
       <div class="benefits">
         <h4>Member Benefits</h4>
-        <div class="benefit">📦 Track all your orders in one place</div>
-        <div class="benefit">🛡️ Quick access to warranty info</div>
-        <div class="benefit">♻️ Core return tracking & reminders</div>
-        <div class="benefit">🚗 Save multiple vehicles for fast lookup</div>
+        <div class="benefit"><i class="fa-solid fa-box"></i> Track all your orders in one place</div>
+        <div class="benefit"><i class="fa-solid fa-shield-check"></i> Quick access to warranty info</div>
+        <div class="benefit"><i class="fa-solid fa-recycle"></i> Core return tracking & reminders</div>
+        <div class="benefit"><i class="fa-solid fa-car"></i> Save multiple vehicles for fast lookup</div>
       </div>
       <div id="register-alert"></div>
       <div class="form-row">
@@ -123,10 +119,17 @@
 <script src="js/modules/shipping.js"></script>
 <script src="js/modules/notify.js"></script>
 <script src="js/modules/auth.js"></script>
+<script src="js/modules/inventory-db.js"></script>
+<script src="js/modules/print.js"></script>
 <script src="js/modules/ui.js"></script>
+<script src="js/components/header.js"></script>
+
 <script>
 document.addEventListener('DOMContentLoaded', () => {
-  UI.init();
+  InventoryDB.seedFromSampleData();
+  Cart.init();
+  SiteHeader.init();
+
 
   // If already logged in, redirect
   if (Auth.isLoggedIn()) {

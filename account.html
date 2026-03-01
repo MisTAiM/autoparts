@@ -5,7 +5,7 @@
   <title>My Account | AutoParts Warehouse</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" crossorigin="anonymous" />
   <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600&family=JetBrains+Mono:wght@400;500" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/variables.css">
   <link rel="stylesheet" href="css/base.css">
   <link rel="stylesheet" href="css/layout.css">
@@ -44,25 +44,8 @@
   </style>
 </head>
 <body>
-<header id="site-header">
-  <div class="header-inner">
-    <a href="index.html" class="site-logo">⚙ Auto<span>Parts</span></a>
-    <nav class="header-nav">
-      <a href="index.html">Home</a>
-      <a href="catalog.html">All Parts</a>
-    </nav>
-    <div class="header-search">
-      <span class="search-icon">🔍</span>
-      <input type="text" id="header-search-input" placeholder="Search parts...">
-      <div class="header-search-results" id="header-search-results"></div>
-    </div>
-    <div class="header-actions" style="display:flex;gap:10px">
-      <a href="cart.html" class="cart-btn">🛒 <span>Cart</span><span class="cart-count"></span></a>
-      <button class="btn btn-outline btn-sm" id="logout-btn">Sign Out</button>
-    </div>
-    <button class="menu-toggle">☰</button>
-  </div>
-</header>
+<header id="site-header"></header>
+<div class="mobile-nav" id="mobile-nav"></div>
 
 <main>
   <div class="container">
@@ -74,11 +57,12 @@
             <div class="account-nav-user-name" id="nav-name">—</div>
             <div class="account-nav-user-email" id="nav-email">—</div>
           </div>
-          <a href="#" class="active" data-panel="orders">📦 Order History</a>
-          <a href="#" data-panel="warranties">🛡️ Warranties</a>
-          <a href="#" data-panel="cores">♻️ Core Returns</a>
-          <a href="#" data-panel="vehicles">🚗 Saved Vehicles</a>
-          <a href="#" data-panel="profile">👤 Profile</a>
+          <a href="#" class="active" data-panel="orders"><i class="fa-solid fa-box"></i> Order History</a>
+          <a href="#" data-panel="warranties"><i class="fa-solid fa-shield-check"></i> Warranties</a>
+          <a href="#" data-panel="cores"><i class="fa-solid fa-recycle"></i> Core Returns</a>
+          <a href="#" data-panel="vehicles"><i class="fa-solid fa-car"></i> Saved Vehicles</a>
+          <a href="#" data-panel="profile"><i class="fa-regular fa-user"></i> Profile</a>
+          <a href="#" id="logout-btn" style="color:var(--c-danger)"><i class="fa-solid fa-right-from-bracket"></i> Sign Out</a>
         </div>
       </aside>
 
@@ -86,27 +70,27 @@
       <div>
         <!-- Orders -->
         <div class="account-panel active" id="panel-orders">
-          <div class="panel-title">📦 Order History</div>
+          <div class="panel-title"><i class="fa-solid fa-box"></i> Order History</div>
           <div id="orders-list"><div style="display:flex;justify-content:center;padding:40px"><span class="spinner" style="width:32px;height:32px"></span></div></div>
         </div>
 
         <!-- Warranties -->
         <div class="account-panel" id="panel-warranties">
-          <div class="panel-title">🛡️ Warranties</div>
+          <div class="panel-title"><i class="fa-solid fa-shield-check"></i> Warranties</div>
           <p class="text-muted" style="margin-bottom:20px">Active warranties on parts from your orders. Contact us with your order number to make a claim.</p>
           <div id="warranties-list"></div>
         </div>
 
         <!-- Core Returns -->
         <div class="account-panel" id="panel-cores">
-          <div class="panel-title">♻️ Core Returns</div>
+          <div class="panel-title"><i class="fa-solid fa-recycle"></i> Core Returns</div>
           <div class="alert alert-info" style="margin-bottom:20px">Core charges are refunded when you return your old part within 90 days. Print a return form and ship the core back to get your refund.</div>
           <div id="cores-list"></div>
         </div>
 
         <!-- Saved Vehicles -->
         <div class="account-panel" id="panel-vehicles">
-          <div class="panel-title">🚗 Saved Vehicles</div>
+          <div class="panel-title"><i class="fa-solid fa-car"></i> Saved Vehicles</div>
           <p class="text-muted" style="margin-bottom:20px">Quickly select a saved vehicle when shopping.</p>
           <div id="vehicles-list"></div>
           <a href="index.html" class="btn btn-primary" style="margin-top:16px">+ Add Vehicle via Search</a>
@@ -114,7 +98,7 @@
 
         <!-- Profile -->
         <div class="account-panel" id="panel-profile">
-          <div class="panel-title">👤 Profile Settings</div>
+          <div class="panel-title"><i class="fa-regular fa-user"></i> Profile Settings</div>
           <div id="profile-alert"></div>
           <div style="background:var(--c-surface);border:1px solid var(--c-border);border-radius:var(--radius-lg);padding:28px;max-width:500px">
             <div class="form-row" style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px">
@@ -136,12 +120,6 @@
   </div>
 </main>
 
-<div id="mobile-nav" class="mobile-nav">
-  <div class="mobile-nav-inner">
-    <a href="index.html">Home</a>
-    <a href="catalog.html">All Parts</a>
-    <a href="cart.html">🛒 Cart</a>
-  </div>
 </div>
 
 <script src="js/data/parts-data.js"></script>
@@ -151,12 +129,17 @@
 <script src="js/modules/shipping.js"></script>
 <script src="js/modules/notify.js"></script>
 <script src="js/modules/auth.js"></script>
+<script src="js/modules/inventory-db.js"></script>
 <script src="js/modules/print.js"></script>
 <script src="js/modules/ui.js"></script>
+<script src="js/components/header.js"></script>
 
 <script>
 document.addEventListener('DOMContentLoaded', () => {
-  UI.init();
+  InventoryDB.seedFromSampleData();
+  Cart.init();
+  SiteHeader.init();
+
   if (!Auth.requireLogin('login.html')) return;
 
   const profile = Auth.getProfile();
@@ -213,7 +196,7 @@ function renderOrders() {
   const el = document.getElementById('orders-list');
   if (!orders.length) {
     el.innerHTML = `<div style="text-align:center;padding:60px 24px;background:var(--c-surface);border:1px solid var(--c-border);border-radius:var(--radius-lg)">
-      <div style="font-size:3rem;margin-bottom:12px">📦</div>
+      <div style="font-size:3rem;margin-bottom:12px;color:var(--c-border-2)"><i class="fa-solid fa-box"></i></div>
       <h3>No orders yet</h3>
       <p class="text-muted" style="margin:8px 0 20px">Your order history will appear here after your first purchase.</p>
       <a href="catalog.html" class="btn btn-primary">Shop Parts</a>
@@ -236,7 +219,7 @@ function renderOrders() {
         <div class="order-footer">
           <div class="order-total">$${(o.total||0).toFixed(2)}</div>
           <div style="display:flex;gap:8px;flex-wrap:wrap">
-            <button class="btn btn-outline btn-sm" onclick="Print.openInvoice(${JSON.stringify(o).replace(/'/g,'&#39;')})">🖨 Invoice</button>
+            <button class="btn btn-outline btn-sm" onclick="Print.openInvoice(${JSON.stringify(o).replace(/'/g,'&#39;')})"><i class='fa-solid fa-print'></i> Invoice</button>
             ${(o.items||[]).some(i=>i.coreCharge>0)?`<button class="btn btn-outline btn-sm" onclick="showCoreReturn('${o.orderNumber}')">♻️ Core Return</button>`:''}
           </div>
         </div>
@@ -284,7 +267,7 @@ function renderCores() {
     return;
   }
   const daysLeftStr = (iso) => { const d = Math.ceil((new Date(iso)-new Date())/86400000); return d<=0?'<span style="color:var(--c-danger);font-weight:700">EXPIRED</span>': d<14?`<span class="days-left urgent">${d} days left</span>`:d<30?`<span class="days-left soon">${d} days left</span>`:`<span class="days-left ok">${d} days left</span>`; };
-  el.innerHTML = (pending.length ? `<h4 style="margin-bottom:12px;color:var(--c-accent)">⏳ Pending Return (${pending.length})</h4>` + pending.map(c => `
+  el.innerHTML = (pending.length ? `<h4 style="margin-bottom:12px;color:var(--c-accent)"><i class='fa-regular fa-clock'></i> Pending Return (${pending.length})</h4>` + pending.map(c => `
     <div class="core-card">
       <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px">
         <div style="flex:1">
@@ -295,12 +278,12 @@ function renderCores() {
           <div class="core-deadline text-sm" style="margin-top:4px">Deadline: ${daysLeftStr(c.deadline)}</div>
         </div>
         <div style="display:flex;flex-direction:column;gap:8px;flex-shrink:0">
-          <button class="btn btn-primary btn-sm" onclick="printCoreReturn('${c.orderNumber}','${c.partNumber}')">🖨 Print Return Form</button>
-          <button class="btn btn-outline btn-sm" onclick="markCoreReturned('${c.orderNumber}','${c.partNumber}')">✅ Mark Returned</button>
+          <button class="btn btn-primary btn-sm" onclick="printCoreReturn('${c.orderNumber}','${c.partNumber}')"><i class='fa-solid fa-print'></i> Print Return Form</button>
+          <button class="btn btn-outline btn-sm" onclick="markCoreReturned('${c.orderNumber}','${c.partNumber}')"><i class='fa-solid fa-check-circle'></i> Mark Returned</button>
         </div>
       </div>
     </div>`).join('') : '') +
-  (returned.length ? `<h4 style="margin-bottom:12px;color:var(--c-success);margin-top:20px">✅ Returned (${returned.length})</h4>` + returned.map(c => `
+  (returned.length ? `<h4 style="margin-bottom:12px;color:var(--c-success);margin-top:20px"><i class='fa-solid fa-check-circle'></i> Returned (${returned.length})</h4>` + returned.map(c => `
     <div class="core-card" style="opacity:.6">
       <div style="font-weight:600">${c.partName}</div>
       <div class="text-sm text-muted">${c.brand} · ${c.partNumber} · $${c.totalCore.toFixed(2)} refund pending</div>
@@ -316,8 +299,8 @@ function renderVehicles() {
   }
   el.innerHTML = '<div style="display:flex;flex-wrap:wrap;gap:8px">' + vehicles.map(v => `
     <div class="vehicle-chip" onclick="useVehicle('${JSON.stringify(v).replace(/"/g,'&quot;')}')">
-      🚗 ${v.year} ${v.makeName} ${v.modelName}
-      <button onclick="event.stopPropagation();removeVehicle('${v.makeId}','${v.modelId}','${v.year}')" style="background:none;border:none;color:var(--c-text-3);cursor:pointer;padding:0;margin-left:4px">✕</button>
+      <i class='fa-solid fa-car'></i> ${v.year} ${v.makeName} ${v.modelName}
+      <button onclick="event.stopPropagation();removeVehicle('${v.makeId}','${v.modelId}','${v.year}')" style="background:none;border:none;color:var(--c-text-3);cursor:pointer;padding:0;margin-left:4px">×</button>
     </div>`).join('') + '</div>';
 }
 

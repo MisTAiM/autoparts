@@ -462,3 +462,13 @@ hr, .divider { border: none; border-top: 1px solid var(--c-border); }
 @media print {
   .no-print { display: none !important; }
 }
+
+/* ─── Narrow container variant ─────────────────────────── */
+.container--narrow {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 0 var(--container-pad);
+}
+
+/* No-image fallback icon */
+.no-img { font-size: 2.5rem; color: var(--c-border-2); }

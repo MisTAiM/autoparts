@@ -6,7 +6,7 @@
   <title>Order Confirmed | AutoParts Warehouse</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" crossorigin="anonymous" />
   <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;900&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/variables.css">
   <link rel="stylesheet" href="css/base.css">
   <link rel="stylesheet" href="css/layout.css">
@@ -14,14 +14,8 @@
 </head>
 <body>
 
-<header id="site-header">
-  <div class="header-inner">
-    <a href="index.html" class="site-logo">⚙ Auto<span>Parts</span></a>
-    <div style="margin-left:auto">
-      <a href="catalog.html" class="btn btn-outline btn-sm">Continue Shopping</a>
-    </div>
-  </div>
-</header>
+<header id="site-header"></header>
+<div class="mobile-nav" id="mobile-nav"></div>
 
 <main class="confirm-page">
   <div class="container--narrow">
@@ -33,7 +27,7 @@
 
 <footer id="site-footer">
   <div class="footer-grid">
-    <div class="footer-brand"><div class="site-logo" style="margin-bottom:12px">⚙ Auto<span>Parts</span></div></div>
+    <div class="footer-brand"><div class="site-logo" style="margin-bottom:12px"><i class='fa-solid fa-gear'></i> Auto<span>Parts</span></div></div>
     <div class="footer-col"><h5>Shop</h5><a href="catalog.html">All Parts</a></div>
     <div class="footer-col"><h5>Info</h5><a href="#">Shipping Policy</a></div>
   </div>
@@ -46,11 +40,18 @@
 <script src="js/modules/catalog.js"></script>
 <script src="js/modules/shipping.js"></script>
 <script src="js/modules/notify.js"></script>
+<script src="js/modules/auth.js"></script>
+<script src="js/modules/inventory-db.js"></script>
+<script src="js/modules/print.js"></script>
 <script src="js/modules/ui.js"></script>
+<script src="js/components/header.js"></script>
 
 <script>
 document.addEventListener('DOMContentLoaded', () => {
-  UI.init();
+  InventoryDB.seedFromSampleData();
+  Cart.init();
+  SiteHeader.init();
+
   const root = document.getElementById('confirm-root');
 
   let order;
@@ -58,7 +59,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   if (!order) {
     root.innerHTML = `
-      <div class="confirm-icon">📦</div>
+      <div class="confirm-icon"><i class="fa-solid fa-box" style="font-size:2rem;color:var(--c-text-3)"></i></div>
       <h1>Order Lookup</h1>
       <p class="text-muted">No recent order found. Check your email for your confirmation.</p>
       <a href="catalog.html" class="btn btn-primary btn-lg">Shop Parts</a>
@@ -68,7 +69,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   root.innerHTML = `
     <div style="animation:fadeIn .5s ease">
-      <div class="confirm-icon">✅</div>
+      <div class="confirm-icon"><i class="fa-solid fa-circle-check" style="font-size:2rem;color:var(--c-success)"></i></div>
       <h1>Order Confirmed!</h1>
       <div class="order-num">${order.orderNumber}</div>
       <p>Thank you, ${order.shipping.firstName}! Your order has been received and will ship within 1–2 business days.<br>
@@ -93,7 +94,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
       <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap">
         <a href="catalog.html" class="btn btn-primary btn-lg">Continue Shopping</a>
-        <button class="btn btn-outline btn-lg" onclick="window.print()">🖨 Print Order</button>
+        <button class="btn btn-outline btn-lg" onclick="window.print()"><i class='fa-solid fa-print'></i> Print Invoice</button>
       </div>
     </div>
   `;
@@ -105,48 +106,3 @@ document.addEventListener('DOMContentLoaded', () => {
 </style>
 </body>
 </html>
-<!-- Auth + Print patch injected -->
-<script src="js/modules/auth.js"></script>
-<script src="js/modules/inventory-db.js"></script>
-<script src="js/modules/print.js"></script>
-<script>
-// After DOMContentLoaded fires, add print functionality  
-document.addEventListener('DOMContentLoaded', () => {
-  // Save order to customer account if logged in
-  try {
-    const order = JSON.parse(sessionStorage.getItem('lastOrder'));
-    if (order && Auth.isLoggedIn()) {
-      Auth.saveOrder(order);
-      // Save vehicle to account
-      const vehicle = YMM.getState();
-      if (vehicle.year) Auth.saveVehicle(vehicle);
-    }
-  } catch(e) {}
-
-  // Add print buttons via event delegation
-  document.addEventListener('click', (e) => {
-    if (e.target.id === 'btn-print-invoice') {
-      try { const o = JSON.parse(sessionStorage.getItem('lastOrder')); if (o) Print.openInvoice(o); } catch(e) {}
-    }
-    if (e.target.id === 'btn-print-label') {
-      try { const o = JSON.parse(sessionStorage.getItem('lastOrder')); if (o) Print.openShippingLabel(o); } catch(e) {}
-    }
-    if (e.target.id === 'btn-print-packing') {
-      try { const o = JSON.parse(sessionStorage.getItem('lastOrder')); if (o) Print.openPackingSlip(o); } catch(e) {}
-    }
-  });
-
-  // Replace confirm buttons 
-  const confirmRoot = document.getElementById('confirm-root');
-  if (confirmRoot) {
-    const btns = confirmRoot.querySelector('div[style*="display:flex"]');
-    if (btns) {
-      btns.innerHTML = `
-        <a href="catalog.html" class="btn btn-primary btn-lg">Continue Shopping</a>
-        <button class="btn btn-outline btn-lg" id="btn-print-invoice">🖨 Print Invoice</button>
-        ${Auth.isLoggedIn() ? '<a href="account.html" class="btn btn-outline btn-lg">View My Account</a>' : '<a href="login.html?tab=register" class="btn btn-outline btn-lg">Create Account</a>'}
-      `;
-    }
-  }
-}, { once: true });
-</script>

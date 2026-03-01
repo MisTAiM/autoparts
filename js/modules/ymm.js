@@ -72,6 +72,7 @@ const YMM = (() => {
     _state = { ..._state, ...updates };
     localStorage.setItem('selectedVehicle', JSON.stringify(_state));
     _notifyListeners();
+    window.dispatchEvent(new CustomEvent('ymm:changed', { detail: _state }));
   }
 
   function loadState() {

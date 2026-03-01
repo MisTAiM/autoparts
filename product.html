@@ -6,7 +6,7 @@
   <title>Product | AutoParts Warehouse</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" crossorigin="anonymous" />
   <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600&family=JetBrains+Mono:wght@400;500" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/variables.css">
   <link rel="stylesheet" href="css/base.css">
   <link rel="stylesheet" href="css/layout.css">
@@ -14,31 +14,9 @@
 </head>
 <body>
 
-<header id="site-header">
-  <div class="header-inner">
-    <a href="index.html" class="site-logo">⚙ Auto<span>Parts</span></a>
-    <nav class="header-nav">
-      <a href="index.html">Home</a>
-      <a href="catalog.html">All Parts</a>
-    </nav>
-    <div class="header-search">
-      <span class="search-icon">🔍</span>
-      <input type="text" id="header-search-input" placeholder="Search parts...">
-      <div class="header-search-results" id="header-search-results"></div>
-    </div>
-    <div class="header-actions">
-      <a href="cart.html" class="cart-btn">🛒 <span>Cart</span><span class="cart-count"></span></a>
-    </div>
-    <button class="menu-toggle">☰</button>
-  </div>
-</header>
+<header id="site-header"></header>
+<div class="mobile-nav" id="mobile-nav"></div>
 
-<div class="vehicle-banner" id="vehicle-banner">
-  <div class="vehicle-banner-inner">
-    <span class="vehicle-banner-label">Vehicle:</span>
-    <span class="vehicle-banner-name"></span>
-    <a class="vehicle-banner-change" href="#" id="vehicle-change-btn">Change</a>
-  </div>
 </div>
 
 <main class="product-page">
@@ -65,33 +43,33 @@
   </div>
 </footer>
 
-<div id="mobile-nav" class="mobile-nav">
-  <div class="mobile-nav-inner">
-    <a href="index.html">Home</a>
-    <a href="catalog.html">All Parts</a>
-    <a href="cart.html">🛒 Cart</a>
-  </div>
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
 <script src="js/data/parts-data.js"></script>
 <script src="js/modules/ymm.js"></script>
 <script src="js/modules/cart.js"></script>
 <script src="js/modules/catalog.js"></script>
 <script src="js/modules/shipping.js"></script>
 <script src="js/modules/notify.js"></script>
+<script src="js/modules/auth.js"></script>
+<script src="js/modules/inventory-db.js"></script>
+<script src="js/modules/print.js"></script>
 <script src="js/modules/ui.js"></script>
+<script src="js/components/header.js"></script>
 
 <script>
 document.addEventListener('DOMContentLoaded', async () => {
-  UI.init();
+  InventoryDB.seedFromSampleData();
+  Cart.init();
+  SiteHeader.init();
+
 
   const id   = UI.getParam('id');
   const root = document.getElementById('product-root');
 
   if (!id) { root.innerHTML = '<div class="alert alert-danger">No product ID specified.</div>'; return; }
 
-  const part = await PartsData.getById(parseInt(id));
+  const part = InventoryDB.getById(parseInt(id));
   if (!part) { root.innerHTML = '<div class="alert alert-danger">Product not found.</div>'; return; }
 
   document.title = `${part.name} | AutoParts Warehouse`;
@@ -126,7 +104,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         <div class="gallery-main" id="gallery-main">
           ${part.images?.length
             ? `<img id="main-img" src="${part.images[0]}" alt="${part.name}">`
-            : '<span class="no-img">🔩</span>'}
+            : '<i class="fa-solid fa-gear no-img"></i>'}
         </div>
         ${part.images?.length > 1 ? `
           <div class="gallery-thumbs" id="gallery-thumbs">
@@ -166,7 +144,7 @@ document.addEventListener('DOMContentLoaded', async () => {
           <div class="compat-title">Vehicle Fitment</div>
           ${hasVehicle
             ? `<div class="compat-check ${isCompatible ? 'match' : ''}">
-                ${isCompatible ? '✅ Fits your ' + vehicle.year + ' ' + vehicle.makeName + ' ' + vehicle.modelName : '⚠️ Check fitment — may not match your vehicle'}
+                ${isCompatible ? '<i class="fa-solid fa-circle-check" style="color:var(--c-success)"></i> Fits your ' + vehicle.year + ' ' + vehicle.makeName + ' ' + vehicle.modelName : '<i class="fa-solid fa-triangle-exclamation" style="color:var(--c-warning)"></i> Check fitment — may not match your vehicle'}
                </div>`
             : `<div class="compat-check no-vehicle">
                 <a href="index.html" style="color:var(--c-accent)">Select your vehicle</a> to verify fitment
@@ -181,7 +159,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             <button id="qty-plus">+</button>
           </div>
           <button class="btn btn-primary btn-lg" id="add-to-cart-btn" ${!part.inStock ? 'disabled' : ''}>
-            🛒 Add to Cart
+            <i class="fa-solid fa-cart-plus"></i> Add to Cart
           </button>
         </div>
 
@@ -195,7 +173,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         <!-- Shipping note -->
         <div class="alert alert-info" style="margin-top:20px;font-size:0.83rem">
-          🚚 <strong>Outbound shipping only.</strong> Ships within 1–2 business days. Free shipping on orders over $150.
+          <i class="fa-solid fa-truck-fast"></i> <strong>Outbound shipping only.</strong> Ships within 1–2 business days. Free shipping on orders over $150.
         </div>
       </div>
     </div>
@@ -229,11 +207,11 @@ document.addEventListener('DOMContentLoaded', async () => {
 
       <div class="tab-panel" id="tab-shipping">
         <ul style="list-style:none;padding:0;display:flex;flex-direction:column;gap:14px">
-          <li>🚚 <strong>Outbound shipping only</strong> — all orders ship from our warehouse, no in-store pickup.</li>
-          <li>📦 Ships within <strong>1–2 business days</strong> of order confirmation.</li>
-          <li>💵 <strong>Free standard shipping</strong> on orders over $150.</li>
-          <li>♻️ <strong>Core charges:</strong> Refunded when you ship back the old part within 30 days.</li>
-          <li>🔄 <strong>Returns:</strong> Unused parts returnable within 30 days in original packaging. Core returns accepted for 90 days.</li>
+          <li><i class="fa-solid fa-truck-fast"></i> <strong>Outbound shipping only</strong> — all orders ship from our warehouse, no in-store pickup.</li>
+          <li><i class="fa-solid fa-box"></i> Ships within <strong>1–2 business days</strong> of order confirmation.</li>
+          <li><i class="fa-solid fa-dollar-sign"></i> <strong>Free standard shipping</strong> on orders over $150.</li>
+          <li><i class="fa-solid fa-recycle"></i> <strong>Core charges:</strong> Refunded when you ship back the old part within 30 days.</li>
+          <li><i class="fa-solid fa-rotate-left"></i> <strong>Returns:</strong> Unused parts returnable within 30 days in original packaging. Core returns accepted for 90 days.</li>
         </ul>
       </div>
     </div>
@@ -284,14 +262,14 @@ document.addEventListener('DOMContentLoaded', async () => {
   });
 
   // ── Related parts ─────────────────────────────────────
-  const related = await PartsData.getRelated(part, 4);
+  const related = InventoryDB.getRelated(part, 4);
   const relEl = document.getElementById('related-parts');
   if (!related.length) {
     relEl.innerHTML = '<p class="text-muted">No related parts found.</p>';
   } else {
     relEl.innerHTML = related.map(p => `
       <div class="part-card" data-id="${p.id}" style="cursor:pointer" onclick="window.location='product.html?id=${p.id}'">
-        <div class="part-card-img"><span class="no-img">🔩</span></div>
+        <div class="part-card-img"><i class="fa-solid fa-gear no-img" style="font-size:2rem;color:var(--c-border-2)"></i></div>
         <div class="part-card-body">
           <div class="part-category">${p.categoryName}</div>
           <div class="part-name">${p.name}</div>

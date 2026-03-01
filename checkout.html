@@ -6,7 +6,7 @@
   <title>Checkout | AutoParts Warehouse</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" crossorigin="anonymous" />
   <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600&family=JetBrains+Mono:wght@400;500" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/variables.css">
   <link rel="stylesheet" href="css/base.css">
   <link rel="stylesheet" href="css/layout.css">
@@ -16,15 +16,8 @@
 </head>
 <body>
 
-<header id="site-header">
-  <div class="header-inner">
-    <a href="index.html" class="site-logo">⚙ Auto<span>Parts</span></a>
-    <div style="margin-left:auto;display:flex;align-items:center;gap:16px">
-      <span style="font-size:0.8rem;color:var(--c-text-3)">🔒 Secure Checkout</span>
-      <a href="cart.html" class="cart-btn">← Back to Cart</a>
-    </div>
-  </div>
-</header>
+<header id="site-header"></header>
+<div class="mobile-nav" id="mobile-nav"></div>
 
 <main class="checkout-page">
   <div class="container--narrow">
@@ -139,7 +132,7 @@
         <div class="checkout-panel" id="panel-3">
           <h3>Payment Information</h3>
           <div class="alert alert-info" style="margin-bottom:20px;font-size:0.83rem">
-            🔒 Your payment info is processed securely. We never store card details.
+            <i class="fa-solid fa-lock"></i> Your payment info is processed securely. We never store card details.
           </div>
 
           <!-- Stripe card element placeholder -->
@@ -176,7 +169,7 @@
           <div style="display:flex;gap:12px">
             <button class="btn btn-outline" id="step3-back">← Back</button>
             <button class="btn btn-primary btn-lg" id="place-order-btn" style="flex:1" id="place-order-btn">
-              🔒 Place Order
+              <i class="fa-solid fa-lock"></i> Place Order
             </button>
           </div>
           <p style="font-size:0.75rem;color:var(--c-text-3);text-align:center;margin-top:12px">
@@ -208,18 +201,21 @@
   <div class="mobile-nav-inner">
     <a href="index.html">Home</a>
     <a href="catalog.html">All Parts</a>
-    <a href="cart.html">🛒 Cart</a>
+    <a href="cart.html"><i class="fa-solid fa-cart-shopping"></i> Cart</a>
   </div>
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
 <script src="js/data/parts-data.js"></script>
 <script src="js/modules/ymm.js"></script>
 <script src="js/modules/cart.js"></script>
 <script src="js/modules/catalog.js"></script>
 <script src="js/modules/shipping.js"></script>
 <script src="js/modules/notify.js"></script>
+<script src="js/modules/auth.js"></script>
+<script src="js/modules/inventory-db.js"></script>
+<script src="js/modules/print.js"></script>
 <script src="js/modules/ui.js"></script>
+<script src="js/components/header.js"></script>
 
 <script>
 let _currentStep = 1;
@@ -233,7 +229,10 @@ let _shippingInfo  = {};
 // const cardEl = elements.create('card', { style: { base: { color: '#e8eaf0', fontFamily: 'IBM Plex Sans, sans-serif' } } });
 
 document.addEventListener('DOMContentLoaded', () => {
-  UI.init();
+  InventoryDB.seedFromSampleData();
+  Cart.init();
+  SiteHeader.init();
+
 
   const { count } = Cart.getCart();
   if (!count) { window.location.href = 'cart.html'; return; }
@@ -308,7 +307,7 @@ async function loadShippingMethods() {
     <div class="shipping-option ${_selectedRate?.id === r.id ? 'selected' : ''}" data-rate="${r.id}">
       <input type="radio" name="ship-rate" value="${r.id}" ${_selectedRate?.id === r.id ? 'checked' : ''}>
       <div class="ship-info">
-        <div class="ship-name">${r.name} ${r.recommended ? '⭐' : ''}</div>
+        <div class="ship-name">${r.name} ${r.recommended ? '' : ''}</div>
         <div class="ship-time">${r.carrier} · ${r.days}</div>
       </div>
       <div class="ship-price">${Shipping.formatRate(r.price)}</div>
@@ -457,7 +456,7 @@ async function placeOrder() {
     console.error('Order error:', err);
     UI.toast('Payment failed. Please try again.', 'danger', 5000);
     btn.disabled = false;
-    btn.innerHTML = '🔒 Place Order';
+    btn.innerHTML = '<i class="fa-solid fa-lock"></i> Place Order';
   }
 }
 </script>
