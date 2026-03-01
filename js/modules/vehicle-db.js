@@ -180,7 +180,7 @@ const VehicleDB = (() => {
   async function getVehicleSpecs(vehicleId) {
     if (!vehicleId || vehicleId === 'all') return null;
     const url  = `${FUELSPEC}/${vehicleId}`;
-    const res  = await _fetch(url, 'xml_spec');
+    const res  = await _fetchSpec(url);
     return res;
   }
 
@@ -513,7 +513,8 @@ const VehicleDB = (() => {
       setStatus('Loading trims & engines…');
       const makeName = makeSel.options[makeSel.selectedIndex]?.text || '';
       const trims = await getTrims(yearSel.value, makeName, modelName);
-      populate(trimSel, trims, 'id', 'name', 'Select Trim / Engine');
+      populate(trimSel, trims, 'id', 'name', 'Select Trim / Engine (Optional)');
+      submitBtn.disabled = false;  // Allow submit after model is picked
       if (_state.trimId) {
         trimSel.value = _state.trimId;
         if (trimSel.value) trimSel.dispatchEvent(new Event('change'));
@@ -542,7 +543,9 @@ const VehicleDB = (() => {
     });
 
     submitBtn.addEventListener('click', () => {
-      if (onComplete) onComplete(getState());
+      const state = getState();
+      saveState(state);
+      if (onComplete) onComplete(state);
     });
   }
 

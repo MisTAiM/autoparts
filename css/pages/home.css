@@ -159,4 +159,4 @@
 /* ─── Responsive ──────────────────────────────────────── */
 @media (max-width: 1200px) { .cat-grid { grid-template-columns: repeat(4,1fr); } .parts-grid { grid-template-columns: repeat(3,1fr); } }
 @media (max-width: 900px)  { .cat-grid { grid-template-columns: repeat(3,1fr); } .parts-grid { grid-template-columns: repeat(2,1fr); } .values-grid { grid-template-columns: repeat(2,1fr); } }
-@media (max-width: 600px)  { .cat-grid { grid-template-columns: repeat(2,1fr); } .parts-grid { grid-template-columns: 1fr; } .values-grid { grid-template-columns: 1fr; } .hero-stats { gap: 24px; } .ymm-selects { grid-template-columns: 1fr 1fr; } }
+@media (max-width: 600px)  { .cat-grid { grid-template-columns: repeat(2,1fr); } .parts-grid { grid-template-columns: 1fr; } .values-grid { grid-template-columns: 1fr; } .hero-stats { gap: 24px; } .ymm-selects { grid-template-columns: 1fr 1fr; } .ymm-selects-row2 { grid-template-columns: 1fr; } }

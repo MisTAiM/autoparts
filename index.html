@@ -122,36 +122,7 @@
             <i class="fa-solid fa-car-side"></i>
             <span>Find Parts for Your Vehicle</span>
           </div>
-          <div class="ymm-selects">
-            <div class="form-group">
-              <label>Year</label>
-              <select id="ymm-year"><option value="">Select Year</option></select>
-            </div>
-            <div class="form-group">
-              <label>Make</label>
-              <select id="ymm-make" disabled><option value="">Select Make</option></select>
-            </div>
-            <div class="form-group">
-              <label>Model</label>
-              <select id="ymm-model" disabled><option value="">Select Model</option></select>
-            </div>
-            <div class="form-group">
-              <label>Engine</label>
-              <select id="ymm-engine" disabled><option value="">All Engines</option></select>
-            </div>
-            <button class="btn btn-primary" id="ymm-submit" disabled style="height:42px">
-              <i class="fa-solid fa-magnifying-glass"></i> Find Parts
-            </button>
-          </div>
-          <div class="ymm-active-vehicle hidden" id="ymm-active-bar">
-            <div>
-              <div style="font-size:.7rem;color:var(--c-text-3);text-transform:uppercase;letter-spacing:.07em;margin-bottom:2px">Currently Shopping For</div>
-              <div class="vehicle-label" id="ymm-active-label"></div>
-            </div>
-            <button id="ymm-clear-btn">
-              <i class="fa-solid fa-xmark"></i> Change Vehicle
-            </button>
-          </div>
+          <div id="vdb-hero-widget"></div>
         </div>
       </div>
 
@@ -453,11 +424,9 @@ document.addEventListener('DOMContentLoaded', () => {
   buildCatNav();
 
   // Vehicle Lookup — powered by VehicleDB (NHTSA + fueleconomy.gov APIs)
-  const ymmContainer = document.querySelector('.ymm-selects')?.parentElement || document.querySelector('.ymm-widget');
-  if (ymmContainer) {
-    // Clear static markup and let VehicleDB render the full widget
-    ymmContainer.innerHTML = '<div id="vdb-hero-widget"></div>';
-    VehicleDB.mountWidget(document.getElementById('vdb-hero-widget'), (state) => {
+  const vdbContainer = document.getElementById('vdb-hero-widget');
+  if (vdbContainer) {
+    VehicleDB.mountWidget(vdbContainer, (state) => {
       if (state.year && state.makeName && state.modelName) {
         if (window.AnalyticsTracker) AnalyticsTracker.trackVehicleLookup(state.year, state.makeName, state.modelName, state.trimName || '');
         if (Auth.isLoggedIn()) Auth.saveVehicle(state);

@@ -227,17 +227,35 @@ const InventoryDB = (() => {
    * Run on first launch so the store isn't empty.
    */
   function seedFromSampleData() {
-    const SEED_VERSION = 'v4'; // bump to force re-seed with new images/fitment
+    const SEED_VERSION = 'v5';
     if (localStorage.getItem('ap_inventory_seeded') === SEED_VERSION) return;
     const samples = window.SAMPLE_PARTS || [];
     if (!samples.length) return;
-    const seeded = samples.map((p, i) => ({
-      ...p,
-      id: 1000 + i,
-      warrantyText: p.warrantyText || p.specs?.Warranty || '',
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-    }));
+
+    // Get existing parts so we can merge (preserve admin edits to price/stock but update thumbnails)
+    const existing = _getAll();
+    const existingById = {};
+    existing.forEach(p => { existingById[p.partNumber] = p; });
+
+    const seeded = samples.map((p, i) => {
+      const prev = existingById[p.partNumber];
+      return {
+        ...p,
+        // Preserve admin-edited fields if they exist
+        price:    prev ? prev.price    : p.price,
+        stockQty: prev ? prev.stockQty : p.stockQty,
+        inStock:  prev ? prev.inStock  : p.inStock,
+        // Always take fresh thumbnail, fitment, specs from SAMPLE_PARTS
+        thumbnail: p.thumbnail,
+        fitment:   p.fitment,
+        specs:     p.specs,
+        id: 1000 + i,
+        warrantyText: p.warrantyText || p.specs?.Warranty || '',
+        createdAt: prev?.createdAt || new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      };
+    });
+
     _save(seeded);
     localStorage.setItem(COUNTER_KEY, String(1000 + samples.length));
     localStorage.setItem('ap_inventory_seeded', SEED_VERSION);
