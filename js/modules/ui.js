@@ -108,7 +108,7 @@ const UI = (() => {
       const q = input.value.trim();
       if (q.length < 2) { results.classList.remove('open'); return; }
       debounceTimer = setTimeout(async () => {
-        const parts = await window.PartsData.search(q);
+        const parts = InventoryDB.search(q);
         if (!parts.length) { results.classList.remove('open'); return; }
         results.innerHTML = parts.slice(0, 6).map(p => `
           <div class="search-result-item" data-id="${p.id}">

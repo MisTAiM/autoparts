@@ -1,13 +1,11 @@
 /**
  * MODULE: catalog.js
  * Handles parts search, filter, sort, and pagination.
- * Operates against CATALOG.parts (the data layer).
- * Swap CATALOG.loadParts() to call your real API endpoint.
+ * Data layer: InventoryDB (localStorage, seeded from SAMPLE_PARTS)
  */
 
 const Catalog = (() => {
 
-  // ─── Config ─────────────────────────────────────────────
   const PER_PAGE = 24;
   let _allParts = [];
   let _filtered  = [];
@@ -17,19 +15,17 @@ const Catalog = (() => {
   let _searchQuery = '';
   let _vehicleFilter = null;
 
-  // ─── Load parts from data layer ─────────────────────────
+  /** Load all in-stock parts */
   async function loadParts(vehicleState) {
     _vehicleFilter = vehicleState || null;
-    // In production: replace with real API call
-    // e.g. const res = await fetch(`/api/parts?year=${vehicleState?.year}&make=${vehicleState?.makeName}&model=${vehicleState?.modelName}`);
-    _allParts = await window.PartsData.getAll();
+    _allParts = InventoryDB.getAll().filter(p => p.inStock);
     applyFilters();
   }
 
   /** Filter a single category */
   async function loadByCategory(categoryId, vehicleState) {
     _vehicleFilter = vehicleState || null;
-    _allParts = await window.PartsData.getByCategory(categoryId);
+    _allParts = InventoryDB.getByCategory(categoryId).filter(p => p.inStock);
     _activeFilters.categories = [categoryId];
     applyFilters();
   }
@@ -38,30 +34,16 @@ const Catalog = (() => {
   async function search(query, vehicleState) {
     _searchQuery = query.trim().toLowerCase();
     _vehicleFilter = vehicleState || null;
-    _allParts = await window.PartsData.search(_searchQuery);
+    _allParts = InventoryDB.search(_searchQuery).filter(p => p.inStock);
     applyFilters();
   }
 
-  // ─── Filter & Sort ──────────────────────────────────────
   function applyFilters() {
     let results = [..._allParts];
 
-    // Vehicle fitment filter — uses VehicleDB.getCompatibleParts for accurate matching
-    if (_vehicleFilter?.year) {
-      if (window.VehicleDB) {
-        const compatible = VehicleDB.getCompatibleParts(_vehicleFilter, results);
-        results = compatible; // already filtered + scored
-      } else {
-        results = results.filter(p => {
-          if (!p.fitment) return true;
-          const f = p.fitment;
-          const yr = parseInt(_vehicleFilter.year);
-          const makeOk  = !f.makes  || f.makes.some(m => _vehicleFilter.makeName?.toLowerCase().includes(m.toLowerCase()));
-          const modelOk = !f.models || f.models.some(m => _vehicleFilter.modelName?.toLowerCase().includes(m.toLowerCase()));
-          const yearOk  = !f.yearStart || (yr >= f.yearStart && yr <= f.yearEnd);
-          return yearOk && makeOk && modelOk;
-        });
-      }
+    // Vehicle fitment filter
+    if (_vehicleFilter?.year && window.VehicleDB) {
+      results = VehicleDB.getCompatibleParts(_vehicleFilter, results);
     }
 
     // Category filter
@@ -82,7 +64,6 @@ const Catalog = (() => {
     // Price filter
     results = results.filter(p => p.price >= _activeFilters.priceMin && p.price <= _activeFilters.priceMax);
 
-    // Sort
     results = sortParts(results, _sortBy);
 
     _filtered = results;
@@ -92,15 +73,14 @@ const Catalog = (() => {
 
   function sortParts(parts, sortBy) {
     switch(sortBy) {
-      case 'price_asc':   return [...parts].sort((a,b) => a.price - b.price);
-      case 'price_desc':  return [...parts].sort((a,b) => b.price - a.price);
-      case 'name_asc':    return [...parts].sort((a,b) => a.name.localeCompare(b.name));
-      case 'newest':      return [...parts].sort((a,b) => b.id - a.id);
-      default:            return parts; // relevance = original order
+      case 'price_asc':  return [...parts].sort((a,b) => a.price - b.price);
+      case 'price_desc': return [...parts].sort((a,b) => b.price - a.price);
+      case 'name_asc':   return [...parts].sort((a,b) => a.name.localeCompare(b.name));
+      case 'newest':     return [...parts].sort((a,b) => b.id - a.id);
+      default:           return parts;
     }
   }
 
-  // ─── Pagination ─────────────────────────────────────────
   function getPage(page) {
     _currentPage = page;
     const start = (page - 1) * PER_PAGE;
@@ -113,10 +93,10 @@ const Catalog = (() => {
     };
   }
 
+  function getFilteredCount() { return _filtered.length; }
   function nextPage() { return getPage(Math.min(_currentPage + 1, Math.ceil(_filtered.length / PER_PAGE))); }
   function prevPage() { return getPage(Math.max(_currentPage - 1, 1)); }
 
-  // ─── Filter setters ─────────────────────────────────────
   function setSort(sortBy) { _sortBy = sortBy; return applyFilters(); }
   function setSearch(q)    { _searchQuery = q.toLowerCase(); return applyFilters(); }
 
@@ -141,7 +121,6 @@ const Catalog = (() => {
     return applyFilters();
   }
 
-  /** Build facet counts for sidebar filters */
   function getFacets() {
     const brands = {}, conditions = {};
     _allParts.forEach(p => {
@@ -154,7 +133,7 @@ const Catalog = (() => {
   function getFilters() { return { ..._activeFilters }; }
   function getSortBy()  { return _sortBy; }
 
-  return { loadParts, loadByCategory, search, getPage, nextPage, prevPage, setSort, setSearch, toggleFilter, setPriceRange, clearFilters, getFacets, getFilters, getSortBy };
+  return { loadParts, loadByCategory, search, getPage, nextPage, prevPage, setSort, setSearch, toggleFilter, setPriceRange, clearFilters, getFacets, getFilters, getSortBy, getFilteredCount };
 })();
 
 window.Catalog = Catalog;
