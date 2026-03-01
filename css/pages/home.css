@@ -87,15 +87,13 @@
 }
 .cat-icon {
   width: 48px; height: 48px;
-  background: var(--c-accent-dim);
-  border: 1px solid var(--c-border-hot);
-  border-radius: var(--radius-lg);
   display: flex; align-items: center; justify-content: center;
-  color: var(--c-accent); font-size: 1.25rem;
+  color: var(--c-accent); font-size: 2rem;
   transition: all var(--t-base);
 }
 .cat-card:hover .cat-icon {
-  background: var(--c-accent); color: #0B0D11;
+  color: var(--c-accent);
+  filter: drop-shadow(0 0 6px var(--c-accent));
 }
 .cat-name { font-family: var(--font-display); font-size: .88rem; font-weight: 600; text-transform: uppercase; letter-spacing: .04em; }
 .cat-count { font-size: .7rem; color: var(--c-text-3); }

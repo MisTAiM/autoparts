@@ -515,12 +515,16 @@ function buildCatNav() {
   // Cat grid on home
   const grid = document.getElementById('cat-grid');
   if (grid) {
-    grid.innerHTML = CATEGORIES.map(c => `
-      <a href="catalog.html?cat=${c.id}" class="cat-card">
-        <div class="cat-icon"><i class="fa-solid ${c.icon}"></i></div>
+    grid.innerHTML = CATEGORIES.map(c => {
+      const iconHtml = (window.APIcons && c.svgIcon)
+        ? APIcons.get(c.svgIcon, {size:'36px'})
+        : `<i class="fa-solid ${c.icon}"></i>`;
+      return `<a href="catalog.html?cat=${c.id}" class="cat-card">
+        <div class="cat-icon">${iconHtml}</div>
         <div class="cat-name">${c.name}</div>
         <div class="cat-count">Browse parts</div>
-      </a>`).join('');
+      </a>`;
+    }).join('');
   }
 
   // Header category nav
