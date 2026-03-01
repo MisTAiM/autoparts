@@ -1,0 +1,158 @@
+<!--
+  SHARED PARTIALS — Copy the header and footer blocks into each HTML page.
+  
+  All pages must include:
+    1. The CSS imports (in <head>)
+    2. The Google Fonts import
+    3. #site-header
+    4. #vehicle-banner
+    5. #site-footer
+    6. #mobile-nav
+    7. #toast-container placeholder (auto-created by ui.js)
+    8. The JS module imports (before </body>)
+    9. UI.init() call
+-->
+
+<!-- ════════════════════════════════════════════════════════
+  HEAD TEMPLATE (copy into every page's <head>)
+═══════════════════════════════════════════════════════════ -->
+<!--
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>PAGE TITLE | AutoParts Warehouse</title>
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;900&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+  <!-- CSS Modules -->
+  <link rel="stylesheet" href="css/variables.css">
+  <link rel="stylesheet" href="css/base.css">
+  <link rel="stylesheet" href="css/layout.css">
+  <link rel="stylesheet" href="css/pages/PAGE_SPECIFIC.css">
+</head>
+-->
+
+<!-- ════════════════════════════════════════════════════════
+  HEADER (copy into every page's <body>)
+═══════════════════════════════════════════════════════════ -->
+<!--
+<header id="site-header">
+  <div class="header-inner">
+    <a href="index.html" class="site-logo">
+      ⚙ Auto<span>Parts</span>
+    </a>
+    <nav class="header-nav">
+      <a href="index.html">Home</a>
+      <a href="catalog.html">All Parts</a>
+      <a href="catalog.html?cat=brakes">Brakes</a>
+      <a href="catalog.html?cat=engine">Engine</a>
+      <a href="catalog.html?cat=electrical">Electrical</a>
+    </nav>
+    <div class="header-search">
+      <span class="search-icon">🔍</span>
+      <input type="text" id="header-search-input" placeholder="Search parts, part numbers...">
+      <div class="header-search-results" id="header-search-results"></div>
+    </div>
+    <div class="header-actions">
+      <a href="cart.html" class="cart-btn">
+        🛒 <span>Cart</span>
+        <span class="cart-count" id="cart-count">0</span>
+      </a>
+    </div>
+    <button class="menu-toggle" aria-label="Menu">☰</button>
+  </div>
+</header>
+
+<!-- Vehicle banner (shows selected vehicle) -->
+<div class="vehicle-banner" id="vehicle-banner">
+  <div class="vehicle-banner-inner">
+    <span class="vehicle-banner-label">Showing parts for:</span>
+    <span class="vehicle-banner-name"></span>
+    <a class="vehicle-banner-change" href="#" id="vehicle-change-btn">Change Vehicle</a>
+  </div>
+</div>
+-->
+
+<!-- ════════════════════════════════════════════════════════
+  FOOTER
+═══════════════════════════════════════════════════════════ -->
+<!--
+<footer id="site-footer">
+  <div class="footer-grid">
+    <div class="footer-brand">
+      <div class="site-logo">⚙ Auto<span>Parts</span></div>
+      <p>Quality auto parts shipped direct from our warehouse. Trusted brands, fair prices, fast outbound shipping nationwide.</p>
+    </div>
+    <div class="footer-col">
+      <h5>Shop</h5>
+      <a href="catalog.html?cat=brakes">Brakes</a>
+      <a href="catalog.html?cat=engine">Engine Parts</a>
+      <a href="catalog.html?cat=electrical">Electrical</a>
+      <a href="catalog.html?cat=suspension">Suspension</a>
+      <a href="catalog.html?cat=filters">Filters</a>
+    </div>
+    <div class="footer-col">
+      <h5>Orders</h5>
+      <a href="cart.html">Shopping Cart</a>
+      <a href="checkout.html">Checkout</a>
+      <a href="#">Order Status</a>
+      <a href="#">Returns</a>
+    </div>
+    <div class="footer-col">
+      <h5>Info</h5>
+      <a href="#">About Us</a>
+      <a href="#">Shipping Policy</a>
+      <a href="#">Core Charges</a>
+      <a href="#">Contact</a>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <span>© 2025 AutoParts Warehouse. All rights reserved.</span>
+    <span>All sales outbound shipping only · No in-store pickup</span>
+  </div>
+</footer>
+
+<!-- Mobile Nav Drawer -->
+<div id="mobile-nav" class="mobile-nav">
+  <div class="mobile-nav-inner">
+    <strong style="font-family:var(--font-display);margin-bottom:8px;display:block">Menu</strong>
+    <a href="index.html">Home</a>
+    <a href="catalog.html">All Parts</a>
+    <a href="catalog.html?cat=brakes">Brakes</a>
+    <a href="catalog.html?cat=engine">Engine</a>
+    <a href="catalog.html?cat=electrical">Electrical</a>
+    <a href="cart.html">🛒 Cart</a>
+  </div>
+</div>
+-->
+
+<!-- ════════════════════════════════════════════════════════
+  SCRIPT IMPORTS (before </body> on every page)
+═══════════════════════════════════════════════════════════ -->
+<!--
+<!-- EmailJS SDK (for order notifications) -->
+<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+
+<!-- Data layer (always first) -->
+<script src="js/data/parts-data.js"></script>
+
+<!-- Modules -->
+<script src="js/modules/ymm.js"></script>
+<script src="js/modules/cart.js"></script>
+<script src="js/modules/catalog.js"></script>
+<script src="js/modules/shipping.js"></script>
+<script src="js/modules/notify.js"></script>
+<script src="js/modules/ui.js"></script>
+
+<!-- Page-specific script -->
+<script src="js/pages/PAGE_NAME.js"></script>
+
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    UI.init(); // Always call this — initializes cart, YMM state, nav, search
+    // Page-specific init...
+  });
+</script>
+-->

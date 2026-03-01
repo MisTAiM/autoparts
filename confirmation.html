@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Order Confirmed | AutoParts Warehouse</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" crossorigin="anonymous" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;900&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/variables.css">
+  <link rel="stylesheet" href="css/base.css">
+  <link rel="stylesheet" href="css/layout.css">
+  <link rel="stylesheet" href="css/pages/product-cart-checkout.css">
+</head>
+<body>
+
+<header id="site-header">
+  <div class="header-inner">
+    <a href="index.html" class="site-logo">⚙ Auto<span>Parts</span></a>
+    <div style="margin-left:auto">
+      <a href="catalog.html" class="btn btn-outline btn-sm">Continue Shopping</a>
+    </div>
+  </div>
+</header>
+
+<main class="confirm-page">
+  <div class="container--narrow">
+    <div id="confirm-root">
+      <!-- Populated by JS -->
+    </div>
+  </div>
+</main>
+
+<footer id="site-footer">
+  <div class="footer-grid">
+    <div class="footer-brand"><div class="site-logo" style="margin-bottom:12px">⚙ Auto<span>Parts</span></div></div>
+    <div class="footer-col"><h5>Shop</h5><a href="catalog.html">All Parts</a></div>
+    <div class="footer-col"><h5>Info</h5><a href="#">Shipping Policy</a></div>
+  </div>
+  <div class="footer-bottom"><span>© 2025 AutoParts Warehouse.</span></div>
+</footer>
+
+<script src="js/data/parts-data.js"></script>
+<script src="js/modules/ymm.js"></script>
+<script src="js/modules/cart.js"></script>
+<script src="js/modules/catalog.js"></script>
+<script src="js/modules/shipping.js"></script>
+<script src="js/modules/notify.js"></script>
+<script src="js/modules/ui.js"></script>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  UI.init();
+  const root = document.getElementById('confirm-root');
+
+  let order;
+  try { order = JSON.parse(sessionStorage.getItem('lastOrder')); } catch(e) {}
+
+  if (!order) {
+    root.innerHTML = `
+      <div class="confirm-icon">📦</div>
+      <h1>Order Lookup</h1>
+      <p class="text-muted">No recent order found. Check your email for your confirmation.</p>
+      <a href="catalog.html" class="btn btn-primary btn-lg">Shop Parts</a>
+    `;
+    return;
+  }
+
+  root.innerHTML = `
+    <div style="animation:fadeIn .5s ease">
+      <div class="confirm-icon">✅</div>
+      <h1>Order Confirmed!</h1>
+      <div class="order-num">${order.orderNumber}</div>
+      <p>Thank you, ${order.shipping.firstName}! Your order has been received and will ship within 1–2 business days.<br>
+      A confirmation has been sent to <strong>${order.shipping.email}</strong>.</p>
+
+      <div class="confirm-details">
+        <div class="confirm-detail-row"><span>Order Number</span><span class="text-mono">${order.orderNumber}</span></div>
+        <div class="confirm-detail-row"><span>Order Date</span><span>${new Date(order.createdAt).toLocaleDateString('en-US',{weekday:'long',year:'numeric',month:'long',day:'numeric'})}</span></div>
+        <div class="confirm-detail-row"><span>Ship To</span><span>${order.shipping.firstName} ${order.shipping.lastName}<br>${order.shipping.address}${order.shipping.address2?' '+order.shipping.address2:''}<br>${order.shipping.city}, ${order.shipping.state} ${order.shipping.zip}</span></div>
+        <div class="confirm-detail-row"><span>Shipping Method</span><span>${order.shippingMethod?.name || '—'}<br><small class="text-muted">${order.shippingMethod?.days || ''}</small></span></div>
+        <div class="confirm-detail-row"><span>Items</span>
+          <span>
+            ${order.items.map(i => `${i.name} × ${i.qty}`).join('<br>')}
+          </span>
+        </div>
+        <div class="confirm-detail-row"><span>Subtotal</span><span>$${order.subtotal.toFixed(2)}</span></div>
+        ${order.coreTotal > 0 ? `<div class="confirm-detail-row"><span>Core Charges</span><span>$${order.coreTotal.toFixed(2)}</span></div>` : ''}
+        <div class="confirm-detail-row"><span>Shipping</span><span>${order.shippingCost === 0 ? 'FREE' : '$' + order.shippingCost.toFixed(2)}</span></div>
+        <div class="confirm-detail-row"><span>Tax</span><span>$${order.tax.toFixed(2)}</span></div>
+        <div class="confirm-detail-row" style="font-weight:700"><span>Total Charged</span><span style="color:var(--c-accent);font-family:var(--font-display);font-size:1.2rem">$${order.total.toFixed(2)}</span></div>
+      </div>
+
+      <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap">
+        <a href="catalog.html" class="btn btn-primary btn-lg">Continue Shopping</a>
+        <button class="btn btn-outline btn-lg" onclick="window.print()">🖨 Print Order</button>
+      </div>
+    </div>
+  `;
+});
+</script>
+
+<style>
+@keyframes fadeIn { from { opacity:0; transform:translateY(20px); } to { opacity:1; transform:translateY(0); } }
+</style>
+</body>
+</html>
+<!-- Auth + Print patch injected -->
+<script src="js/modules/auth.js"></script>
+<script src="js/modules/inventory-db.js"></script>
+<script src="js/modules/print.js"></script>
+<script>
+// After DOMContentLoaded fires, add print functionality  
+document.addEventListener('DOMContentLoaded', () => {
+  // Save order to customer account if logged in
+  try {
+    const order = JSON.parse(sessionStorage.getItem('lastOrder'));
+    if (order && Auth.isLoggedIn()) {
+      Auth.saveOrder(order);
+      // Save vehicle to account
+      const vehicle = YMM.getState();
+      if (vehicle.year) Auth.saveVehicle(vehicle);
+    }
+  } catch(e) {}
+
+  // Add print buttons via event delegation
+  document.addEventListener('click', (e) => {
+    if (e.target.id === 'btn-print-invoice') {
+      try { const o = JSON.parse(sessionStorage.getItem('lastOrder')); if (o) Print.openInvoice(o); } catch(e) {}
+    }
+    if (e.target.id === 'btn-print-label') {
+      try { const o = JSON.parse(sessionStorage.getItem('lastOrder')); if (o) Print.openShippingLabel(o); } catch(e) {}
+    }
+    if (e.target.id === 'btn-print-packing') {
+      try { const o = JSON.parse(sessionStorage.getItem('lastOrder')); if (o) Print.openPackingSlip(o); } catch(e) {}
+    }
+  });
+
+  // Replace confirm buttons 
+  const confirmRoot = document.getElementById('confirm-root');
+  if (confirmRoot) {
+    const btns = confirmRoot.querySelector('div[style*="display:flex"]');
+    if (btns) {
+      btns.innerHTML = `
+        <a href="catalog.html" class="btn btn-primary btn-lg">Continue Shopping</a>
+        <button class="btn btn-outline btn-lg" id="btn-print-invoice">🖨 Print Invoice</button>
+        ${Auth.isLoggedIn() ? '<a href="account.html" class="btn btn-outline btn-lg">View My Account</a>' : '<a href="login.html?tab=register" class="btn btn-outline btn-lg">Create Account</a>'}
+      `;
+    }
+  }
+}, { once: true });
+</script>

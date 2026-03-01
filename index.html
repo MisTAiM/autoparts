@@ -1,0 +1,598 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" /><meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Quality auto parts — fast shipping, genuine brands, core returns. Your Year/Make/Model, our expertise.">
+  <title>AutoParts Warehouse | Quality Parts, Fast Shipping</title>
+  <!-- Font Awesome 6 -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" crossorigin="anonymous" />
+  <!-- Fonts & CSS -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/variables.css">
+  <link rel="stylesheet" href="css/base.css">
+  <link rel="stylesheet" href="css/layout.css">
+  <link rel="stylesheet" href="css/pages/home.css">
+</head>
+<body>
+
+<!-- ═══ HEADER ═════════════════════════════════════════ -->
+<header id="site-header">
+  <!-- Utility bar -->
+  <div class="header-utility">
+    <div class="header-utility-inner">
+      <div class="utility-left">
+        <span><i class="fa-solid fa-truck-fast"></i> Free shipping on orders over $150</span>
+        <span><i class="fa-solid fa-phone"></i> (555) 555-5555</span>
+        <span><i class="fa-solid fa-clock"></i> Mon–Fri 8am–6pm EST</span>
+      </div>
+      <div class="utility-right">
+        <a href="#"><i class="fa-brands fa-facebook-f"></i></a>
+        <a href="#"><i class="fa-brands fa-instagram"></i></a>
+        <a href="admin/login.html"><i class="fa-solid fa-lock"></i> Admin</a>
+      </div>
+    </div>
+  </div>
+  <!-- Main bar -->
+  <div class="header-main">
+    <div class="header-main-inner">
+      <a href="index.html" class="site-logo">
+        <div class="logo-icon"><i class="fa-solid fa-gear"></i></div>
+        <div>
+          <div class="logo-text">Auto<span>Parts</span></div>
+          <span class="logo-sub">Warehouse</span>
+        </div>
+      </a>
+
+      <div id="header-vehicle-compact" class="vehicle-banner-compact empty" onclick="document.querySelector('.hero-ymm').scrollIntoView({behavior:'smooth'})">
+        <i class="fa-solid fa-car"></i>
+        <span class="vb-text" id="header-vb-text">Select Vehicle</span>
+        <i class="fa-solid fa-chevron-down" style="font-size:.6rem;color:var(--c-text-3)"></i>
+      </div>
+
+      <div class="header-search">
+        <div class="header-search-inner">
+          <input type="text" id="header-search-input" placeholder="Search by part name, part number, or keyword…" autocomplete="off">
+          <button class="header-search-btn" type="button"><i class="fa-solid fa-magnifying-glass"></i></button>
+        </div>
+        <div class="header-search-results" id="header-search-results"></div>
+      </div>
+
+      <div class="header-actions">
+        <a href="login.html" class="header-action-btn auth-login-link">
+          <i class="fa-regular fa-user"></i> <span>Sign In</span>
+        </a>
+        <a href="account.html" class="header-action-btn account-btn auth-account-link" style="display:none">
+          <i class="fa-solid fa-user-check"></i> <span id="auth-user-name">Account</span>
+        </a>
+        <a href="cart.html" class="header-action-btn cart-btn">
+          <i class="fa-solid fa-cart-shopping"></i>
+          <span>Cart</span>
+          <span class="cart-badge hidden" id="cart-count">0</span>
+        </a>
+        <button class="menu-toggle" id="menu-toggle"><i class="fa-solid fa-bars"></i></button>
+      </div>
+    </div>
+  </div>
+  <!-- Category nav -->
+  <nav class="header-nav">
+    <div class="header-nav-inner" id="cat-nav"></div>
+  </nav>
+</header>
+
+<!-- Mobile nav -->
+<div class="mobile-nav" id="mobile-nav">
+  <div class="mobile-nav-inner">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;padding-bottom:16px;border-bottom:1px solid var(--c-border)">
+      <div style="font-family:var(--font-display);font-weight:700;font-size:1rem">AutoParts Warehouse</div>
+      <button id="close-mobile-nav" style="background:none;border:none;color:var(--c-text-2);font-size:1.2rem"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+    <a href="catalog.html"><i class="fa-solid fa-list"></i> All Parts</a>
+    <a href="login.html" class="auth-login-link"><i class="fa-solid fa-right-to-bracket"></i> Sign In</a>
+    <a href="account.html" class="auth-account-link" style="display:none"><i class="fa-solid fa-user"></i> My Account</a>
+    <a href="cart.html"><i class="fa-solid fa-cart-shopping"></i> Cart</a>
+    <div style="margin:12px 0;border-top:1px solid var(--c-border)"></div>
+    <div style="font-size:.7rem;text-transform:uppercase;letter-spacing:.1em;color:var(--c-text-3);padding:8px 16px">Categories</div>
+    <div id="mobile-cat-links"></div>
+  </div>
+</div>
+
+<!-- ═══ MAIN ════════════════════════════════════════════ -->
+<main>
+
+  <!-- Hero -->
+  <section class="hero">
+    <div class="hero-bg"></div>
+    <div class="hero-inner">
+      <div class="hero-eyebrow">
+        <i class="fa-solid fa-bolt"></i> Same-Day Shipping on In-Stock Parts
+      </div>
+      <h1 class="hero-headline">
+        Every Part<br>Your Vehicle <span class="accent">Will Ever Need</span>
+      </h1>
+      <p class="hero-sub">
+        Genuine OEM, remanufactured, and performance parts — shipped direct from our warehouse.
+        Select your vehicle below to see exact-fit parts.
+      </p>
+
+      <!-- YMM Widget -->
+      <div class="hero-ymm">
+        <div class="ymm-widget">
+          <div class="ymm-widget-header">
+            <i class="fa-solid fa-car-side"></i>
+            <span>Find Parts for Your Vehicle</span>
+          </div>
+          <div class="ymm-selects">
+            <div class="form-group">
+              <label>Year</label>
+              <select id="ymm-year"><option value="">Select Year</option></select>
+            </div>
+            <div class="form-group">
+              <label>Make</label>
+              <select id="ymm-make" disabled><option value="">Select Make</option></select>
+            </div>
+            <div class="form-group">
+              <label>Model</label>
+              <select id="ymm-model" disabled><option value="">Select Model</option></select>
+            </div>
+            <div class="form-group">
+              <label>Engine</label>
+              <select id="ymm-engine" disabled><option value="">All Engines</option></select>
+            </div>
+            <button class="btn btn-primary" id="ymm-submit" disabled style="height:42px">
+              <i class="fa-solid fa-magnifying-glass"></i> Find Parts
+            </button>
+          </div>
+          <div class="ymm-active-vehicle hidden" id="ymm-active-bar">
+            <div>
+              <div style="font-size:.7rem;color:var(--c-text-3);text-transform:uppercase;letter-spacing:.07em;margin-bottom:2px">Currently Shopping For</div>
+              <div class="vehicle-label" id="ymm-active-label"></div>
+            </div>
+            <button id="ymm-clear-btn">
+              <i class="fa-solid fa-xmark"></i> Change Vehicle
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Stats -->
+      <div class="hero-stats">
+        <div class="hero-stat">
+          <div class="hero-stat-num">50K+</div>
+          <div class="hero-stat-label">Parts in Catalog</div>
+        </div>
+        <div class="hero-stat">
+          <div class="hero-stat-num">Free</div>
+          <div class="hero-stat-label">Shipping Over $150</div>
+        </div>
+        <div class="hero-stat">
+          <div class="hero-stat-num">90-Day</div>
+          <div class="hero-stat-label">Core Return Window</div>
+        </div>
+        <div class="hero-stat">
+          <div class="hero-stat-num">1-Yr+</div>
+          <div class="hero-stat-label">Warranties Available</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Trust bar -->
+  <div class="trust-bar">
+    <div class="container">
+      <div class="trust-bar-inner">
+        <div class="trust-item"><i class="fa-solid fa-shield-check"></i><div><strong>Genuine Parts</strong><br>OEM & trusted brands only</div></div>
+        <div class="trust-item"><i class="fa-solid fa-truck-fast"></i><div><strong>Fast Shipping</strong><br>Ships within 1 business day</div></div>
+        <div class="trust-item"><i class="fa-solid fa-rotate-left"></i><div><strong>Easy Core Returns</strong><br>90-day return window</div></div>
+        <div class="trust-item"><i class="fa-solid fa-headset"></i><div><strong>Expert Support</strong><br>Real people, real answers</div></div>
+        <div class="trust-item"><i class="fa-solid fa-lock"></i><div><strong>Secure Checkout</strong><br>SSL encrypted, Stripe payments</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Categories -->
+  <section class="categories-section">
+    <div class="container">
+      <div class="section-header">
+        <h2 class="section-title">Shop by Category</h2>
+        <a href="catalog.html" class="btn btn-outline btn-sm">
+          <i class="fa-solid fa-grid-2"></i> View All Parts
+        </a>
+      </div>
+      <div class="cat-grid" id="cat-grid"></div>
+    </div>
+  </section>
+
+  <!-- Featured parts -->
+  <section class="featured-section">
+    <div class="container">
+      <div class="section-header">
+        <h2 class="section-title">Featured Parts</h2>
+        <a href="catalog.html" class="btn btn-outline btn-sm">
+          <i class="fa-solid fa-arrow-right"></i> Browse All
+        </a>
+      </div>
+      <div class="parts-grid" id="featured-grid">
+        <!-- JS populated -->
+        <div class="part-card skeleton" style="height:320px"></div>
+        <div class="part-card skeleton" style="height:320px"></div>
+        <div class="part-card skeleton" style="height:320px"></div>
+        <div class="part-card skeleton" style="height:320px"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Value props -->
+  <section class="values-section">
+    <div class="container">
+      <div class="values-grid">
+        <div class="value-card">
+          <div class="value-icon"><i class="fa-solid fa-certificate"></i></div>
+          <div class="value-title">Quality Guaranteed</div>
+          <p class="value-desc">Every part meets or exceeds OEM specifications. We source from brands we trust — Wagner, Dorman, ACDelco, Gates, and more.</p>
+        </div>
+        <div class="value-card">
+          <div class="value-icon"><i class="fa-solid fa-gauge-high"></i></div>
+          <div class="value-title">Ships Fast</div>
+          <p class="value-desc">In-stock orders ship same day when placed before 2pm. Choose from Ground, 3-Day, 2-Day, or Overnight delivery.</p>
+        </div>
+        <div class="value-card">
+          <div class="value-icon"><i class="fa-solid fa-recycle"></i></div>
+          <div class="value-title">Core Return Program</div>
+          <p class="value-desc">Remanufactured part? Return the old one within 90 days and get your core charge refunded. We handle the paperwork.</p>
+        </div>
+        <div class="value-card">
+          <div class="value-icon"><i class="fa-solid fa-wrench"></i></div>
+          <div class="value-title">Exact Fit Parts</div>
+          <p class="value-desc">Our Year/Make/Model filter shows only parts verified to fit your exact vehicle. No guessing, no returns for fitment.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Brands -->
+  <section class="brands-section">
+    <div class="container">
+      <div class="section-header" style="margin-bottom:24px">
+        <h2 class="section-title">Trusted Brands</h2>
+      </div>
+      <div class="brands-row">
+        <div class="brand-chip">ACDelco</div>
+        <div class="brand-chip">Wagner</div>
+        <div class="brand-chip">Dorman</div>
+        <div class="brand-chip">Gates</div>
+        <div class="brand-chip">Bosch</div>
+        <div class="brand-chip">Moog</div>
+        <div class="brand-chip">Monroe</div>
+        <div class="brand-chip">Denso</div>
+        <div class="brand-chip">NGK</div>
+        <div class="brand-chip">KYB</div>
+        <div class="brand-chip">Motorcraft</div>
+        <div class="brand-chip">Duralast</div>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<!-- ═══ FOOTER ══════════════════════════════════════════ -->
+<footer id="site-footer">
+  <div class="container">
+    <div class="footer-grid">
+      <div>
+        <div class="footer-brand-text"><i class="fa-solid fa-gear"></i> Auto<span>Parts</span> Warehouse</div>
+        <p class="footer-desc">Quality OEM, remanufactured, and performance parts shipped direct. Serving DIY mechanics and professional shops since 2020.</p>
+        <div class="footer-trust">
+          <div class="footer-trust-badge"><i class="fa-solid fa-lock"></i> SSL Secure</div>
+          <div class="footer-trust-badge"><i class="fa-brands fa-stripe-s"></i> Stripe Payments</div>
+          <div class="footer-trust-badge"><i class="fa-solid fa-shield-check"></i> Verified Parts</div>
+        </div>
+      </div>
+      <div class="footer-col">
+        <h5>Quick Links</h5>
+        <a href="catalog.html"><i class="fa-solid fa-list"></i> All Parts</a>
+        <a href="catalog.html?cat=brakes"><i class="fa-solid fa-circle-dot"></i> Brake Parts</a>
+        <a href="catalog.html?cat=engine"><i class="fa-solid fa-engine"></i> Engine Parts</a>
+        <a href="catalog.html?cat=electrical"><i class="fa-solid fa-bolt"></i> Electrical</a>
+        <a href="catalog.html?cat=suspension"><i class="fa-solid fa-car-bump"></i> Suspension</a>
+      </div>
+      <div class="footer-col">
+        <h5>My Account</h5>
+        <a href="account.html"><i class="fa-solid fa-user"></i> Order History</a>
+        <a href="account.html#warranties"><i class="fa-solid fa-shield"></i> Warranties</a>
+        <a href="account.html#cores"><i class="fa-solid fa-recycle"></i> Core Returns</a>
+        <a href="login.html"><i class="fa-solid fa-right-to-bracket"></i> Sign In</a>
+        <a href="login.html?tab=register"><i class="fa-solid fa-user-plus"></i> Create Account</a>
+      </div>
+      <div class="footer-col">
+        <h5>Support</h5>
+        <a href="#"><i class="fa-solid fa-circle-question"></i> Help Center</a>
+        <a href="#"><i class="fa-solid fa-headset"></i> Contact Us</a>
+        <a href="#"><i class="fa-solid fa-file-alt"></i> Return Policy</a>
+        <a href="#"><i class="fa-solid fa-truck"></i> Shipping Info</a>
+        <a href="admin/login.html"><i class="fa-solid fa-lock"></i> Admin Portal</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p>&copy; 2025 AutoParts Warehouse LLC. All rights reserved.</p>
+      <div class="footer-bottom-links">
+        <a href="#">Privacy Policy</a>
+        <a href="#">Terms of Service</a>
+        <a href="#">Warranty Policy</a>
+      </div>
+      <div class="footer-payments">
+        <div class="payment-icon">VISA</div>
+        <div class="payment-icon">MC</div>
+        <div class="payment-icon">AMEX</div>
+        <div class="payment-icon">DISC</div>
+        <div class="payment-icon">STRIPE</div>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<div class="toast-container" id="toast-container"></div>
+
+<!-- Scripts -->
+<script src="js/data/parts-data.js"></script>
+<script src="js/modules/ymm.js"></script>
+<script src="js/modules/cart.js"></script>
+<script src="js/modules/catalog.js"></script>
+<script src="js/modules/shipping.js"></script>
+<script src="js/modules/notify.js"></script>
+<script src="js/modules/auth.js"></script>
+<script src="js/modules/inventory-db.js"></script>
+<script src="js/modules/print.js"></script>
+<script src="js/modules/stripe-integration.js"></script>
+<script src="js/modules/ui.js"></script>
+
+<script>
+// ─── Category definitions ────────────────────────────────
+const CATEGORIES = window.CATEGORIES || [
+  { id:'brakes',    name:'Brakes',        icon:'fa-circle-dot' },
+  { id:'engine',    name:'Engine',        icon:'fa-engine' },
+  { id:'electrical',name:'Electrical',    icon:'fa-bolt' },
+  { id:'cooling',   name:'Cooling',       icon:'fa-temperature-low' },
+  { id:'suspension',name:'Suspension',    icon:'fa-car-bump' },
+  { id:'exhaust',   name:'Exhaust',       icon:'fa-wind' },
+  { id:'filters',   name:'Filters',       icon:'fa-filter' },
+  { id:'drivetrain',name:'Drivetrain',    icon:'fa-gears' },
+  { id:'fuel',      name:'Fuel System',   icon:'fa-gas-pump' },
+  { id:'body',      name:'Body & Trim',   icon:'fa-car-side' },
+  { id:'lighting',  name:'Lighting',      icon:'fa-lightbulb' },
+  { id:'ac',        name:'A/C & Heating', icon:'fa-snowflake' },
+];
+window.CATEGORIES = CATEGORIES;
+
+document.addEventListener('DOMContentLoaded', () => {
+  // Init core modules
+  InventoryDB.seedFromSampleData();
+  Cart.init();
+  Auth.updateNavForAuth();
+
+  // Update auth nav
+  const session = Auth.getSession();
+  if (session) {
+    document.querySelectorAll('.auth-account-link').forEach(el=>el.style.display='');
+    document.querySelectorAll('.auth-login-link').forEach(el=>el.style.display='none');
+    const nameEl = document.getElementById('auth-user-name');
+    if (nameEl) nameEl.textContent = session.name;
+  }
+
+  // Cart count
+  updateCartCount();
+  document.addEventListener('cart:updated', updateCartCount);
+
+  // Mobile nav
+  document.getElementById('menu-toggle').addEventListener('click', () => {
+    document.getElementById('mobile-nav').classList.toggle('open');
+  });
+  document.getElementById('close-mobile-nav')?.addEventListener('click', () => {
+    document.getElementById('mobile-nav').classList.remove('open');
+  });
+
+  // Category nav
+  buildCatNav();
+
+  // YMM
+  YMM.mount({ yearId:'ymm-year', makeId:'ymm-make', modelId:'ymm-model', engineId:'ymm-engine' });
+  document.getElementById('ymm-submit').addEventListener('click', () => {
+    const state = YMM.getState();
+    if (state.year && state.makeId && state.modelId) {
+      if (Auth.isLoggedIn()) Auth.saveVehicle(state);
+      window.location.href = 'catalog.html';
+    }
+  });
+
+  // Restore vehicle
+  const v = YMM.getState();
+  if (v.year && v.makeName && v.modelName) {
+    const label = `${v.year} ${v.makeName} ${v.modelName}`;
+    document.getElementById('ymm-active-label').textContent = label;
+    document.getElementById('ymm-active-bar').classList.remove('hidden');
+    updateHeaderVehicle(label);
+  }
+  document.getElementById('ymm-year')?.addEventListener('change', () => { document.getElementById('ymm-submit').disabled = false; });
+  document.getElementById('ymm-submit').addEventListener('click', () => {
+    document.getElementById('ymm-submit').disabled = !YMM.getState().year;
+  });
+  document.getElementById('ymm-clear-btn')?.addEventListener('click', () => {
+    YMM.clear();
+    document.getElementById('ymm-active-bar').classList.add('hidden');
+    updateHeaderVehicle(null);
+  });
+
+  // Watch YMM changes
+  document.getElementById('ymm-model')?.addEventListener('change', () => {
+    const s = YMM.getState();
+    if (s.year && s.makeName && s.modelName) {
+      const label = `${s.year} ${s.makeName} ${s.modelName}`;
+      document.getElementById('ymm-active-label').textContent = label;
+      document.getElementById('ymm-active-bar').classList.remove('hidden');
+      updateHeaderVehicle(label);
+    }
+    document.getElementById('ymm-submit').disabled = false;
+  });
+
+  // Search
+  const searchInput = document.getElementById('header-search-input');
+  const searchResults = document.getElementById('header-search-results');
+  let searchTimeout;
+  searchInput?.addEventListener('input', () => {
+    clearTimeout(searchTimeout);
+    const q = searchInput.value.trim();
+    if (q.length < 2) { searchResults.classList.remove('open'); return; }
+    searchTimeout = setTimeout(() => renderSearch(q), 180);
+  });
+  document.addEventListener('click', (e) => {
+    if (!searchInput?.contains(e.target) && !searchResults?.contains(e.target)) searchResults.classList.remove('open');
+  });
+  searchInput?.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') { window.location.href = 'catalog.html?q=' + encodeURIComponent(searchInput.value); }
+  });
+
+  // Featured parts
+  loadFeaturedParts();
+});
+
+function updateCartCount() {
+  const count = Cart.getCount();
+  const badge = document.getElementById('cart-count');
+  if (!badge) return;
+  badge.textContent = count;
+  badge.classList.toggle('hidden', count === 0);
+}
+
+function updateHeaderVehicle(label) {
+  const el = document.getElementById('header-vb-text');
+  const banner = document.getElementById('header-vehicle-compact');
+  if (!el || !banner) return;
+  if (label) {
+    el.textContent = label;
+    banner.classList.remove('empty');
+  } else {
+    el.textContent = 'Select Vehicle';
+    banner.classList.add('empty');
+  }
+}
+
+function buildCatNav() {
+  const nav = document.getElementById('cat-nav');
+  const mobile = document.getElementById('mobile-cat-links');
+  if (!nav) return;
+
+  // Cat grid on home
+  const grid = document.getElementById('cat-grid');
+  if (grid) {
+    grid.innerHTML = CATEGORIES.map(c => `
+      <a href="catalog.html?cat=${c.id}" class="cat-card">
+        <div class="cat-icon"><i class="fa-solid ${c.icon}"></i></div>
+        <div class="cat-name">${c.name}</div>
+        <div class="cat-count">Browse parts</div>
+      </a>`).join('');
+  }
+
+  // Header category nav
+  nav.innerHTML = CATEGORIES.map((c,i) => `
+    ${i > 0 && i % 4 === 0 ? '<div class="nav-divider"></div>' : ''}
+    <a href="catalog.html?cat=${c.id}" class="nav-cat">
+      <i class="fa-solid ${c.icon}"></i>${c.name}
+    </a>`).join('');
+
+  if (mobile) {
+    mobile.innerHTML = CATEGORIES.map(c => `
+      <a href="catalog.html?cat=${c.id}" style="display:flex;align-items:center;gap:10px;padding:10px 16px;color:var(--c-text-2);font-size:.87rem;border-radius:6px;transition:all .1s">
+        <i class="fa-solid ${c.icon}" style="color:var(--c-text-3);width:18px;text-align:center"></i>${c.name}
+      </a>`).join('');
+  }
+}
+
+async function renderSearch(q) {
+  const results = document.getElementById('header-search-results');
+  const parts = InventoryDB.search(q).slice(0, 6);
+  if (!parts.length) {
+    results.innerHTML = `<div style="padding:20px;text-align:center;color:var(--c-text-3);font-size:.85rem"><i class="fa-solid fa-magnifying-glass" style="margin-right:8px"></i>No results for "${q}"</div>`;
+    results.classList.add('open'); return;
+  }
+  results.innerHTML = parts.map(p => `
+    <a href="product.html?id=${p.id}" class="search-result-item">
+      <div class="search-result-img">
+        ${p.thumbnail ? `<img src="${p.thumbnail}" alt="">` : '<i class="fa-solid fa-gear"></i>'}
+      </div>
+      <div class="search-result-info" style="flex:1">
+        <div class="name">${p.name}</div>
+        <div class="meta">${p.brand} &middot; <span class="text-mono">${p.partNumber}</span></div>
+      </div>
+      <div class="price">$${Number(p.price).toFixed(2)}</div>
+    </a>`).join('') +
+    `<div style="padding:12px 16px;border-top:1px solid var(--c-border)">
+      <a href="catalog.html?q=${encodeURIComponent(q)}" style="font-size:.82rem;color:var(--c-accent);display:flex;align-items:center;gap:6px">
+        <i class="fa-solid fa-arrow-right"></i> See all results for "${q}"
+      </a>
+    </div>`;
+  results.classList.add('open');
+}
+
+async function loadFeaturedParts() {
+  const grid = document.getElementById('featured-grid');
+  if (!grid) return;
+  const parts = InventoryDB.getAll().filter(p=>p.inStock).slice(0,8);
+  if (!parts.length) { grid.innerHTML = '<p class="text-muted" style="grid-column:1/-1">No parts in catalog yet. <a href="admin/inventory.html">Add parts in Admin</a></p>'; return; }
+  
+  grid.innerHTML = parts.map(p => {
+    const condBadge = { new:'cond-new', reman:'cond-reman', used:'cond-used' }[p.condition] || 'cond-new';
+    const condLabel = { new:'New', reman:'Reman', used:'Used' }[p.condition] || 'New';
+    return `
+      <div class="part-card">
+        <a href="product.html?id=${p.id}">
+          <div class="part-card-img">
+            ${p.thumbnail
+              ? `<img src="${p.thumbnail}" alt="${p.name}">`
+              : `<i class="fa-solid fa-gear no-img-icon"></i>`}
+            <div style="position:absolute;top:10px;left:10px;display:flex;gap:6px">
+              <span class="badge ${condBadge}">${condLabel}</span>
+              ${p.stockQty <= 5 && p.stockQty > 0 ? '<span class="badge badge-warning">Low Stock</span>' : ''}
+            </div>
+          </div>
+        </a>
+        <div class="part-card-body">
+          <div class="part-card-brand">${p.brand}</div>
+          <a href="product.html?id=${p.id}" class="part-card-name" style="color:var(--c-text)">${p.name}</a>
+          <div class="part-card-partnum"><i class="fa-solid fa-barcode" style="font-size:.6rem;margin-right:4px"></i>${p.partNumber}</div>
+          <div class="part-card-price-row">
+            <div class="part-card-price">$${Number(p.price).toFixed(2)}</div>
+          </div>
+          ${p.coreCharge > 0 ? `<div class="part-card-core"><i class="fa-solid fa-rotate-left"></i> +$${Number(p.coreCharge).toFixed(2)} core charge (refundable)</div>` : ''}
+          <div class="part-card-shipping"><i class="fa-solid fa-truck-fast"></i> Free shipping over $150</div>
+        </div>
+        <div class="part-card-actions">
+          <a href="product.html?id=${p.id}" class="btn btn-outline btn-sm" style="flex:1">
+            <i class="fa-solid fa-eye"></i> View
+          </a>
+          <button class="btn btn-primary btn-sm" onclick="addToCart(${p.id})" style="flex:2">
+            <i class="fa-solid fa-cart-plus"></i> Add to Cart
+          </button>
+        </div>
+      </div>`;
+  }).join('');
+}
+
+function addToCart(partId) {
+  const part = InventoryDB.getById(partId);
+  if (!part) return;
+  Cart.add(part, 1);
+  showToast(`<i class="fa-solid fa-check"></i> ${part.name} added to cart`, 'success');
+}
+
+function showToast(html, type='info') {
+  const container = document.getElementById('toast-container');
+  if (!container) return;
+  const toast = document.createElement('div');
+  toast.className = `toast toast-${type}`;
+  toast.innerHTML = html + `<button onclick="this.parentElement.remove()" style="margin-left:auto;background:none;border:none;color:var(--c-text-3);cursor:pointer"><i class="fa-solid fa-xmark"></i></button>`;
+  container.appendChild(toast);
+  setTimeout(() => toast.remove(), 3500);
+}
+</script>
+</body>
+</html>

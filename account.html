@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" /><meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>My Account | AutoParts Warehouse</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" crossorigin="anonymous" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600&family=JetBrains+Mono:wght@400;500" rel="stylesheet">
+  <link rel="stylesheet" href="css/variables.css">
+  <link rel="stylesheet" href="css/base.css">
+  <link rel="stylesheet" href="css/layout.css">
+  <style>
+    .account-layout { display:grid; grid-template-columns:220px 1fr; gap:32px; padding:32px 0 80px; min-height:70vh; }
+    .account-sidebar { position:sticky; top:calc(var(--header-h)+16px); height:fit-content; }
+    .account-nav { background:var(--c-surface); border:1px solid var(--c-border); border-radius:var(--radius-lg); overflow:hidden; }
+    .account-nav-user { padding:20px; border-bottom:1px solid var(--c-border); }
+    .account-nav-user-name { font-family:var(--font-display); font-size:1rem; font-weight:700; text-transform:uppercase; }
+    .account-nav-user-email { font-size:.78rem; color:var(--c-text-3); margin-top:2px; }
+    .account-nav a { display:flex; align-items:center; gap:10px; padding:12px 20px; color:var(--c-text-2); font-size:.88rem; border-bottom:1px solid var(--c-border); transition:all var(--t-fast); }
+    .account-nav a:last-child { border-bottom:none; }
+    .account-nav a:hover,.account-nav a.active { background:var(--c-surface-2); color:var(--c-text); }
+    .account-nav a.active { border-left:2px solid var(--c-accent); color:var(--c-accent); }
+    .account-panel { display:none; }
+    .account-panel.active { display:block; }
+    .panel-title { font-family:var(--font-display); font-size:1.4rem; font-weight:700; text-transform:uppercase; margin-bottom:24px; display:flex; align-items:center; gap:12px; }
+    .order-card { background:var(--c-surface); border:1px solid var(--c-border); border-radius:var(--radius-lg); padding:20px; margin-bottom:16px; transition:border-color var(--t-fast); }
+    .order-card:hover { border-color:var(--c-border-2); }
+    .order-card-header { display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:12px; }
+    .order-num { font-family:var(--font-mono); color:var(--c-accent); font-weight:600; }
+    .order-date { font-size:.8rem; color:var(--c-text-3); }
+    .order-items { font-size:.87rem; color:var(--c-text-2); margin:8px 0; }
+    .order-footer { display:flex; align-items:center; justify-content:space-between; margin-top:12px; padding-top:12px; border-top:1px solid var(--c-border); }
+    .order-total { font-family:var(--font-display); font-size:1.1rem; font-weight:700; color:var(--c-accent); }
+    .warranty-card { background:var(--c-surface); border:1px solid var(--c-border); border-radius:var(--radius-lg); padding:20px; margin-bottom:12px; display:grid; grid-template-columns:1fr auto; gap:16px; align-items:center; }
+    .core-card { background:var(--c-surface); border:1px solid var(--c-border); border-radius:var(--radius-lg); padding:20px; margin-bottom:12px; }
+    .core-deadline { font-size:.8rem; }
+    .vehicle-chip { display:inline-flex; align-items:center; gap:8px; background:var(--c-surface-2); border:1px solid var(--c-border); border-radius:100px; padding:8px 16px; font-size:.85rem; margin:4px; cursor:pointer; transition:all var(--t-fast); }
+    .vehicle-chip:hover { border-color:var(--c-accent); }
+    .days-left { font-weight:700; }
+    .days-left.urgent { color:var(--c-danger); }
+    .days-left.soon { color:var(--c-accent); }
+    .days-left.ok { color:var(--c-success); }
+    @media(max-width:768px){.account-layout{grid-template-columns:1fr}.account-sidebar{position:static}}
+  </style>
+</head>
+<body>
+<header id="site-header">
+  <div class="header-inner">
+    <a href="index.html" class="site-logo">⚙ Auto<span>Parts</span></a>
+    <nav class="header-nav">
+      <a href="index.html">Home</a>
+      <a href="catalog.html">All Parts</a>
+    </nav>
+    <div class="header-search">
+      <span class="search-icon">🔍</span>
+      <input type="text" id="header-search-input" placeholder="Search parts...">
+      <div class="header-search-results" id="header-search-results"></div>
+    </div>
+    <div class="header-actions" style="display:flex;gap:10px">
+      <a href="cart.html" class="cart-btn">🛒 <span>Cart</span><span class="cart-count"></span></a>
+      <button class="btn btn-outline btn-sm" id="logout-btn">Sign Out</button>
+    </div>
+    <button class="menu-toggle">☰</button>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <div class="account-layout">
+      <!-- Sidebar -->
+      <aside class="account-sidebar">
+        <div class="account-nav">
+          <div class="account-nav-user">
+            <div class="account-nav-user-name" id="nav-name">—</div>
+            <div class="account-nav-user-email" id="nav-email">—</div>
+          </div>
+          <a href="#" class="active" data-panel="orders">📦 Order History</a>
+          <a href="#" data-panel="warranties">🛡️ Warranties</a>
+          <a href="#" data-panel="cores">♻️ Core Returns</a>
+          <a href="#" data-panel="vehicles">🚗 Saved Vehicles</a>
+          <a href="#" data-panel="profile">👤 Profile</a>
+        </div>
+      </aside>
+
+      <!-- Main panels -->
+      <div>
+        <!-- Orders -->
+        <div class="account-panel active" id="panel-orders">
+          <div class="panel-title">📦 Order History</div>
+          <div id="orders-list"><div style="display:flex;justify-content:center;padding:40px"><span class="spinner" style="width:32px;height:32px"></span></div></div>
+        </div>
+
+        <!-- Warranties -->
+        <div class="account-panel" id="panel-warranties">
+          <div class="panel-title">🛡️ Warranties</div>
+          <p class="text-muted" style="margin-bottom:20px">Active warranties on parts from your orders. Contact us with your order number to make a claim.</p>
+          <div id="warranties-list"></div>
+        </div>
+
+        <!-- Core Returns -->
+        <div class="account-panel" id="panel-cores">
+          <div class="panel-title">♻️ Core Returns</div>
+          <div class="alert alert-info" style="margin-bottom:20px">Core charges are refunded when you return your old part within 90 days. Print a return form and ship the core back to get your refund.</div>
+          <div id="cores-list"></div>
+        </div>
+
+        <!-- Saved Vehicles -->
+        <div class="account-panel" id="panel-vehicles">
+          <div class="panel-title">🚗 Saved Vehicles</div>
+          <p class="text-muted" style="margin-bottom:20px">Quickly select a saved vehicle when shopping.</p>
+          <div id="vehicles-list"></div>
+          <a href="index.html" class="btn btn-primary" style="margin-top:16px">+ Add Vehicle via Search</a>
+        </div>
+
+        <!-- Profile -->
+        <div class="account-panel" id="panel-profile">
+          <div class="panel-title">👤 Profile Settings</div>
+          <div id="profile-alert"></div>
+          <div style="background:var(--c-surface);border:1px solid var(--c-border);border-radius:var(--radius-lg);padding:28px;max-width:500px">
+            <div class="form-row" style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px">
+              <div class="form-group"><label style="display:block;font-size:.78rem;text-transform:uppercase;letter-spacing:.06em;color:var(--c-text-2);margin-bottom:8px">First Name</label><input type="text" id="prof-first"></div>
+              <div class="form-group"><label style="display:block;font-size:.78rem;text-transform:uppercase;letter-spacing:.06em;color:var(--c-text-2);margin-bottom:8px">Last Name</label><input type="text" id="prof-last"></div>
+            </div>
+            <div class="form-group" style="margin-bottom:16px"><label style="display:block;font-size:.78rem;text-transform:uppercase;letter-spacing:.06em;color:var(--c-text-2);margin-bottom:8px">Phone</label><input type="tel" id="prof-phone"></div>
+            <button class="btn btn-primary" id="save-profile-btn">Save Changes</button>
+            <div style="margin-top:28px;padding-top:20px;border-top:1px solid var(--c-border)">
+              <h4 style="margin-bottom:16px">Change Password</h4>
+              <div class="form-group" style="margin-bottom:12px"><label style="display:block;font-size:.78rem;text-transform:uppercase;letter-spacing:.06em;color:var(--c-text-2);margin-bottom:8px">Current Password</label><input type="password" id="prof-cpwd"></div>
+              <div class="form-group" style="margin-bottom:12px"><label style="display:block;font-size:.78rem;text-transform:uppercase;letter-spacing:.06em;color:var(--c-text-2);margin-bottom:8px">New Password</label><input type="password" id="prof-npwd"></div>
+              <button class="btn btn-outline" id="change-pwd-btn">Update Password</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</main>
+
+<div id="mobile-nav" class="mobile-nav">
+  <div class="mobile-nav-inner">
+    <a href="index.html">Home</a>
+    <a href="catalog.html">All Parts</a>
+    <a href="cart.html">🛒 Cart</a>
+  </div>
+</div>
+
+<script src="js/data/parts-data.js"></script>
+<script src="js/modules/ymm.js"></script>
+<script src="js/modules/cart.js"></script>
+<script src="js/modules/catalog.js"></script>
+<script src="js/modules/shipping.js"></script>
+<script src="js/modules/notify.js"></script>
+<script src="js/modules/auth.js"></script>
+<script src="js/modules/print.js"></script>
+<script src="js/modules/ui.js"></script>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  UI.init();
+  if (!Auth.requireLogin('login.html')) return;
+
+  const profile = Auth.getProfile();
+  const session = Auth.getSession();
+
+  // Nav info
+  document.getElementById('nav-name').textContent  = profile.firstName + ' ' + profile.lastName;
+  document.getElementById('nav-email').textContent = profile.email;
+
+  // Profile form
+  document.getElementById('prof-first').value = profile.firstName;
+  document.getElementById('prof-last').value  = profile.lastName;
+  document.getElementById('prof-phone').value = profile.phone || '';
+
+  // Panel nav
+  document.querySelectorAll('.account-nav a[data-panel]').forEach(link => {
+    link.addEventListener('click', (e) => {
+      e.preventDefault();
+      document.querySelectorAll('.account-nav a').forEach(a => a.classList.remove('active'));
+      document.querySelectorAll('.account-panel').forEach(p => p.classList.remove('active'));
+      link.classList.add('active');
+      document.getElementById('panel-' + link.dataset.panel).classList.add('active');
+      loadPanel(link.dataset.panel);
+    });
+  });
+
+  // Load default panel
+  loadPanel('orders');
+
+  // Logout
+  document.getElementById('logout-btn').addEventListener('click', () => { Auth.logout(); window.location.href = 'index.html'; });
+
+  // Profile save
+  document.getElementById('save-profile-btn').addEventListener('click', () => {
+    const result = Auth.updateProfile({ firstName: document.getElementById('prof-first').value, lastName: document.getElementById('prof-last').value, phone: document.getElementById('prof-phone').value });
+    document.getElementById('profile-alert').innerHTML = result.ok ? '<div class="alert alert-success" style="margin-bottom:16px">Profile updated.</div>' : '<div class="alert alert-danger" style="margin-bottom:16px">'+result.error+'</div>';
+    if (result.ok) { document.getElementById('nav-name').textContent = document.getElementById('prof-first').value + ' ' + document.getElementById('prof-last').value; }
+  });
+  document.getElementById('change-pwd-btn').addEventListener('click', () => {
+    const result = Auth.updateProfile({ currentPassword: document.getElementById('prof-cpwd').value, newPassword: document.getElementById('prof-npwd').value });
+    document.getElementById('profile-alert').innerHTML = result.ok ? '<div class="alert alert-success" style="margin-bottom:16px">Password updated.</div>' : '<div class="alert alert-danger" style="margin-bottom:16px">'+(result.error||'Error')+'</div>';
+  });
+});
+
+function loadPanel(panel) {
+  if (panel === 'orders')     renderOrders();
+  if (panel === 'warranties') renderWarranties();
+  if (panel === 'cores')      renderCores();
+  if (panel === 'vehicles')   renderVehicles();
+}
+
+function renderOrders() {
+  const orders = Auth.getMyOrders();
+  const el = document.getElementById('orders-list');
+  if (!orders.length) {
+    el.innerHTML = `<div style="text-align:center;padding:60px 24px;background:var(--c-surface);border:1px solid var(--c-border);border-radius:var(--radius-lg)">
+      <div style="font-size:3rem;margin-bottom:12px">📦</div>
+      <h3>No orders yet</h3>
+      <p class="text-muted" style="margin:8px 0 20px">Your order history will appear here after your first purchase.</p>
+      <a href="catalog.html" class="btn btn-primary">Shop Parts</a>
+    </div>`;
+    return;
+  }
+  el.innerHTML = orders.map(o => {
+    const statusColor = { shipped:'badge-success', delivered:'badge-success', pending:'badge-warning', processing:'badge-info', cancelled:'badge-danger' }[o.status||'pending'] || 'badge-muted';
+    const itemSummary = (o.items||[]).slice(0,2).map(i=>i.name).join(', ') + ((o.items||[]).length>2?' +'+((o.items||[]).length-2)+' more':'');
+    return `
+      <div class="order-card">
+        <div class="order-card-header">
+          <div>
+            <div class="order-num">${o.orderNumber}</div>
+            <div class="order-date">${new Date(o.createdAt).toLocaleDateString('en-US',{year:'numeric',month:'long',day:'numeric'})}</div>
+          </div>
+          <span class="badge ${statusColor}" style="text-transform:capitalize">${o.status||'processing'}</span>
+        </div>
+        <div class="order-items">${itemSummary}</div>
+        <div class="order-footer">
+          <div class="order-total">$${(o.total||0).toFixed(2)}</div>
+          <div style="display:flex;gap:8px;flex-wrap:wrap">
+            <button class="btn btn-outline btn-sm" onclick="Print.openInvoice(${JSON.stringify(o).replace(/'/g,'&#39;')})">🖨 Invoice</button>
+            ${(o.items||[]).some(i=>i.coreCharge>0)?`<button class="btn btn-outline btn-sm" onclick="showCoreReturn('${o.orderNumber}')">♻️ Core Return</button>`:''}
+          </div>
+        </div>
+      </div>`;
+  }).join('');
+}
+
+function renderWarranties() {
+  const warranties = Auth.getWarranties();
+  const el = document.getElementById('warranties-list');
+  if (!warranties.length) {
+    el.innerHTML = '<div class="alert alert-info">No warranty information found. Warranties will appear here as your orders are placed.</div>';
+    return;
+  }
+  el.innerHTML = warranties.map(w => {
+    const expires = w.expiresAt ? new Date(w.expiresAt) : null;
+    const daysLeft = expires ? Math.ceil((expires - new Date()) / 86400000) : null;
+    const statusClass = !daysLeft ? '' : daysLeft < 30 ? 'urgent' : daysLeft < 180 ? 'soon' : 'ok';
+    const statusText  = !daysLeft ? 'See terms' : daysLeft <= 0 ? 'Expired' : `${daysLeft} days left`;
+    return `
+      <div class="warranty-card">
+        <div>
+          <div style="font-weight:600;margin-bottom:4px">${w.partName}</div>
+          <div class="text-mono text-xs text-muted" style="margin-bottom:6px">${w.brand} · ${w.partNumber}</div>
+          <div class="text-sm text-muted">Order: <span class="text-mono">${w.orderNumber}</span></div>
+          <div class="text-sm text-muted">Purchased: ${new Date(w.orderedDate).toLocaleDateString()}</div>
+          <div class="text-sm" style="margin-top:4px">Warranty: <strong>${w.warrantyText}</strong></div>
+        </div>
+        <div style="text-align:center">
+          <div class="badge ${w.isActive?'badge-success':'badge-danger'}" style="margin-bottom:8px">${w.isActive?'Active':'Expired'}</div>
+          ${daysLeft !== null ? `<div class="days-left ${statusClass}" style="font-size:.85rem">${statusText}</div>` : ''}
+          ${expires ? `<div class="text-xs text-muted" style="margin-top:4px">Expires ${expires.toLocaleDateString()}</div>` : ''}
+        </div>
+      </div>`;
+  }).join('');
+}
+
+function renderCores() {
+  const cores = Auth.getPendingCores();
+  const el = document.getElementById('cores-list');
+  const pending = cores.filter(c => !c.returned);
+  const returned = cores.filter(c => c.returned);
+  if (!cores.length) {
+    el.innerHTML = '<div class="alert alert-info">No core charges on your orders. Core charges appear when you purchase remanufactured parts.</div>';
+    return;
+  }
+  const daysLeftStr = (iso) => { const d = Math.ceil((new Date(iso)-new Date())/86400000); return d<=0?'<span style="color:var(--c-danger);font-weight:700">EXPIRED</span>': d<14?`<span class="days-left urgent">${d} days left</span>`:d<30?`<span class="days-left soon">${d} days left</span>`:`<span class="days-left ok">${d} days left</span>`; };
+  el.innerHTML = (pending.length ? `<h4 style="margin-bottom:12px;color:var(--c-accent)">⏳ Pending Return (${pending.length})</h4>` + pending.map(c => `
+    <div class="core-card">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px">
+        <div style="flex:1">
+          <div style="font-weight:600;margin-bottom:4px">${c.partName}</div>
+          <div class="text-mono text-xs text-muted" style="margin-bottom:6px">${c.brand} · ${c.partNumber}</div>
+          <div class="text-sm text-muted">Order: <span class="text-mono">${c.orderNumber}</span></div>
+          <div class="text-sm" style="margin-top:4px">Refund: <strong style="color:var(--c-accent)">$${c.totalCore.toFixed(2)}</strong></div>
+          <div class="core-deadline text-sm" style="margin-top:4px">Deadline: ${daysLeftStr(c.deadline)}</div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:8px;flex-shrink:0">
+          <button class="btn btn-primary btn-sm" onclick="printCoreReturn('${c.orderNumber}','${c.partNumber}')">🖨 Print Return Form</button>
+          <button class="btn btn-outline btn-sm" onclick="markCoreReturned('${c.orderNumber}','${c.partNumber}')">✅ Mark Returned</button>
+        </div>
+      </div>
+    </div>`).join('') : '') +
+  (returned.length ? `<h4 style="margin-bottom:12px;color:var(--c-success);margin-top:20px">✅ Returned (${returned.length})</h4>` + returned.map(c => `
+    <div class="core-card" style="opacity:.6">
+      <div style="font-weight:600">${c.partName}</div>
+      <div class="text-sm text-muted">${c.brand} · ${c.partNumber} · $${c.totalCore.toFixed(2)} refund pending</div>
+    </div>`).join('') : '');
+}
+
+function renderVehicles() {
+  const vehicles = Auth.getSavedVehicles();
+  const el = document.getElementById('vehicles-list');
+  if (!vehicles.length) {
+    el.innerHTML = '<p class="text-muted">No saved vehicles yet. Use the vehicle search on the home page and your vehicle will be saved here.</p>';
+    return;
+  }
+  el.innerHTML = '<div style="display:flex;flex-wrap:wrap;gap:8px">' + vehicles.map(v => `
+    <div class="vehicle-chip" onclick="useVehicle('${JSON.stringify(v).replace(/"/g,'&quot;')}')">
+      🚗 ${v.year} ${v.makeName} ${v.modelName}
+      <button onclick="event.stopPropagation();removeVehicle('${v.makeId}','${v.modelId}','${v.year}')" style="background:none;border:none;color:var(--c-text-3);cursor:pointer;padding:0;margin-left:4px">✕</button>
+    </div>`).join('') + '</div>';
+}
+
+function useVehicle(vehicleJson) {
+  try { const v = JSON.parse(vehicleJson.replace(/&quot;/g,'"')); YMM.setState(v); window.location.href='catalog.html'; } catch(e) {}
+}
+
+function removeVehicle(makeId, modelId, year) {
+  Auth.removeVehicle(makeId, modelId, year);
+  renderVehicles();
+}
+
+function showCoreReturn(orderNumber) {
+  const order = Auth.getOrderById(orderNumber);
+  if (!order) return;
+  const coreItems = (order.items||[]).filter(i=>i.coreCharge>0);
+  if (coreItems.length === 1) { Print.openCoreReturnForm(order, coreItems[0]); return; }
+  // Multiple cores — pick first for now (could show selector)
+  Print.openCoreReturnForm(order, coreItems[0]);
+}
+
+function printCoreReturn(orderNumber, partNumber) {
+  const order = Auth.getOrderById(orderNumber);
+  if (!order) return;
+  const item = (order.items||[]).find(i=>i.partNumber===partNumber);
+  Print.openCoreReturnForm(order, item);
+}
+
+function markCoreReturned(orderNumber, partNumber) {
+  Auth.markCoreReturned(orderNumber, partNumber);
+  renderCores();
+  UI.toast('Core marked as returned. Refund will be processed upon receipt.', 'success');
+}
+</script>
+</body>
+</html>

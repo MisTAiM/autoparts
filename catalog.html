@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Parts Catalog | AutoParts Warehouse</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" crossorigin="anonymous" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600&family=JetBrains+Mono:wght@400;500" rel="stylesheet">
+  <link rel="stylesheet" href="css/variables.css">
+  <link rel="stylesheet" href="css/base.css">
+  <link rel="stylesheet" href="css/layout.css">
+  <link rel="stylesheet" href="css/pages/catalog.css">
+</head>
+<body>
+
+<header id="site-header">
+  <div class="header-inner">
+    <a href="index.html" class="site-logo">⚙ Auto<span>Parts</span></a>
+    <nav class="header-nav">
+      <a href="index.html">Home</a>
+      <a href="catalog.html" class="active">All Parts</a>
+      <a href="catalog.html?cat=brakes">Brakes</a>
+      <a href="catalog.html?cat=engine">Engine</a>
+      <a href="catalog.html?cat=electrical">Electrical</a>
+    </nav>
+    <div class="header-search">
+      <span class="search-icon">🔍</span>
+      <input type="text" id="header-search-input" placeholder="Search parts, part numbers...">
+      <div class="header-search-results" id="header-search-results"></div>
+    </div>
+    <div class="header-actions">
+      <a href="cart.html" class="cart-btn">🛒 <span>Cart</span><span class="cart-count"></span></a>
+    </div>
+    <button class="menu-toggle">☰</button>
+  </div>
+</header>
+
+<div class="vehicle-banner" id="vehicle-banner">
+  <div class="vehicle-banner-inner">
+    <span class="vehicle-banner-label">Showing parts for:</span>
+    <span class="vehicle-banner-name"></span>
+    <a class="vehicle-banner-change" href="#" id="vehicle-change-btn">Change Vehicle</a>
+  </div>
+</div>
+
+<main class="catalog-page">
+  <div class="container">
+    <div class="catalog-breadcrumb">
+      <a href="index.html">Home</a>
+      <span>›</span>
+      <span id="breadcrumb-current">All Parts</span>
+    </div>
+
+    <!-- Mobile filter toggle -->
+    <button class="btn btn-outline mobile-filter-btn" id="mobile-filter-toggle" style="margin-bottom:16px">
+      ⚙ Filters
+    </button>
+
+    <div class="catalog-layout">
+      <!-- ── Sidebar Filters ─────────────────── -->
+      <aside class="filters-sidebar" id="filters-sidebar">
+        <div class="filters-header">
+          <h3>Filters</h3>
+          <button class="filters-clear" id="clear-filters">Clear All</button>
+        </div>
+
+        <!-- Category filter -->
+        <div class="filter-group" id="fg-category">
+          <div class="filter-group-header" data-group="category">
+            <span class="filter-group-title">Category</span>
+            <span class="filter-group-toggle open">▼</span>
+          </div>
+          <div class="filter-group-body open" id="fgb-category">
+            <!-- Populated by JS -->
+          </div>
+        </div>
+
+        <!-- Brand filter -->
+        <div class="filter-group" id="fg-brand">
+          <div class="filter-group-header" data-group="brand">
+            <span class="filter-group-title">Brand</span>
+            <span class="filter-group-toggle open">▼</span>
+          </div>
+          <div class="filter-group-body open" id="fgb-brand">
+            <!-- Populated by JS -->
+          </div>
+        </div>
+
+        <!-- Condition filter -->
+        <div class="filter-group">
+          <div class="filter-group-header" data-group="condition">
+            <span class="filter-group-title">Condition</span>
+            <span class="filter-group-toggle open">▼</span>
+          </div>
+          <div class="filter-group-body open" id="fgb-condition">
+            <label class="filter-option">
+              <input type="checkbox" value="new" data-filter="conditions"> New
+            </label>
+            <label class="filter-option">
+              <input type="checkbox" value="reman" data-filter="conditions"> Remanufactured
+            </label>
+            <label class="filter-option">
+              <input type="checkbox" value="used" data-filter="conditions"> Used / OE Pull
+            </label>
+          </div>
+        </div>
+
+        <!-- Price range -->
+        <div class="filter-group">
+          <div class="filter-group-header" data-group="price">
+            <span class="filter-group-title">Price Range</span>
+            <span class="filter-group-toggle open">▼</span>
+          </div>
+          <div class="filter-group-body open">
+            <div class="filter-price-range">
+              <div class="price-inputs">
+                <input type="number" id="price-min" placeholder="Min $" min="0">
+                <span class="price-sep">–</span>
+                <input type="number" id="price-max" placeholder="Max $" min="0">
+              </div>
+              <button class="btn btn-outline btn-sm btn-full" style="margin-top:10px" id="apply-price">Apply</button>
+            </div>
+          </div>
+        </div>
+      </aside>
+
+      <!-- ── Results ────────────────────────── -->
+      <div>
+        <div class="catalog-toolbar">
+          <div class="catalog-toolbar-left">
+            <div class="results-count" id="results-count">Loading...</div>
+          </div>
+          <div style="display:flex;align-items:center;gap:10px">
+            <select class="sort-select" id="sort-select">
+              <option value="relevance">Sort: Relevance</option>
+              <option value="price_asc">Price: Low → High</option>
+              <option value="price_desc">Price: High → Low</option>
+              <option value="name_asc">Name: A–Z</option>
+              <option value="newest">Newest First</option>
+            </select>
+            <div class="view-toggle">
+              <button id="view-grid" class="active" title="Grid view">⊞</button>
+              <button id="view-list" title="List view">☰</button>
+            </div>
+          </div>
+        </div>
+
+        <div id="parts-results">
+          <div style="display:flex;align-items:center;justify-content:center;height:200px">
+            <span class="spinner" style="width:36px;height:36px"></span>
+          </div>
+        </div>
+
+        <div class="pagination" id="pagination"></div>
+      </div>
+    </div>
+  </div>
+</main>
+
+<footer id="site-footer">
+  <div class="footer-grid">
+    <div class="footer-brand">
+      <div class="site-logo" style="margin-bottom:12px">⚙ Auto<span>Parts</span></div>
+      <p>Quality auto parts shipped direct from our warehouse nationwide.</p>
+    </div>
+    <div class="footer-col">
+      <h5>Shop</h5>
+      <a href="catalog.html?cat=brakes">Brakes</a>
+      <a href="catalog.html?cat=engine">Engine Parts</a>
+      <a href="catalog.html?cat=electrical">Electrical</a>
+      <a href="catalog.html?cat=suspension">Suspension</a>
+    </div>
+    <div class="footer-col">
+      <h5>Orders</h5>
+      <a href="cart.html">Shopping Cart</a>
+      <a href="checkout.html">Checkout</a>
+    </div>
+    <div class="footer-col">
+      <h5>Info</h5>
+      <a href="#">Shipping Policy</a>
+      <a href="#">Core Charges</a>
+      <a href="#">Contact</a>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <span>© 2025 AutoParts Warehouse.</span>
+    <span>Outbound shipping only · No in-store pickup</span>
+  </div>
+</footer>
+
+<div id="mobile-nav" class="mobile-nav">
+  <div class="mobile-nav-inner">
+    <strong style="font-family:var(--font-display);margin-bottom:8px;display:block">Menu</strong>
+    <a href="index.html">Home</a>
+    <a href="catalog.html">All Parts</a>
+    <a href="cart.html">🛒 Cart</a>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+<script src="js/data/parts-data.js"></script>
+<script src="js/modules/ymm.js"></script>
+<script src="js/modules/cart.js"></script>
+<script src="js/modules/catalog.js"></script>
+<script src="js/modules/shipping.js"></script>
+<script src="js/modules/notify.js"></script>
+<script src="js/modules/ui.js"></script>
+
+<script>
+let _currentPage = 1;
+let _viewMode = 'grid';
+let _pageData = null;
+
+document.addEventListener('DOMContentLoaded', async () => {
+  UI.init();
+
+  const params  = new URLSearchParams(window.location.search);
+  const catId   = params.get('cat');
+  const query   = params.get('q');
+  const vehicle = YMM.getState();
+
+  // Breadcrumb
+  if (catId) {
+    const cat = PartsData.getCategories().find(c => c.id === catId);
+    document.getElementById('breadcrumb-current').textContent = cat?.name || catId;
+  } else if (query) {
+    document.getElementById('breadcrumb-current').textContent = `Search: "${query}"`;
+  }
+
+  // Build category filter
+  buildCategoryFilter(catId);
+
+  // Load parts
+  if (query) {
+    await Catalog.search(query, vehicle.year ? vehicle : null);
+  } else if (catId) {
+    await Catalog.loadByCategory(catId, vehicle.year ? vehicle : null);
+  } else {
+    await Catalog.loadParts(vehicle.year ? vehicle : null);
+  }
+
+  // Build brand filter from facets
+  buildBrandFilter();
+
+  // Render first page
+  renderPage(Catalog.getPage(1));
+
+  // ── Events ────────────────────────────────────────
+  document.getElementById('sort-select').addEventListener('change', (e) => {
+    renderPage(Catalog.setSort(e.target.value));
+  });
+
+  document.getElementById('clear-filters').addEventListener('click', () => {
+    renderPage(Catalog.clearFilters());
+    document.querySelectorAll('[data-filter]').forEach(cb => cb.checked = false);
+    document.getElementById('price-min').value = '';
+    document.getElementById('price-max').value = '';
+  });
+
+  document.querySelectorAll('[data-filter]').forEach(cb => {
+    cb.addEventListener('change', () => {
+      renderPage(Catalog.toggleFilter(cb.dataset.filter, cb.value));
+    });
+  });
+
+  document.getElementById('apply-price').addEventListener('click', () => {
+    const min = parseFloat(document.getElementById('price-min').value) || 0;
+    const max = parseFloat(document.getElementById('price-max').value) || Infinity;
+    renderPage(Catalog.setPriceRange(min, max));
+  });
+
+  // Filter group toggles
+  document.querySelectorAll('.filter-group-header').forEach(header => {
+    header.addEventListener('click', () => {
+      const group = header.dataset.group;
+      const body  = document.querySelector(`#fgb-${group}`) || header.nextElementSibling;
+      const toggle = header.querySelector('.filter-group-toggle');
+      if (body) { body.classList.toggle('open'); toggle?.classList.toggle('open'); }
+    });
+  });
+
+  // View toggle
+  document.getElementById('view-grid').addEventListener('click', () => setView('grid'));
+  document.getElementById('view-list').addEventListener('click', () => setView('list'));
+
+  // Mobile filter toggle
+  document.getElementById('mobile-filter-toggle').addEventListener('click', () => {
+    document.getElementById('filters-sidebar').classList.toggle('mobile-open');
+  });
+});
+
+function setView(mode) {
+  _viewMode = mode;
+  document.getElementById('view-grid').classList.toggle('active', mode === 'grid');
+  document.getElementById('view-list').classList.toggle('active', mode === 'list');
+  if (_pageData) renderPartsList(_pageData.items);
+}
+
+function renderPage(data) {
+  _pageData = data;
+  document.getElementById('results-count').innerHTML =
+    `<strong>${data.total}</strong> part${data.total !== 1 ? 's' : ''} found`;
+  renderPartsList(data.items);
+  renderPagination(data);
+}
+
+function renderPartsList(parts) {
+  const el = document.getElementById('parts-results');
+  if (!parts.length) {
+    el.innerHTML = `<div style="text-align:center;padding:60px 24px;color:var(--c-text-3)">
+      <div style="font-size:3rem;margin-bottom:12px">🔍</div>
+      <h3>No parts found</h3>
+      <p style="margin-top:8px">Try adjusting your filters or search terms.</p>
+    </div>`;
+    return;
+  }
+  if (_viewMode === 'grid') {
+    el.className = 'parts-grid';
+    el.innerHTML = parts.map(renderGridCard).join('');
+  } else {
+    el.className = 'parts-list';
+    el.innerHTML = parts.map(renderListCard).join('');
+  }
+  el.querySelectorAll('[data-id]').forEach(card => {
+    card.addEventListener('click', (e) => {
+      if (e.target.classList.contains('btn')) return;
+      window.location.href = `product.html?id=${card.dataset.id}`;
+    });
+    const addBtn = card.querySelector('.add-btn');
+    if (addBtn) {
+      addBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const part = findPart(parseInt(card.dataset.id));
+        if (part) { Cart.addItem(part, 1); UI.toast(`${part.name} added to cart!`); }
+      });
+    }
+  });
+}
+
+function renderGridCard(p) {
+  const condBadge = p.condition !== 'new' ? `<span class="badge badge-info">${p.condition === 'reman' ? 'Reman' : 'Used'}</span>` : '';
+  const stockBadge = !p.inStock ? `<span class="badge badge-danger">Out of Stock</span>` : '';
+  return `
+    <div class="part-card" data-id="${p.id}" style="cursor:pointer">
+      <div class="part-card-img">
+        ${p.thumbnail ? `<img src="${p.thumbnail}" alt="">` : '<span class="no-img">🔩</span>'}
+        <div class="part-badges">${condBadge}${stockBadge}</div>
+      </div>
+      <div class="part-card-body">
+        <div class="part-category">${p.categoryName}</div>
+        <div class="part-name">${p.name}</div>
+        <div class="part-number">${p.brand} · ${p.partNumber}</div>
+        <div class="part-card-footer">
+          <div>
+            <div class="part-price">$${p.price.toFixed(2)}</div>
+            ${p.coreCharge > 0 ? `<div class="part-price-core">+$${p.coreCharge.toFixed(2)} core</div>` : ''}
+          </div>
+          ${p.inStock ? `<button class="btn btn-primary btn-sm add-btn">+ Cart</button>` : `<span class="badge badge-danger">N/A</span>`}
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+function renderListCard(p) {
+  return `
+    <div class="part-list-card" data-id="${p.id}" style="cursor:pointer">
+      <div class="part-list-img">
+        ${p.thumbnail ? `<img src="${p.thumbnail}" alt="">` : '<span class="no-img">🔩</span>'}
+      </div>
+      <div class="part-list-body">
+        <div class="part-list-info">
+          <div class="part-category">${p.categoryName}</div>
+          <div class="part-name" style="font-size:1rem;margin:4px 0">${p.name}</div>
+          <div class="part-number">${p.brand} · ${p.partNumber}</div>
+          ${p.condition !== 'new' ? `<span class="badge badge-info" style="margin-top:8px">${p.condition === 'reman' ? 'Remanufactured' : 'Used'}</span>` : ''}
+        </div>
+        <div class="part-list-price">
+          <span class="part-price">$${p.price.toFixed(2)}</span>
+          ${p.coreCharge > 0 ? `<div class="part-price-core">+$${p.coreCharge.toFixed(2)} core</div>` : ''}
+          ${p.inStock ? `<button class="btn btn-primary btn-sm add-btn" style="margin-top:8px">Add to Cart</button>` : `<span class="badge badge-danger">Out of Stock</span>`}
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+function renderPagination(data) {
+  const el = document.getElementById('pagination');
+  if (data.totalPages <= 1) { el.innerHTML = ''; return; }
+  const pages = [];
+  pages.push(`<button onclick="goPage(${data.page - 1})" ${data.page === 1 ? 'disabled' : ''}>‹</button>`);
+  for (let i = 1; i <= data.totalPages; i++) {
+    if (i === 1 || i === data.totalPages || Math.abs(i - data.page) <= 2) {
+      pages.push(`<button onclick="goPage(${i})" class="${i === data.page ? 'active' : ''}">${i}</button>`);
+    } else if (Math.abs(i - data.page) === 3) {
+      pages.push(`<button disabled>...</button>`);
+    }
+  }
+  pages.push(`<button onclick="goPage(${data.page + 1})" ${data.page === data.totalPages ? 'disabled' : ''}>›</button>`);
+  el.innerHTML = pages.join('');
+}
+
+function goPage(p) { renderPage(Catalog.getPage(p)); window.scrollTo({ top: 0, behavior: 'smooth' }); }
+
+function buildCategoryFilter(activeCat) {
+  const cats = PartsData.getCategories();
+  document.getElementById('fgb-category').innerHTML = cats.map(c => `
+    <label class="filter-option">
+      <input type="checkbox" value="${c.id}" data-filter="categories" ${activeCat === c.id ? 'checked' : ''}> 
+      ${c.name}
+      <span class="filter-option-count">${c.count}</span>
+    </label>
+  `).join('');
+  document.querySelectorAll('#fgb-category [data-filter]').forEach(cb => {
+    cb.addEventListener('change', () => renderPage(Catalog.toggleFilter('categories', cb.value)));
+  });
+}
+
+function buildBrandFilter() {
+  const { brands } = Catalog.getFacets();
+  document.getElementById('fgb-brand').innerHTML = Object.entries(brands).map(([brand, count]) => `
+    <label class="filter-option">
+      <input type="checkbox" value="${brand}" data-filter="brands"> 
+      ${brand}
+      <span class="filter-option-count">${count}</span>
+    </label>
+  `).join('');
+  document.querySelectorAll('#fgb-brand [data-filter]').forEach(cb => {
+    cb.addEventListener('change', () => renderPage(Catalog.toggleFilter('brands', cb.value)));
+  });
+}
+
+async function findPart(id) { return await PartsData.getById(id); }
+</script>
+</body>
+</html>

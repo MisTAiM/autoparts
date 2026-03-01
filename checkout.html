@@ -1,0 +1,465 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Checkout | AutoParts Warehouse</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" crossorigin="anonymous" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600&family=JetBrains+Mono:wght@400;500" rel="stylesheet">
+  <link rel="stylesheet" href="css/variables.css">
+  <link rel="stylesheet" href="css/base.css">
+  <link rel="stylesheet" href="css/layout.css">
+  <link rel="stylesheet" href="css/pages/product-cart-checkout.css">
+  <!-- Stripe.js (remove if using a different payment processor) -->
+  <script src="https://js.stripe.com/v3/"></script>
+</head>
+<body>
+
+<header id="site-header">
+  <div class="header-inner">
+    <a href="index.html" class="site-logo">⚙ Auto<span>Parts</span></a>
+    <div style="margin-left:auto;display:flex;align-items:center;gap:16px">
+      <span style="font-size:0.8rem;color:var(--c-text-3)">🔒 Secure Checkout</span>
+      <a href="cart.html" class="cart-btn">← Back to Cart</a>
+    </div>
+  </div>
+</header>
+
+<main class="checkout-page">
+  <div class="container--narrow">
+    <h1 style="margin-bottom:28px">Checkout</h1>
+
+    <!-- Steps indicator -->
+    <div class="checkout-steps" id="checkout-steps">
+      <div class="checkout-step active" data-step="1">
+        <div class="step-num-circle">1</div>
+        <span class="step-label">Shipping Info</span>
+      </div>
+      <div class="checkout-step" data-step="2">
+        <div class="step-num-circle">2</div>
+        <span class="step-label">Delivery Method</span>
+      </div>
+      <div class="checkout-step" data-step="3">
+        <div class="step-num-circle">3</div>
+        <span class="step-label">Payment</span>
+      </div>
+    </div>
+
+    <div class="checkout-layout">
+      <!-- Left: Step panels -->
+      <div>
+        <!-- Step 1: Shipping Info -->
+        <div class="checkout-panel active" id="panel-1">
+          <h3>Shipping Information</h3>
+          <div class="form-row">
+            <div class="form-group" id="fg-first">
+              <label>First Name *</label>
+              <input type="text" id="ship-first" placeholder="John" autocomplete="given-name">
+              <div class="error-msg">Required</div>
+            </div>
+            <div class="form-group" id="fg-last">
+              <label>Last Name *</label>
+              <input type="text" id="ship-last" placeholder="Doe" autocomplete="family-name">
+              <div class="error-msg">Required</div>
+            </div>
+          </div>
+          <div class="form-group" id="fg-email">
+            <label>Email Address *</label>
+            <input type="email" id="ship-email" placeholder="john@example.com" autocomplete="email">
+            <div class="form-hint">Order confirmation will be sent here</div>
+            <div class="error-msg">Valid email required</div>
+          </div>
+          <div class="form-group" id="fg-phone">
+            <label>Phone Number</label>
+            <input type="tel" id="ship-phone" placeholder="(555) 555-5555" autocomplete="tel">
+          </div>
+          <div class="form-group" id="fg-addr">
+            <label>Street Address *</label>
+            <input type="text" id="ship-addr" placeholder="123 Main St" autocomplete="street-address">
+            <div class="error-msg">Required</div>
+          </div>
+          <div class="form-group">
+            <label>Apt / Suite / Unit</label>
+            <input type="text" id="ship-addr2" placeholder="Apt 4B" autocomplete="address-line2">
+          </div>
+          <div class="form-row">
+            <div class="form-group" id="fg-city">
+              <label>City *</label>
+              <input type="text" id="ship-city" placeholder="Springfield" autocomplete="address-level2">
+              <div class="error-msg">Required</div>
+            </div>
+            <div class="form-group" id="fg-state">
+              <label>State *</label>
+              <select id="ship-state" autocomplete="address-level1">
+                <option value="">Select State</option>
+                <option>AL</option><option>AK</option><option>AZ</option><option>AR</option>
+                <option>CA</option><option>CO</option><option>CT</option><option>DE</option>
+                <option>FL</option><option>GA</option><option>HI</option><option>ID</option>
+                <option>IL</option><option>IN</option><option>IA</option><option>KS</option>
+                <option>KY</option><option>LA</option><option>ME</option><option>MD</option>
+                <option>MA</option><option>MI</option><option>MN</option><option>MS</option>
+                <option>MO</option><option>MT</option><option>NE</option><option>NV</option>
+                <option>NH</option><option>NJ</option><option>NM</option><option>NY</option>
+                <option>NC</option><option>ND</option><option>OH</option><option>OK</option>
+                <option>OR</option><option>PA</option><option>RI</option><option>SC</option>
+                <option>SD</option><option>TN</option><option>TX</option><option>UT</option>
+                <option>VT</option><option>VA</option><option>WA</option><option>WV</option>
+                <option>WI</option><option>WY</option>
+              </select>
+              <div class="error-msg">Required</div>
+            </div>
+          </div>
+          <div class="form-group" id="fg-zip" style="max-width:200px">
+            <label>ZIP Code *</label>
+            <input type="text" id="ship-zip" placeholder="12345" maxlength="5" autocomplete="postal-code">
+            <div class="error-msg">Valid ZIP required</div>
+          </div>
+          <div class="form-group">
+            <label>Order Notes (Optional)</label>
+            <textarea id="order-notes" rows="3" placeholder="Special instructions, gate codes, etc."></textarea>
+          </div>
+          <button class="btn btn-primary btn-lg" id="step1-next">Continue to Delivery →</button>
+        </div>
+
+        <!-- Step 2: Shipping Method -->
+        <div class="checkout-panel" id="panel-2">
+          <h3>Delivery Method</h3>
+          <p style="color:var(--c-text-2);font-size:0.88rem;margin-bottom:20px">All orders ship outbound from our warehouse. Choose your delivery speed below.</p>
+          <div class="shipping-options" id="shipping-options">
+            <div style="display:flex;justify-content:center"><span class="spinner" style="width:28px;height:28px"></span></div>
+          </div>
+          <div style="display:flex;gap:12px">
+            <button class="btn btn-outline" id="step2-back">← Back</button>
+            <button class="btn btn-primary btn-lg" id="step2-next" style="flex:1">Continue to Payment →</button>
+          </div>
+        </div>
+
+        <!-- Step 3: Payment -->
+        <div class="checkout-panel" id="panel-3">
+          <h3>Payment Information</h3>
+          <div class="alert alert-info" style="margin-bottom:20px;font-size:0.83rem">
+            🔒 Your payment info is processed securely. We never store card details.
+          </div>
+
+          <!-- Stripe card element placeholder -->
+          <div class="form-group">
+            <label>Card Number *</label>
+            <div id="stripe-card-element" style="background:var(--c-surface-2);border:1px solid var(--c-border);border-radius:var(--radius);padding:12px 14px;min-height:44px">
+              <!-- Stripe mounts here. If not using Stripe, replace with standard inputs below -->
+            </div>
+            <!-- Fallback manual inputs (use if not integrating Stripe) -->
+            <div id="manual-card" style="display:none">
+              <input type="text" id="card-number" placeholder="1234 5678 9012 3456" maxlength="19" style="margin-bottom:12px">
+              <div class="form-row">
+                <input type="text" id="card-expiry" placeholder="MM / YY" maxlength="7">
+                <input type="text" id="card-cvc" placeholder="CVC" maxlength="4">
+              </div>
+            </div>
+            <div id="stripe-card-errors" style="color:var(--c-danger);font-size:0.8rem;margin-top:6px"></div>
+          </div>
+
+          <div class="form-group">
+            <label>Name on Card *</label>
+            <input type="text" id="card-name" placeholder="John Doe">
+          </div>
+
+          <!-- Order total summary -->
+          <div style="background:var(--c-surface-2);border:1px solid var(--c-border);border-radius:var(--radius);padding:16px;margin:20px 0">
+            <div class="summary-line" id="pay-subtotal-line"><span>Subtotal</span><span>—</span></div>
+            <div class="summary-line" id="pay-core-line" style="display:none"><span>Core Charges</span><span>—</span></div>
+            <div class="summary-line" id="pay-shipping-line"><span>Shipping</span><span>—</span></div>
+            <div class="summary-line" id="pay-tax-line"><span>Tax</span><span>—</span></div>
+            <div class="summary-line total" id="pay-total-line"><span>Total</span><span>—</span></div>
+          </div>
+
+          <div style="display:flex;gap:12px">
+            <button class="btn btn-outline" id="step3-back">← Back</button>
+            <button class="btn btn-primary btn-lg" id="place-order-btn" style="flex:1" id="place-order-btn">
+              🔒 Place Order
+            </button>
+          </div>
+          <p style="font-size:0.75rem;color:var(--c-text-3);text-align:center;margin-top:12px">
+            By placing your order you agree to our terms of service and shipping policy.
+          </p>
+        </div>
+      </div>
+
+      <!-- Right: Order summary -->
+      <div>
+        <div class="order-summary" id="checkout-order-summary">
+          <h3>Order Summary</h3>
+          <div id="checkout-items-list" style="margin-bottom:16px">
+            <!-- Populated by JS -->
+          </div>
+          <div class="divider"></div>
+          <div class="summary-line"><span>Subtotal</span><span id="co-subtotal">—</span></div>
+          <div class="summary-line" id="co-core-row" style="display:none"><span>Core Charges</span><span id="co-core">—</span></div>
+          <div class="summary-line"><span>Shipping</span><span id="co-shipping">—</span></div>
+          <div class="summary-line"><span>Tax</span><span id="co-tax">—</span></div>
+          <div class="summary-line total"><span>Total</span><span id="co-total">—</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</main>
+
+<div id="mobile-nav" class="mobile-nav">
+  <div class="mobile-nav-inner">
+    <a href="index.html">Home</a>
+    <a href="catalog.html">All Parts</a>
+    <a href="cart.html">🛒 Cart</a>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+<script src="js/data/parts-data.js"></script>
+<script src="js/modules/ymm.js"></script>
+<script src="js/modules/cart.js"></script>
+<script src="js/modules/catalog.js"></script>
+<script src="js/modules/shipping.js"></script>
+<script src="js/modules/notify.js"></script>
+<script src="js/modules/ui.js"></script>
+
+<script>
+let _currentStep = 1;
+let _shippingRates = [];
+let _selectedRate  = null;
+let _shippingInfo  = {};
+
+// ── Init Stripe (replace pk_test_... with your real publishable key) ──────────
+// const stripe = Stripe('pk_test_YOUR_PUBLISHABLE_KEY');
+// const elements = stripe.elements();
+// const cardEl = elements.create('card', { style: { base: { color: '#e8eaf0', fontFamily: 'IBM Plex Sans, sans-serif' } } });
+
+document.addEventListener('DOMContentLoaded', () => {
+  UI.init();
+
+  const { count } = Cart.getCart();
+  if (!count) { window.location.href = 'cart.html'; return; }
+
+  // Restore pre-selected shipping from cart page
+  try {
+    const saved = sessionStorage.getItem('selectedShipping');
+    const savedZip = sessionStorage.getItem('estimatedZip');
+    if (saved) {
+      _selectedRate = JSON.parse(saved);
+      if (savedZip && document.getElementById('ship-zip')) {
+        document.getElementById('ship-zip').value = savedZip;
+      }
+    }
+  } catch(e) {}
+
+  renderOrderSummary();
+
+  // Stripe card mount (uncomment when Stripe key is set)
+  // cardEl.mount('#stripe-card-element');
+  // Show fallback manual inputs instead:
+  document.getElementById('manual-card').style.display = 'block';
+  document.getElementById('stripe-card-element').style.display = 'none';
+
+  // ── Step nav ─────────────────────────────────────────
+  document.getElementById('step1-next').addEventListener('click', () => {
+    if (validateStep1()) goToStep(2);
+  });
+  document.getElementById('step2-back').addEventListener('click', () => goToStep(1));
+  document.getElementById('step2-next').addEventListener('click', () => {
+    if (!_selectedRate) { UI.toast('Please select a shipping method.', 'warning'); return; }
+    goToStep(3);
+    populatePaymentSummary();
+  });
+  document.getElementById('step3-back').addEventListener('click', () => goToStep(2));
+  document.getElementById('place-order-btn').addEventListener('click', placeOrder);
+});
+
+function goToStep(n) {
+  _currentStep = n;
+  document.querySelectorAll('.checkout-panel').forEach((p, i) => p.classList.toggle('active', i + 1 === n));
+  document.querySelectorAll('.checkout-step').forEach((s, i) => {
+    s.classList.remove('active', 'done');
+    if (i + 1 < n) s.classList.add('done');
+    if (i + 1 === n) s.classList.add('active');
+  });
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+
+  if (n === 2) loadShippingMethods();
+}
+
+async function loadShippingMethods() {
+  const zip = document.getElementById('ship-zip').value;
+  _shippingInfo = {
+    firstName: document.getElementById('ship-first').value,
+    lastName:  document.getElementById('ship-last').value,
+    email:     document.getElementById('ship-email').value,
+    phone:     document.getElementById('ship-phone').value,
+    address:   document.getElementById('ship-addr').value,
+    address2:  document.getElementById('ship-addr2').value,
+    city:      document.getElementById('ship-city').value,
+    state:     document.getElementById('ship-state').value,
+    zip:       zip,
+    notes:     document.getElementById('order-notes').value,
+  };
+
+  const optionsEl = document.getElementById('shipping-options');
+  optionsEl.innerHTML = '<div style="display:flex;justify-content:center"><span class="spinner" style="width:28px;height:28px"></span></div>';
+  _shippingRates = await Shipping.calcRates(Cart.getItems(), zip);
+
+  optionsEl.innerHTML = _shippingRates.map(r => `
+    <div class="shipping-option ${_selectedRate?.id === r.id ? 'selected' : ''}" data-rate="${r.id}">
+      <input type="radio" name="ship-rate" value="${r.id}" ${_selectedRate?.id === r.id ? 'checked' : ''}>
+      <div class="ship-info">
+        <div class="ship-name">${r.name} ${r.recommended ? '⭐' : ''}</div>
+        <div class="ship-time">${r.carrier} · ${r.days}</div>
+      </div>
+      <div class="ship-price">${Shipping.formatRate(r.price)}</div>
+    </div>
+  `).join('');
+
+  if (!_selectedRate && _shippingRates.length) _selectedRate = _shippingRates[0];
+
+  optionsEl.querySelectorAll('.shipping-option').forEach(opt => {
+    opt.addEventListener('click', () => {
+      _selectedRate = _shippingRates.find(r => r.id === opt.dataset.rate);
+      optionsEl.querySelectorAll('.shipping-option').forEach(o => { o.classList.remove('selected'); o.querySelector('input').checked = false; });
+      opt.classList.add('selected'); opt.querySelector('input').checked = true;
+      updateSummaryShipping();
+    });
+  });
+  updateSummaryShipping();
+}
+
+function renderOrderSummary() {
+  const { items, subtotal } = Cart.getCart();
+  const coreTotal = Cart.getCoreTotal();
+
+  document.getElementById('checkout-items-list').innerHTML = items.map(i => `
+    <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--c-border);gap:12px">
+      <div style="flex:1">
+        <div style="font-size:0.85rem;font-weight:600">${i.name}</div>
+        <div style="font-size:0.75rem;color:var(--c-text-3)">Qty: ${i.qty}</div>
+      </div>
+      <div style="font-size:0.9rem;font-weight:600;white-space:nowrap">$${(i.price*i.qty).toFixed(2)}</div>
+    </div>
+  `).join('');
+
+  document.getElementById('co-subtotal').textContent = `$${subtotal.toFixed(2)}`;
+  if (coreTotal > 0) {
+    document.getElementById('co-core-row').style.display = 'flex';
+    document.getElementById('co-core').textContent = `$${coreTotal.toFixed(2)}`;
+  }
+  updateSummaryShipping();
+}
+
+function updateSummaryShipping() {
+  const { subtotal } = Cart.getCart();
+  const coreTotal    = Cart.getCoreTotal();
+  const shipCost     = _selectedRate ? _selectedRate.price : 0;
+  const state        = _shippingInfo.state || Shipping.zipToState(document.getElementById('ship-zip')?.value || '');
+  const tax          = Shipping.calcTax(subtotal, state);
+  const total        = subtotal + coreTotal + shipCost + tax;
+
+  document.getElementById('co-shipping').textContent = _selectedRate ? Shipping.formatRate(shipCost) : '—';
+  document.getElementById('co-tax').textContent = `$${tax.toFixed(2)}`;
+  document.getElementById('co-total').textContent = `$${total.toFixed(2)}`;
+}
+
+function populatePaymentSummary() {
+  const { subtotal } = Cart.getCart();
+  const coreTotal    = Cart.getCoreTotal();
+  const shipCost     = _selectedRate?.price || 0;
+  const state        = _shippingInfo.state || '';
+  const tax          = Shipping.calcTax(subtotal, state);
+  const total        = subtotal + coreTotal + shipCost + tax;
+
+  document.getElementById('pay-subtotal-line').children[1].textContent = `$${subtotal.toFixed(2)}`;
+  if (coreTotal > 0) {
+    document.getElementById('pay-core-line').style.display = 'flex';
+    document.getElementById('pay-core-line').children[1].textContent = `$${coreTotal.toFixed(2)}`;
+  }
+  document.getElementById('pay-shipping-line').children[1].textContent = Shipping.formatRate(shipCost);
+  document.getElementById('pay-tax-line').children[1].textContent = `$${tax.toFixed(2)}`;
+  document.getElementById('pay-total-line').children[1].textContent = `$${total.toFixed(2)}`;
+}
+
+function validateStep1() {
+  let valid = true;
+  const required = [
+    ['fg-first',  document.getElementById('ship-first'),  v => v.trim().length > 0],
+    ['fg-last',   document.getElementById('ship-last'),   v => v.trim().length > 0],
+    ['fg-email',  document.getElementById('ship-email'),  v => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v)],
+    ['fg-addr',   document.getElementById('ship-addr'),   v => v.trim().length > 0],
+    ['fg-city',   document.getElementById('ship-city'),   v => v.trim().length > 0],
+    ['fg-state',  document.getElementById('ship-state'),  v => v.length > 0],
+    ['fg-zip',    document.getElementById('ship-zip'),    v => /^\d{5}$/.test(v)],
+  ];
+  required.forEach(([groupId, input, validator]) => {
+    const group = document.getElementById(groupId);
+    const isValid = validator(input.value);
+    group.classList.toggle('error', !isValid);
+    if (!isValid) valid = false;
+  });
+  return valid;
+}
+
+async function placeOrder() {
+  const btn = document.getElementById('place-order-btn');
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner" style="width:18px;height:18px"></span> Processing...';
+
+  try {
+    const { items, subtotal } = Cart.getCart();
+    const coreTotal   = Cart.getCoreTotal();
+    const shipCost    = _selectedRate?.price || 0;
+    const tax         = Shipping.calcTax(subtotal, _shippingInfo.state);
+    const total       = subtotal + coreTotal + shipCost + tax;
+
+    // ── Payment processing ──────────────────────────────────
+    // STRIPE FLOW (uncomment and remove simulate block):
+    // const { paymentMethod, error } = await stripe.createPaymentMethod({ type: 'card', card: cardEl });
+    // if (error) { ... }
+    // Then send paymentMethod.id + order to your backend for charge.
+
+    // SIMULATED payment (dev mode — replace with real processor):
+    await new Promise(r => setTimeout(r, 1200)); // simulate processing
+    const payment = { last4: '4242', brand: 'Visa' };
+
+    // ── Build order object ──────────────────────────────────
+    const order = {
+      orderNumber:    'AP-' + Date.now().toString(36).toUpperCase(),
+      createdAt:      new Date().toISOString(),
+      items,
+      shipping:       _shippingInfo,
+      shippingMethod: _selectedRate,
+      shippingCost:   shipCost,
+      subtotal,
+      coreTotal,
+      tax,
+      total,
+      payment,
+      notes: _shippingInfo.notes,
+    };
+
+    // ── Save order to localStorage ──────────────────────────
+    sessionStorage.setItem('lastOrder', JSON.stringify(order));
+
+    // ── Send email notifications ─────────────────────────────
+    await Notify.sendOrderNotifications(order);
+
+    // ── Clear cart ──────────────────────────────────────────
+    Cart.clearCart();
+    sessionStorage.removeItem('selectedShipping');
+    sessionStorage.removeItem('estimatedZip');
+
+    // ── Redirect to confirmation ────────────────────────────
+    window.location.href = 'confirmation.html';
+
+  } catch (err) {
+    console.error('Order error:', err);
+    UI.toast('Payment failed. Please try again.', 'danger', 5000);
+    btn.disabled = false;
+    btn.innerHTML = '🔒 Place Order';
+  }
+}
+</script>
+</body>
+</html>

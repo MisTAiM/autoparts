@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" /><meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin Orders | AutoParts Warehouse</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" crossorigin="anonymous" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;900&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../css/variables.css">
+  <link rel="stylesheet" href="../css/base.css">
+  <link rel="stylesheet" href="../css/layout.css">
+  <style>
+    .admin-layout{display:grid;grid-template-columns:220px 1fr;min-height:100vh}
+    .admin-sidebar{background:var(--c-surface);border-right:1px solid var(--c-border);padding:24px 0;position:sticky;top:0;height:100vh}
+    .admin-sidebar-logo{padding:0 20px 24px;border-bottom:1px solid var(--c-border);font-family:var(--font-display);font-weight:900;font-size:1.1rem;text-transform:uppercase}
+    .admin-sidebar-logo span{color:var(--c-accent)}
+    .admin-nav a{display:flex;align-items:center;gap:10px;padding:10px 20px;color:var(--c-text-2);font-size:.88rem;transition:all var(--t-fast)}
+    .admin-nav a:hover,.admin-nav a.active{background:var(--c-surface-2);color:var(--c-text)}
+    .admin-nav a.active{border-left:2px solid var(--c-accent)}
+    .admin-main{padding:32px}
+    .stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:20px;margin-bottom:32px}
+    .stat-card{background:var(--c-surface);border:1px solid var(--c-border);border-radius:var(--radius-lg);padding:20px}
+    .stat-num{font-family:var(--font-display);font-size:2rem;font-weight:900;color:var(--c-accent)}
+    .stat-label{font-size:.78rem;color:var(--c-text-3);text-transform:uppercase;letter-spacing:.06em;margin-top:4px}
+    .orders-table{width:100%;border-collapse:collapse;background:var(--c-surface);border:1px solid var(--c-border);border-radius:var(--radius-lg);overflow:hidden}
+    .orders-table th{text-align:left;padding:14px 16px;font-size:.75rem;text-transform:uppercase;letter-spacing:.06em;color:var(--c-text-3);border-bottom:1px solid var(--c-border);background:var(--c-surface-2)}
+    .orders-table td{padding:14px 16px;font-size:.88rem;border-bottom:1px solid var(--c-border)}
+    .orders-table tr:last-child td{border-bottom:none}
+    .orders-table tr:hover td{background:var(--c-surface-2)}
+    .order-num-cell{font-family:var(--font-mono);color:var(--c-accent);font-size:.82rem}
+    .status-select{width:auto;height:30px;padding:0 8px;font-size:.8rem}
+    .modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:1000}
+    .modal-overlay.open{display:flex;align-items:center;justify-content:center}
+    .modal{background:var(--c-surface);border:1px solid var(--c-border);border-radius:var(--radius-lg);padding:32px;max-width:560px;width:90%;max-height:90vh;overflow-y:auto}
+  </style>
+</head>
+<body>
+<div class="admin-layout">
+  <aside class="admin-sidebar">
+    <div class="admin-sidebar-logo">&#9881; Admin<span>Panel</span></div>
+    <nav class="admin-nav">
+      <a href="orders.html" class="active">&#128230; Orders</a>
+      <a href="#">&#128299; Inventory</a>
+      <a href="#">&#128202; Reports</a>
+      <div style="border-top:1px solid var(--c-border);margin:16px 0"></div>
+      <a href="../index.html">&#8592; Back to Site</a>
+    </nav>
+  </aside>
+  <main class="admin-main">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:28px">
+      <div><h2 style="margin-bottom:4px">Orders</h2><p class="text-muted text-sm">Manage incoming orders and fulfillment</p></div>
+      <div style="display:flex;gap:12px">
+        <input type="text" id="search-orders" placeholder="Search..." style="width:200px">
+        <button class="btn btn-outline btn-sm" onclick="loadOrders()">&#128260; Refresh</button>
+        <button class="btn btn-primary btn-sm" onclick="exportOrders()">&#11015; CSV</button>
+      </div>
+    </div>
+    <div class="stats-row">
+      <div class="stat-card"><div class="stat-num" id="stat-total">0</div><div class="stat-label">Total Orders</div></div>
+      <div class="stat-card"><div class="stat-num" id="stat-pending">0</div><div class="stat-label">Pending</div></div>
+      <div class="stat-card"><div class="stat-num" id="stat-shipped">0</div><div class="stat-label">Shipped</div></div>
+      <div class="stat-card"><div class="stat-num" id="stat-revenue" style="font-size:1.5rem">$0.00</div><div class="stat-label">Revenue</div></div>
+    </div>
+    <div style="display:flex;gap:10px;margin-bottom:16px;align-items:center">
+      <select id="status-filter" class="sort-select" style="width:180px">
+        <option value="">All Statuses</option>
+        <option value="pending">Pending</option>
+        <option value="processing">Processing</option>
+        <option value="shipped">Shipped</option>
+        <option value="delivered">Delivered</option>
+        <option value="cancelled">Cancelled</option>
+      </select>
+      <span class="text-muted text-sm" id="filter-count"></span>
+    </div>
+    <div style="overflow-x:auto">
+      <table class="orders-table">
+        <thead><tr><th>Order #</th><th>Date</th><th>Customer</th><th>Items</th><th>Total</th><th>Ship To</th><th>Method</th><th>Status</th><th></th></tr></thead>
+        <tbody id="orders-tbody">
+          <tr><td colspan="9" style="text-align:center;padding:40px;color:var(--c-text-3)">No orders yet. Orders appear here after customers complete checkout.</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </main>
+</div>
+<div class="modal-overlay" id="order-modal">
+  <div class="modal">
+    <button onclick="closeModal()" style="float:right;background:none;border:none;color:var(--c-text-2);font-size:1.3rem;cursor:pointer">&#10005;</button>
+    <h3 id="modal-title">Order Detail</h3>
+    <div id="modal-body"></div>
+  </div>
+</div>
+<script src="../js/data/parts-data.js"></script>
+<script src="../js/modules/ymm.js"></script>
+<script src="../js/modules/cart.js"></script>
+<script src="../js/modules/catalog.js"></script>
+<script src="../js/modules/shipping.js"></script>
+<script src="../js/modules/notify.js"></script>
+<script src="../js/modules/ui.js"></script>
+<script>
+const KEY='ap_admin_orders';let _orders=[];
+document.addEventListener('DOMContentLoaded',()=>{UI.init();loadOrders();document.getElementById('status-filter').addEventListener('change',renderTable);document.getElementById('search-orders').addEventListener('input',renderTable);});
+function loadOrders(){try{_orders=JSON.parse(localStorage.getItem(KEY))||[];}catch(e){_orders=[];}try{const l=JSON.parse(sessionStorage.getItem('lastOrder'));if(l&&!_orders.find(o=>o.orderNumber===l.orderNumber)){l.status=l.status||'pending';_orders.unshift(l);saveOrders();}}catch(e){}renderAll();}
+function saveOrders(){localStorage.setItem(KEY,JSON.stringify(_orders));}
+function renderAll(){renderStats();renderTable();}
+function renderStats(){const p=_orders.filter(o=>!o.status||o.status==='pending').length;const s=_orders.filter(o=>o.status==='shipped'||o.status==='delivered').length;const r=_orders.reduce((t,o)=>t+(o.total||0),0);document.getElementById('stat-total').textContent=_orders.length;document.getElementById('stat-pending').textContent=p;document.getElementById('stat-shipped').textContent=s;document.getElementById('stat-revenue').textContent='$'+r.toFixed(2);}
+function renderTable(){const sf=document.getElementById('status-filter').value;const sq=document.getElementById('search-orders').value.toLowerCase();let f=_orders.filter(o=>{const ms=!sf||o.status===sf||(!o.status&&sf==='pending');const mq=!sq||o.orderNumber?.toLowerCase().includes(sq)||o.shipping?.email?.toLowerCase().includes(sq)||((o.shipping?.firstName||'')+' '+(o.shipping?.lastName||'')).toLowerCase().includes(sq);return ms&&mq;});document.getElementById('filter-count').textContent=f.length+' order'+(f.length!==1?'s':'');const tb=document.getElementById('orders-tbody');if(!f.length){tb.innerHTML='<tr><td colspan="9" style="text-align:center;padding:40px;color:var(--c-text-3)">'+(_orders.length===0?'No orders yet.':'No orders match this filter.')+'</td></tr>';return;}tb.innerHTML=f.map(o=>{const d=new Date(o.createdAt).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});const c=((o.shipping?.firstName||'')+' '+(o.shipping?.lastName||'')).trim()||'—';const st=o.status||'pending';return`<tr><td class="order-num-cell">${o.orderNumber}</td><td>${d}</td><td><div style="font-weight:600">${c}</div><div style="font-size:.75rem;color:var(--c-text-3)">${o.shipping?.email||''}</div></td><td>${(o.items||[]).length}</td><td style="font-weight:700;color:var(--c-accent)">$${(o.total||0).toFixed(2)}</td><td>${o.shipping?.city||''}, ${o.shipping?.state||''}</td><td style="font-size:.8rem">${o.shippingMethod?.name||'—'}</td><td><select class="status-select" onchange="updateStatus('${o.orderNumber}',this.value)"><option value="pending" ${st==='pending'?'selected':''}>Pending</option><option value="processing" ${st==='processing'?'selected':''}>Processing</option><option value="shipped" ${st==='shipped'?'selected':''}>Shipped</option><option value="delivered" ${st==='delivered'?'selected':''}>Delivered</option><option value="cancelled" ${st==='cancelled'?'selected':''}>Cancelled</option></select></td><td><button class="btn btn-outline btn-sm" onclick="viewOrder('${o.orderNumber}')">View</button></td></tr>`;}).join('');}
+function updateStatus(num,status){const i=_orders.findIndex(o=>o.orderNumber===num);if(i!==-1){_orders[i].status=status;saveOrders();renderStats();}}
+function viewOrder(num){const o=_orders.find(o=>o.orderNumber===num);if(!o)return;document.getElementById('modal-title').textContent='Order '+o.orderNumber;document.getElementById('modal-body').innerHTML=`<div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:20px"><div><div class="text-xs text-dim" style="text-transform:uppercase;margin-bottom:8px">Customer</div><div style="font-weight:600">${o.shipping?.firstName} ${o.shipping?.lastName}</div><div class="text-sm text-muted">${o.shipping?.email||''}</div><div class="text-sm text-muted">${o.shipping?.phone||''}</div></div><div><div class="text-xs text-dim" style="text-transform:uppercase;margin-bottom:8px">Ship To</div><div class="text-sm">${o.shipping?.address||''}</div>${o.shipping?.address2?'<div class="text-sm">'+o.shipping.address2+'</div>':''}<div class="text-sm">${o.shipping?.city||''}, ${o.shipping?.state||''} ${o.shipping?.zip||''}</div></div></div>${o.shipping?.notes?'<div class="alert alert-warning" style="margin-bottom:16px;font-size:.82rem">Note: '+o.shipping.notes+'</div>':''}<div style="margin-bottom:16px"><div class="text-xs text-dim" style="text-transform:uppercase;margin-bottom:8px">Items</div>${(o.items||[]).map(i=>`<div style="display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--c-border)"><div><div style="font-weight:600">${i.name}</div><div class="text-mono text-xs text-muted">${i.brand} · ${i.partNumber}</div>${i.coreCharge>0?'<div class="text-xs" style="color:var(--c-accent)">Core: $'+i.coreCharge.toFixed(2)+'</div>':''}</div><div style="text-align:right"><div style="font-weight:700">x${i.qty}</div><div class="text-sm text-muted">$${(i.price*i.qty).toFixed(2)}</div></div></div>`).join('')}</div><div style="background:var(--c-surface-2);border:1px solid var(--c-border);border-radius:var(--radius);padding:16px"><div style="display:flex;justify-content:space-between;padding:6px 0;font-size:.88rem"><span class="text-muted">Subtotal</span><span>$${(o.subtotal||0).toFixed(2)}</span></div>${o.coreTotal>0?'<div style="display:flex;justify-content:space-between;padding:6px 0;font-size:.88rem"><span class="text-muted">Core</span><span>$'+o.coreTotal.toFixed(2)+'</span></div>':''}<div style="display:flex;justify-content:space-between;padding:6px 0;font-size:.88rem"><span class="text-muted">Shipping</span><span>${o.shippingCost===0?'FREE':'$'+(o.shippingCost||0).toFixed(2)}</span></div><div style="display:flex;justify-content:space-between;padding:6px 0;font-size:.88rem"><span class="text-muted">Tax</span><span>$${(o.tax||0).toFixed(2)}</span></div><div style="display:flex;justify-content:space-between;font-weight:700;padding:10px 0 0;border-top:1px solid var(--c-border);margin-top:6px"><span>Total</span><span style="color:var(--c-accent);font-family:var(--font-display);font-size:1.2rem">$${(o.total||0).toFixed(2)}</span></div></div><div style="display:flex;gap:10px;margin-top:20px"><button class="btn btn-primary btn-sm" onclick="markShipped('${o.orderNumber}')">Mark Shipped</button><button class="btn btn-ghost btn-sm" onclick="closeModal()">Close</button></div>`;document.getElementById('order-modal').classList.add('open');}
+function closeModal(){document.getElementById('order-modal').classList.remove('open');}
+function markShipped(num){updateStatus(num,'shipped');closeModal();renderTable();}
+function exportOrders(){if(!_orders.length){alert('No orders.');return;}const h=['Order #','Date','First','Last','Email','Address','City','State','ZIP','Method','Subtotal','Shipping','Tax','Total','Status'];const r=_orders.map(o=>[o.orderNumber,new Date(o.createdAt).toLocaleDateString(),o.shipping?.firstName||'',o.shipping?.lastName||'',o.shipping?.email||'','"'+(o.shipping?.address||'')+'"',o.shipping?.city||'',o.shipping?.state||'',o.shipping?.zip||'',o.shippingMethod?.name||'',(o.subtotal||0).toFixed(2),(o.shippingCost||0).toFixed(2),(o.tax||0).toFixed(2),(o.total||0).toFixed(2),o.status||'pending']);const csv=[h,...r].map(x=>x.join(',')).join('\n');const a=document.createElement('a');a.href='data:text/csv;charset=utf-8,'+encodeURIComponent(csv);a.download='orders-'+new Date().toISOString().split('T')[0]+'.csv';a.click();}
+document.getElementById('order-modal').addEventListener('click',e=>{if(e.target===e.currentTarget)closeModal();});
+</script>
+</body>
+</html>

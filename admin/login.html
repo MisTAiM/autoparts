@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" /><meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin Login | AutoParts Warehouse</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" crossorigin="anonymous" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;900&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../css/variables.css">
+  <link rel="stylesheet" href="../css/base.css">
+  <style>
+    body { min-height:100vh; display:flex; align-items:center; justify-content:center; background:var(--c-bg); }
+    .login-card { background:var(--c-surface); border:1px solid var(--c-border); border-radius:var(--radius-lg); padding:40px; width:100%; max-width:380px; }
+    .login-logo { text-align:center; margin-bottom:28px; }
+    .login-logo-text { font-family:var(--font-display); font-size:1.4rem; font-weight:900; text-transform:uppercase; }
+    .login-logo-text span { color:var(--c-accent); }
+    .login-sub { font-size:.8rem; color:var(--c-text-3); text-align:center; margin-top:4px; text-transform:uppercase; letter-spacing:.1em; }
+    .form-group { margin-bottom:16px; }
+    .form-group label { display:block; font-size:.78rem; text-transform:uppercase; letter-spacing:.06em; color:var(--c-text-2); margin-bottom:8px; }
+    .credentials-hint { background:var(--c-surface-2); border:1px solid var(--c-border); border-radius:var(--radius); padding:12px; margin-bottom:20px; font-size:.82rem; color:var(--c-text-2); }
+    .credentials-hint strong { color:var(--c-accent); font-family:var(--font-mono); }
+  </style>
+</head>
+<body>
+<div class="login-card">
+  <div class="login-logo">
+    <div class="login-logo-text">⚙ Auto<span>Parts</span></div>
+    <div class="login-sub">Admin Portal</div>
+  </div>
+
+  <div class="credentials-hint">
+    Default login: <strong>admin</strong> / <strong>autoparts2025</strong><br>
+    Change password after first login.
+  </div>
+
+  <div id="login-alert"></div>
+
+  <div class="form-group">
+    <label>Username</label>
+    <input type="text" id="username" placeholder="admin" autocomplete="username">
+  </div>
+  <div class="form-group">
+    <label>Password</label>
+    <input type="password" id="password" placeholder="••••••••" autocomplete="current-password">
+  </div>
+
+  <button class="btn btn-primary btn-full btn-lg" id="login-btn" style="margin-top:8px">Sign In →</button>
+
+  <div style="text-align:center;margin-top:20px">
+    <a href="../index.html" style="font-size:.82rem;color:var(--c-text-3)">← Back to store</a>
+  </div>
+</div>
+
+<script src="../js/modules/admin-auth.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  if (AdminAuth.isLoggedIn()) { window.location.href = 'dashboard.html'; return; }
+
+  ['username','password'].forEach(id => {
+    document.getElementById(id).addEventListener('keydown', e => { if (e.key==='Enter') doLogin(); });
+  });
+  document.getElementById('login-btn').addEventListener('click', doLogin);
+});
+
+function doLogin() {
+  const username = document.getElementById('username').value.trim();
+  const password = document.getElementById('password').value;
+  if (!username || !password) { showAlert('Username and password required.'); return; }
+
+  const btn = document.getElementById('login-btn');
+  btn.disabled = true; btn.textContent = 'Signing in...';
+
+  const result = AdminAuth.login(username, password);
+  btn.disabled = false; btn.textContent = 'Sign In →';
+
+  if (!result.ok) { showAlert(result.error); return; }
+  window.location.href = 'dashboard.html';
+}
+
+function showAlert(msg) {
+  document.getElementById('login-alert').innerHTML = `<div style="background:rgba(239,68,68,.1);border:1px solid #ef4444;border-radius:6px;padding:12px 16px;margin-bottom:16px;font-size:.88rem;color:#fca5a5">${msg}</div>`;
+}
+</script>
+</body>
+</html>

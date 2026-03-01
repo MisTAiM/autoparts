@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Product | AutoParts Warehouse</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" crossorigin="anonymous" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600&family=JetBrains+Mono:wght@400;500" rel="stylesheet">
+  <link rel="stylesheet" href="css/variables.css">
+  <link rel="stylesheet" href="css/base.css">
+  <link rel="stylesheet" href="css/layout.css">
+  <link rel="stylesheet" href="css/pages/product-cart-checkout.css">
+</head>
+<body>
+
+<header id="site-header">
+  <div class="header-inner">
+    <a href="index.html" class="site-logo">⚙ Auto<span>Parts</span></a>
+    <nav class="header-nav">
+      <a href="index.html">Home</a>
+      <a href="catalog.html">All Parts</a>
+    </nav>
+    <div class="header-search">
+      <span class="search-icon">🔍</span>
+      <input type="text" id="header-search-input" placeholder="Search parts...">
+      <div class="header-search-results" id="header-search-results"></div>
+    </div>
+    <div class="header-actions">
+      <a href="cart.html" class="cart-btn">🛒 <span>Cart</span><span class="cart-count"></span></a>
+    </div>
+    <button class="menu-toggle">☰</button>
+  </div>
+</header>
+
+<div class="vehicle-banner" id="vehicle-banner">
+  <div class="vehicle-banner-inner">
+    <span class="vehicle-banner-label">Vehicle:</span>
+    <span class="vehicle-banner-name"></span>
+    <a class="vehicle-banner-change" href="#" id="vehicle-change-btn">Change</a>
+  </div>
+</div>
+
+<main class="product-page">
+  <div class="container--narrow" id="product-root">
+    <div style="display:flex;align-items:center;justify-content:center;height:300px">
+      <span class="spinner" style="width:40px;height:40px"></span>
+    </div>
+  </div>
+</main>
+
+<footer id="site-footer">
+  <div class="footer-grid">
+    <div class="footer-brand">
+      <div class="site-logo" style="margin-bottom:12px">⚙ Auto<span>Parts</span></div>
+      <p>Quality auto parts shipped direct from our warehouse nationwide.</p>
+    </div>
+    <div class="footer-col"><h5>Shop</h5><a href="catalog.html">All Parts</a></div>
+    <div class="footer-col"><h5>Orders</h5><a href="cart.html">Cart</a><a href="checkout.html">Checkout</a></div>
+    <div class="footer-col"><h5>Info</h5><a href="#">Shipping</a><a href="#">Core Charges</a></div>
+  </div>
+  <div class="footer-bottom">
+    <span>© 2025 AutoParts Warehouse.</span>
+    <span>Outbound shipping only</span>
+  </div>
+</footer>
+
+<div id="mobile-nav" class="mobile-nav">
+  <div class="mobile-nav-inner">
+    <a href="index.html">Home</a>
+    <a href="catalog.html">All Parts</a>
+    <a href="cart.html">🛒 Cart</a>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+<script src="js/data/parts-data.js"></script>
+<script src="js/modules/ymm.js"></script>
+<script src="js/modules/cart.js"></script>
+<script src="js/modules/catalog.js"></script>
+<script src="js/modules/shipping.js"></script>
+<script src="js/modules/notify.js"></script>
+<script src="js/modules/ui.js"></script>
+
+<script>
+document.addEventListener('DOMContentLoaded', async () => {
+  UI.init();
+
+  const id   = UI.getParam('id');
+  const root = document.getElementById('product-root');
+
+  if (!id) { root.innerHTML = '<div class="alert alert-danger">No product ID specified.</div>'; return; }
+
+  const part = await PartsData.getById(parseInt(id));
+  if (!part) { root.innerHTML = '<div class="alert alert-danger">Product not found.</div>'; return; }
+
+  document.title = `${part.name} | AutoParts Warehouse`;
+
+  const vehicle = YMM.getState();
+  const hasVehicle = !!vehicle.year;
+  const isCompatible = !hasVehicle || part.fitment.length === 0 ||
+    part.fitment.some(f =>
+      (!f.year    || f.year    === vehicle.year)    &&
+      (!f.makeId  || f.makeId  === vehicle.makeId)  &&
+      (!f.modelId || f.modelId === vehicle.modelId)
+    );
+
+  const stockClass = part.inStock ? (part.stockQty <= 3 ? 'low-stock' : 'in-stock') : 'out-stock';
+  const stockLabel = part.inStock ? (part.stockQty <= 3 ? `Low Stock — ${part.stockQty} left` : 'In Stock') : 'Out of Stock';
+
+  const specsRows = Object.entries(part.specs || {}).map(([k,v]) =>
+    `<tr><td>${k}</td><td><strong>${v}</strong></td></tr>`
+  ).join('');
+
+  root.innerHTML = `
+    <div class="product-breadcrumb">
+      <a href="index.html">Home</a><span>›</span>
+      <a href="catalog.html">All Parts</a><span>›</span>
+      <a href="catalog.html?cat=${part.categoryId}">${part.categoryName}</a><span>›</span>
+      <span>${part.name}</span>
+    </div>
+
+    <div class="product-layout">
+      <!-- Gallery -->
+      <div class="product-gallery">
+        <div class="gallery-main" id="gallery-main">
+          ${part.images?.length
+            ? `<img id="main-img" src="${part.images[0]}" alt="${part.name}">`
+            : '<span class="no-img">🔩</span>'}
+        </div>
+        ${part.images?.length > 1 ? `
+          <div class="gallery-thumbs" id="gallery-thumbs">
+            ${part.images.map((src, i) => `
+              <div class="gallery-thumb ${i===0?'active':''}" data-src="${src}" data-idx="${i}">
+                <img src="${src}" alt="">
+              </div>
+            `).join('')}
+          </div>` : ''}
+      </div>
+
+      <!-- Info -->
+      <div class="product-info">
+        <div class="product-category-tag">
+          <span class="badge badge-muted">${part.categoryName}</span>
+          ${part.condition !== 'new' ? `<span class="badge badge-info" style="margin-left:6px">${UI.fmtCondition(part.condition)}</span>` : ''}
+        </div>
+
+        <h1 class="product-title">${part.name}</h1>
+        <div class="product-partnum">Brand: ${part.brand} &nbsp;·&nbsp; Part #: ${part.partNumber}</div>
+
+        <div class="product-price-block">
+          <div class="product-price">${UI.fmt$$(part.price)}</div>
+          ${part.coreCharge > 0 ? `
+            <div class="product-price-core">+ ${UI.fmt$$(part.coreCharge)} core charge</div>
+            <div class="core-info">Core refunded when you return your old part</div>
+          ` : ''}
+        </div>
+
+        <div class="product-stock">
+          <span class="stock-dot ${stockClass}"></span>
+          <span>${stockLabel}</span>
+        </div>
+
+        <!-- Vehicle compat check -->
+        <div class="product-compat">
+          <div class="compat-title">Vehicle Fitment</div>
+          ${hasVehicle
+            ? `<div class="compat-check ${isCompatible ? 'match' : ''}">
+                ${isCompatible ? '✅ Fits your ' + vehicle.year + ' ' + vehicle.makeName + ' ' + vehicle.modelName : '⚠️ Check fitment — may not match your vehicle'}
+               </div>`
+            : `<div class="compat-check no-vehicle">
+                <a href="index.html" style="color:var(--c-accent)">Select your vehicle</a> to verify fitment
+               </div>`}
+        </div>
+
+        <!-- Add to cart -->
+        <div class="add-to-cart-row">
+          <div class="qty-control">
+            <button id="qty-minus">−</button>
+            <input type="number" id="qty-input" value="1" min="1" max="${part.stockQty || 99}">
+            <button id="qty-plus">+</button>
+          </div>
+          <button class="btn btn-primary btn-lg" id="add-to-cart-btn" ${!part.inStock ? 'disabled' : ''}>
+            🛒 Add to Cart
+          </button>
+        </div>
+
+        <!-- Meta grid -->
+        <div class="product-meta">
+          <div class="meta-item"><div class="meta-key">Weight</div><div class="meta-val">${part.weight} lbs</div></div>
+          <div class="meta-item"><div class="meta-key">Condition</div><div class="meta-val">${UI.fmtCondition(part.condition)}</div></div>
+          <div class="meta-item"><div class="meta-key">Brand</div><div class="meta-val">${part.brand}</div></div>
+          <div class="meta-item"><div class="meta-key">Part Number</div><div class="meta-val text-mono">${part.partNumber}</div></div>
+        </div>
+
+        <!-- Shipping note -->
+        <div class="alert alert-info" style="margin-top:20px;font-size:0.83rem">
+          🚚 <strong>Outbound shipping only.</strong> Ships within 1–2 business days. Free shipping on orders over $150.
+        </div>
+      </div>
+    </div>
+
+    <!-- Tabs -->
+    <div class="product-tabs">
+      <div class="tab-nav">
+        <button class="tab-btn active" data-tab="description">Description</button>
+        ${specsRows ? '<button class="tab-btn" data-tab="specs">Specifications</button>' : ''}
+        <button class="tab-btn" data-tab="fitment">Fitment / Compatibility</button>
+        <button class="tab-btn" data-tab="shipping">Shipping & Returns</button>
+      </div>
+
+      <div class="tab-panel active" id="tab-description">
+        <p style="line-height:1.8;color:var(--c-text-2)">${part.description || 'No description available.'}</p>
+      </div>
+
+      ${specsRows ? `
+      <div class="tab-panel" id="tab-specs">
+        <table class="specs-table">${specsRows}</table>
+      </div>` : ''}
+
+      <div class="tab-panel" id="tab-fitment">
+        ${part.fitment.length === 0
+          ? `<div class="alert alert-warning">Please verify fitment by checking the part number against your vehicle's OEM parts catalog before ordering. Compatibility data may vary.</div>`
+          : `<table class="compat-table">
+               <thead><tr><th>Year</th><th>Make</th><th>Model</th><th>Engine</th></tr></thead>
+               <tbody>${part.fitment.map(f => `<tr><td>${f.year||'All'}</td><td>${f.makeName||'—'}</td><td>${f.modelName||'—'}</td><td>${f.engine||'All'}</td></tr>`).join('')}</tbody>
+             </table>`}
+      </div>
+
+      <div class="tab-panel" id="tab-shipping">
+        <ul style="list-style:none;padding:0;display:flex;flex-direction:column;gap:14px">
+          <li>🚚 <strong>Outbound shipping only</strong> — all orders ship from our warehouse, no in-store pickup.</li>
+          <li>📦 Ships within <strong>1–2 business days</strong> of order confirmation.</li>
+          <li>💵 <strong>Free standard shipping</strong> on orders over $150.</li>
+          <li>♻️ <strong>Core charges:</strong> Refunded when you ship back the old part within 30 days.</li>
+          <li>🔄 <strong>Returns:</strong> Unused parts returnable within 30 days in original packaging. Core returns accepted for 90 days.</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- Related parts -->
+    <div style="margin-top:60px">
+      <h2 style="margin-bottom:24px">Related Parts</h2>
+      <div class="parts-grid" id="related-parts">
+        <div style="grid-column:1/-1;display:flex;justify-content:center"><span class="spinner" style="width:28px;height:28px"></span></div>
+      </div>
+    </div>
+  `;
+
+  // ── Gallery thumbs ───────────────────────────────────
+  document.querySelectorAll('.gallery-thumb').forEach(thumb => {
+    thumb.addEventListener('click', () => {
+      document.querySelectorAll('.gallery-thumb').forEach(t => t.classList.remove('active'));
+      thumb.classList.add('active');
+      document.getElementById('main-img').src = thumb.dataset.src;
+    });
+  });
+
+  // ── Qty controls ─────────────────────────────────────
+  const qtyInput = document.getElementById('qty-input');
+  document.getElementById('qty-minus').addEventListener('click', () => {
+    qtyInput.value = Math.max(1, parseInt(qtyInput.value) - 1);
+  });
+  document.getElementById('qty-plus').addEventListener('click', () => {
+    qtyInput.value = Math.min(part.stockQty || 99, parseInt(qtyInput.value) + 1);
+  });
+
+  // ── Add to cart ───────────────────────────────────────
+  document.getElementById('add-to-cart-btn').addEventListener('click', () => {
+    const qty = parseInt(qtyInput.value) || 1;
+    Cart.addItem(part, qty);
+    UI.toast(`${qty}× ${part.name} added to cart!`);
+  });
+
+  // ── Tabs ──────────────────────────────────────────────
+  document.querySelectorAll('.tab-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+      document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+      btn.classList.add('active');
+      const panel = document.getElementById(`tab-${btn.dataset.tab}`);
+      if (panel) panel.classList.add('active');
+    });
+  });
+
+  // ── Related parts ─────────────────────────────────────
+  const related = await PartsData.getRelated(part, 4);
+  const relEl = document.getElementById('related-parts');
+  if (!related.length) {
+    relEl.innerHTML = '<p class="text-muted">No related parts found.</p>';
+  } else {
+    relEl.innerHTML = related.map(p => `
+      <div class="part-card" data-id="${p.id}" style="cursor:pointer" onclick="window.location='product.html?id=${p.id}'">
+        <div class="part-card-img"><span class="no-img">🔩</span></div>
+        <div class="part-card-body">
+          <div class="part-category">${p.categoryName}</div>
+          <div class="part-name">${p.name}</div>
+          <div class="part-number">${p.brand} · ${p.partNumber}</div>
+          <div class="part-card-footer">
+            <div class="part-price">$${p.price.toFixed(2)}</div>
+            <span class="badge badge-muted">View →</span>
+          </div>
+        </div>
+      </div>
+    `).join('');
+  }
+});
+</script>
+</body>
+</html>

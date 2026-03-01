@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Cart | AutoParts Warehouse</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" crossorigin="anonymous" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600&family=JetBrains+Mono:wght@400;500" rel="stylesheet">
+  <link rel="stylesheet" href="css/variables.css">
+  <link rel="stylesheet" href="css/base.css">
+  <link rel="stylesheet" href="css/layout.css">
+  <link rel="stylesheet" href="css/pages/product-cart-checkout.css">
+</head>
+<body>
+
+<header id="site-header">
+  <div class="header-inner">
+    <a href="index.html" class="site-logo">⚙ Auto<span>Parts</span></a>
+    <nav class="header-nav">
+      <a href="index.html">Home</a>
+      <a href="catalog.html">All Parts</a>
+    </nav>
+    <div class="header-search">
+      <span class="search-icon">🔍</span>
+      <input type="text" id="header-search-input" placeholder="Search parts...">
+      <div class="header-search-results" id="header-search-results"></div>
+    </div>
+    <div class="header-actions">
+      <a href="cart.html" class="cart-btn active">🛒 <span>Cart</span><span class="cart-count"></span></a>
+    </div>
+    <button class="menu-toggle">☰</button>
+  </div>
+</header>
+
+<div class="vehicle-banner" id="vehicle-banner">
+  <div class="vehicle-banner-inner">
+    <span class="vehicle-banner-label">Vehicle:</span>
+    <span class="vehicle-banner-name"></span>
+    <a class="vehicle-banner-change" href="#" id="vehicle-change-btn">Change</a>
+  </div>
+</div>
+
+<main class="cart-page">
+  <div class="container">
+    <h1>Shopping Cart</h1>
+
+    <div class="cart-layout" id="cart-root">
+      <!-- Populated by JS -->
+    </div>
+  </div>
+</main>
+
+<footer id="site-footer">
+  <div class="footer-grid">
+    <div class="footer-brand"><div class="site-logo" style="margin-bottom:12px">⚙ Auto<span>Parts</span></div><p>Quality parts, fast shipping.</p></div>
+    <div class="footer-col"><h5>Shop</h5><a href="catalog.html">All Parts</a></div>
+    <div class="footer-col"><h5>Orders</h5><a href="checkout.html">Checkout</a></div>
+    <div class="footer-col"><h5>Info</h5><a href="#">Shipping</a></div>
+  </div>
+  <div class="footer-bottom"><span>© 2025 AutoParts Warehouse.</span></div>
+</footer>
+
+<div id="mobile-nav" class="mobile-nav">
+  <div class="mobile-nav-inner">
+    <a href="index.html">Home</a>
+    <a href="catalog.html">All Parts</a>
+    <a href="cart.html">🛒 Cart</a>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+<script src="js/data/parts-data.js"></script>
+<script src="js/modules/ymm.js"></script>
+<script src="js/modules/cart.js"></script>
+<script src="js/modules/catalog.js"></script>
+<script src="js/modules/shipping.js"></script>
+<script src="js/modules/notify.js"></script>
+<script src="js/modules/ui.js"></script>
+
+<script>
+let _shippingRates = [];
+let _selectedRate = null;
+let _estimatedZip = '';
+
+document.addEventListener('DOMContentLoaded', () => {
+  UI.init();
+  renderCart();
+  window.addEventListener('cart:updated', renderCart);
+});
+
+function renderCart() {
+  const { items, subtotal, count } = Cart.getCart();
+  const root = document.getElementById('cart-root');
+
+  if (!count) {
+    root.innerHTML = `
+      <div style="grid-column:1/-1">
+        <div class="cart-empty">
+          <div class="cart-empty-icon">🛒</div>
+          <h3>Your cart is empty</h3>
+          <p>Browse our catalog to find the parts you need.</p>
+          <a href="catalog.html" class="btn btn-primary btn-lg">Shop Parts</a>
+        </div>
+      </div>`;
+    return;
+  }
+
+  const coreTotal = Cart.getCoreTotal();
+
+  root.innerHTML = `
+    <!-- Items column -->
+    <div id="cart-items-col">
+      ${items.map(renderCartItem).join('')}
+      <div style="display:flex;justify-content:flex-end;margin-top:8px">
+        <button class="btn btn-ghost btn-sm" id="clear-cart-btn">🗑 Clear Cart</button>
+      </div>
+    </div>
+
+    <!-- Summary column -->
+    <div>
+      <div class="order-summary">
+        <h3>Order Summary</h3>
+
+        <div class="summary-line"><span>Subtotal (${count} item${count!==1?'s':''})</span><span>$${subtotal.toFixed(2)}</span></div>
+        ${coreTotal > 0 ? `<div class="summary-line"><span>Core Charges</span><span>$${coreTotal.toFixed(2)}</span></div>` : ''}
+        <div class="summary-line"><span>Shipping</span><span id="summary-shipping">${_selectedRate ? Shipping.formatRate(_selectedRate.price) : '—'}</span></div>
+        <div class="summary-line"><span>Tax (est.)</span><span id="summary-tax">—</span></div>
+        <div class="summary-line total"><span>Estimated Total</span><span id="summary-total">$${subtotal.toFixed(2)}</span></div>
+
+        <!-- Shipping estimator -->
+        <div class="shipping-calc" style="margin-top:16px">
+          <label>Estimate Shipping</label>
+          <div class="shipping-zip-row">
+            <input type="text" id="zip-input" placeholder="ZIP Code" maxlength="5" value="${_estimatedZip}">
+            <button class="btn btn-outline btn-sm" id="calc-shipping-btn">Calculate</button>
+          </div>
+          <div id="shipping-rates-list" style="margin-top:12px"></div>
+        </div>
+
+        ${coreTotal > 0 ? `<div class="alert alert-warning" style="margin-top:16px;font-size:0.8rem">Core charges of $${coreTotal.toFixed(2)} are refundable — return your old parts within 90 days.</div>` : ''}
+
+        <a href="checkout.html" class="btn btn-primary btn-full btn-lg" style="margin-top:20px" id="checkout-btn">
+          Proceed to Checkout →
+        </a>
+        <a href="catalog.html" class="btn btn-ghost btn-full" style="margin-top:8px">Continue Shopping</a>
+      </div>
+    </div>
+  `;
+
+  // Events
+  document.getElementById('clear-cart-btn').addEventListener('click', () => {
+    if (confirm('Remove all items from cart?')) { Cart.clearCart(); UI.toast('Cart cleared.', 'info'); }
+  });
+
+  document.getElementById('calc-shipping-btn').addEventListener('click', calcShipping);
+  document.getElementById('zip-input').addEventListener('keydown', (e) => { if (e.key === 'Enter') calcShipping(); });
+
+  // Restore shipping rates display if zip already entered
+  if (_estimatedZip) updateSummaryTotals();
+
+  attachItemEvents();
+}
+
+function renderCartItem(item) {
+  const vehicle = YMM.getVehicleLabel();
+  return `
+    <div class="cart-item" data-id="${item.id}">
+      <div class="cart-item-img">
+        ${item.thumbnail ? `<img src="${item.thumbnail}" alt="">` : '<span class="no-img">🔩</span>'}
+      </div>
+      <div class="cart-item-info">
+        <div class="cart-item-name">${item.name}</div>
+        <div class="cart-item-part">${item.brand} · ${item.partNumber}</div>
+        ${vehicle ? `<div class="cart-item-vehicle">For: ${vehicle}</div>` : ''}
+        <div class="cart-item-actions">
+          <div class="qty-control">
+            <button class="qty-minus">−</button>
+            <input type="number" class="qty-val" value="${item.qty}" min="1" max="${item.stockQty||99}" style="width:52px;text-align:center;height:36px">
+            <button class="qty-plus">+</button>
+          </div>
+          <button class="remove-item">Remove</button>
+        </div>
+      </div>
+      <div class="cart-item-right">
+        <div>
+          <div class="cart-item-price">$${(item.price * item.qty).toFixed(2)}</div>
+          <div class="cart-item-sub">$${item.price.toFixed(2)} each</div>
+          ${item.coreCharge > 0 ? `<div class="cart-item-sub">+$${(item.coreCharge*item.qty).toFixed(2)} core</div>` : ''}
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+function attachItemEvents() {
+  document.querySelectorAll('.cart-item').forEach(el => {
+    const id = parseInt(el.dataset.id);
+    const qtyInput = el.querySelector('.qty-val');
+
+    el.querySelector('.qty-minus').addEventListener('click', () => {
+      const q = Math.max(1, parseInt(qtyInput.value) - 1);
+      qtyInput.value = q; Cart.updateQty(id, q); updateSummaryTotals();
+    });
+    el.querySelector('.qty-plus').addEventListener('click', () => {
+      const q = parseInt(qtyInput.value) + 1;
+      qtyInput.value = q; Cart.updateQty(id, q); updateSummaryTotals();
+    });
+    qtyInput.addEventListener('change', () => {
+      const q = Math.max(1, parseInt(qtyInput.value) || 1);
+      qtyInput.value = q; Cart.updateQty(id, q); updateSummaryTotals();
+    });
+    el.querySelector('.remove-item').addEventListener('click', () => {
+      Cart.removeItem(id); UI.toast('Item removed from cart.', 'info');
+    });
+  });
+}
+
+async function calcShipping() {
+  const zip = document.getElementById('zip-input').value.trim();
+  if (zip.length < 5) { UI.toast('Enter a valid 5-digit ZIP code.', 'warning'); return; }
+  _estimatedZip = zip;
+
+  const ratesList = document.getElementById('shipping-rates-list');
+  ratesList.innerHTML = '<span class="spinner" style="width:18px;height:18px"></span>';
+
+  const items = Cart.getItems();
+  _shippingRates = await Shipping.calcRates(items, zip);
+
+  ratesList.innerHTML = _shippingRates.map(r => `
+    <div class="shipping-option ${_selectedRate?.id === r.id ? 'selected' : ''}" data-rate="${r.id}" style="margin-bottom:8px">
+      <input type="radio" name="ship-rate" value="${r.id}" ${_selectedRate?.id === r.id ? 'checked' : ''}>
+      <div class="ship-info">
+        <div class="ship-name">${r.name} ${r.recommended ? '⭐' : ''}</div>
+        <div class="ship-time">${r.carrier} · ${r.days}</div>
+      </div>
+      <div class="ship-price">${Shipping.formatRate(r.price)}</div>
+    </div>
+  `).join('');
+
+  // Auto-select first (recommended)
+  if (!_selectedRate && _shippingRates.length) _selectedRate = _shippingRates[0];
+
+  ratesList.querySelectorAll('.shipping-option').forEach(opt => {
+    opt.addEventListener('click', () => {
+      _selectedRate = _shippingRates.find(r => r.id === opt.dataset.rate);
+      ratesList.querySelectorAll('.shipping-option').forEach(o => o.classList.remove('selected'));
+      opt.classList.add('selected');
+      opt.querySelector('input').checked = true;
+      updateSummaryTotals();
+    });
+  });
+
+  updateSummaryTotals();
+}
+
+function updateSummaryTotals() {
+  const { subtotal } = Cart.getCart();
+  const coreTotal = Cart.getCoreTotal();
+  const shippingEl = document.getElementById('summary-shipping');
+  const taxEl = document.getElementById('summary-tax');
+  const totalEl = document.getElementById('summary-total');
+  if (!shippingEl) return;
+
+  const shipCost = _selectedRate ? _selectedRate.price : 0;
+  const state     = Shipping.zipToState(_estimatedZip);
+  const tax       = _estimatedZip ? Shipping.calcTax(subtotal, state) : 0;
+  const total     = subtotal + coreTotal + shipCost + tax;
+
+  shippingEl.textContent = _selectedRate ? Shipping.formatRate(shipCost) : '—';
+  taxEl.textContent      = _estimatedZip ? UI.fmt$$(tax) : '—';
+  totalEl.textContent    = UI.fmt$$(total);
+
+  // Store selected shipping for checkout
+  if (_selectedRate) {
+    sessionStorage.setItem('selectedShipping', JSON.stringify(_selectedRate));
+    sessionStorage.setItem('estimatedZip', _estimatedZip);
+  }
+}
+</script>
+</body>
+</html>
