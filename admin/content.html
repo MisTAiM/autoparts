@@ -11,6 +11,32 @@
   <link rel="stylesheet" href="../css/base.css">
   <link rel="stylesheet" href="../css/admin.css">
   <style>
+    .admin-layout{display:grid;grid-template-columns:220px 1fr;min-height:100vh}
+    .admin-sidebar{background:var(--c-surface);border-right:1px solid var(--c-border);padding:24px 0;position:sticky;top:0;height:100vh;overflow-y:auto;display:flex;flex-direction:column}
+    .admin-logo{padding:0 20px 24px;border-bottom:1px solid var(--c-border);font-family:var(--font-display);font-weight:900;font-size:1.1rem;text-transform:uppercase;display:flex;align-items:center;gap:8px}
+    .admin-logo span{color:var(--c-accent)}
+    .admin-nav a{display:flex;align-items:center;gap:10px;padding:10px 20px;color:var(--c-text-2);font-size:.88rem;transition:all var(--t-fast)}
+    .admin-nav a:hover,.admin-nav a.active{background:var(--c-surface-2);color:var(--c-text)}
+    .admin-nav a.active{border-left:2px solid var(--c-accent);color:var(--c-accent)}
+    .admin-main{padding:32px;background:var(--c-bg);overflow-y:auto}
+    /* parts editor */
+    .part-editor-thumb{width:44px;height:44px;border-radius:var(--radius);object-fit:cover;flex-shrink:0;background:var(--c-surface-2)}
+    .part-editor-name{font-weight:600;font-size:.9rem}
+    .part-editor-pn{font-size:.75rem;color:var(--c-text-3);margin-top:2px}
+    .fitment-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:12px}
+    .img-preview{width:80px;height:80px;border-radius:var(--radius);object-fit:cover;margin-top:8px;display:none}
+    /* condition badges */
+    .badge-pill{padding:2px 9px;border-radius:100px;font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:.04em}
+    .badge-new{background:rgba(34,197,94,.12);color:var(--c-success);border:1px solid rgba(34,197,94,.25)}
+    .badge-reman{background:rgba(59,130,246,.12);color:#60a5fa;border:1px solid rgba(59,130,246,.25)}
+    .badge-used{background:rgba(245,158,11,.12);color:var(--c-accent);border:1px solid rgba(245,158,11,.25)}
+    /* btn-danger */
+    .btn-danger{background:rgba(239,68,68,.12);color:var(--c-danger);border:1px solid rgba(239,68,68,.25)}
+    .btn-danger:hover{background:rgba(239,68,68,.2)}
+    @media(max-width:900px){.fitment-grid{grid-template-columns:1fr 1fr}}
+    @media(max-width:600px){.fitment-grid{grid-template-columns:1fr}}
+  </style>
+  <style>
     /* ── Content Editor specific ────────────────────── */
     .content-tabs { display:flex; border-bottom:1px solid var(--c-border); margin-bottom:24px; gap:0; overflow-x:auto; scrollbar-width:none; }
     .content-tabs::-webkit-scrollbar { display:none; }
@@ -45,33 +71,33 @@
 </head>
 <body>
 <div id="admin-toast-container" class="admin-toast-container"></div>
-<button class="admin-menu-toggle" id="menu-toggle" onclick="toggleSidebar()"><i class="fa-solid fa-bars"></i></button>
+<button class="admin-menu-toggle" id="menu-toggle" onclick="toggleSidebar()"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg></button>
 <div class="admin-overlay" id="admin-overlay" onclick="toggleSidebar()"></div>
 
 <div class="admin-layout">
   <aside class="admin-sidebar" id="admin-sidebar">
-    <div class="admin-logo"><div class="logo-icon"><i class="fa-solid fa-gear"></i></div>Auto<span>Parts</span></div>
+    <div class="admin-logo"><div class="logo-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></div>Auto<span>Parts</span></div>
     <nav class="admin-nav">
       <div class="admin-nav-section">
         <div class="admin-nav-label">Main</div>
-        <a href="dashboard.html"><i class="fa-solid fa-chart-line"></i> Dashboard</a>
-        <a href="inventory.html"><i class="fa-solid fa-boxes-stacked"></i> Inventory</a>
-        <a href="orders.html"><i class="fa-solid fa-receipt"></i> Orders</a>
-        <a href="customers.html"><i class="fa-solid fa-users"></i> Customers</a>
-        <a href="analytics.html"><i class="fa-solid fa-chart-bar"></i> Analytics</a>
-        <a href="coupons.html"><i class="fa-solid fa-tag"></i> Coupons</a>
-        <a href="content.html" class="active"><i class="fa-solid fa-pen-to-square"></i> Content</a>
+        <a href="dashboard.html"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="22,12 18,12 15,21 9,3 6,12 2,12"/></svg> Dashboard</a>
+        <a href="inventory.html"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27,6.96 12,12.01 20.73,6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg> Inventory</a>
+        <a href="orders.html"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14,2 14,8 20,8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg> Orders</a>
+        <a href="customers.html"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg> Customers</a>
+        <a href="analytics.html"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/><line x1="2" y1="20" x2="22" y2="20"/></svg> Analytics</a>
+        <a href="coupons.html"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg> Coupons</a>
+        <a href="content.html" class="active"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg> Content</a>
       </div>
       <div class="admin-nav-section">
         <div class="admin-nav-label">Operations</div>
-        <a href="employees.html"><i class="fa-solid fa-id-badge"></i> Employees</a>
-        <a href="payroll.html"><i class="fa-solid fa-money-check-dollar"></i> Payroll</a>
-        <a href="schedule.html"><i class="fa-solid fa-calendar-days"></i> Schedule</a>
-        <a href="settings.html"><i class="fa-solid fa-sliders"></i> Settings</a>
+        <a href="employees.html"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/><circle cx="12" cy="10" r="3"/></svg> Employees</a>
+        <a href="payroll.html"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg> Payroll</a>
+        <a href="schedule.html"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg> Schedule</a>
+        <a href="settings.html"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><line x1="4" y1="21" x2="4" y2="14"/><line x1="4" y1="10" x2="4" y2="3"/><line x1="12" y1="21" x2="12" y2="12"/><line x1="12" y1="8" x2="12" y2="3"/><line x1="20" y1="21" x2="20" y2="16"/><line x1="20" y1="12" x2="20" y2="3"/><line x1="1" y1="14" x2="7" y2="14"/><line x1="9" y1="8" x2="15" y2="8"/><line x1="17" y1="16" x2="23" y2="16"/></svg> Settings</a>
       </div>
       <div class="admin-nav-section">
-        <a href="../index.html" target="_blank"><i class="fa-solid fa-globe"></i> View Store</a>
-        <a href="#" id="logout-link"><i class="fa-solid fa-right-from-bracket"></i> Sign Out</a>
+        <a href="../index.html" target="_blank"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg> View Store</a>
+        <a href="#" id="logout-link"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16,17 21,12 16,7"/><line x1="21" y1="12" x2="9" y2="12"/></svg> Sign Out</a>
       </div>
     </nav>
     <div class="admin-user">
@@ -86,13 +112,13 @@
   <main class="admin-main">
     <div class="page-header">
       <div class="page-header-left">
-        <h2><i class="fa-solid fa-pen-to-square" style="color:var(--c-accent);margin-right:10px"></i>Content Editor</h2>
+        <h2><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--c-accent)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="margin-right:10px;vertical-align:-.2em"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>Content Editor</h2>
         <p class="text-muted text-sm">Manage homepage copy, catalog, branding, SEO & banners</p>
       </div>
       <div class="page-header-actions">
-        <button class="btn btn-ghost btn-sm" id="reset-btn"><i class="fa-solid fa-rotate-left"></i> Reset Defaults</button>
+        <button class="btn btn-ghost btn-sm" id="reset-btn">↺ Reset Defaults</button>
         <button class="btn btn-primary" id="save-content-btn">
-          <i class="fa-solid fa-floppy-disk"></i> Save All Changes
+          💾 Save All Changes
         </button>
       </div>
     </div>
@@ -139,7 +165,7 @@
           <!-- populated by JS -->
         </div>
         <button class="btn btn-ghost" style="margin-top:10px;font-size:.8rem" id="add-category-btn">
-          <i class="fa-solid fa-plus"></i> Add Category
+          + Add Category
         </button>
       </div>
 
@@ -158,7 +184,7 @@
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px">
         <h3 style="margin:0;font-size:1rem">Parts Catalog Editor</h3>
         <button class="btn btn-primary btn-sm" id="add-part-btn">
-          <i class="fa-solid fa-plus"></i> Add New Part
+          + Add New Part
         </button>
       </div>
       <div id="parts-list">
@@ -268,7 +294,7 @@
         </div>
       </div>
 
-      <hr style="border:none;border-top:1px solid var(--border);margin:24px 0">
+      <hr style="border:none;border-top:1px solid var(--c-border);margin:24px 0">
 
       <div class="field-group">
         <div class="field-label">Hero Banner Image URL</div>
@@ -293,7 +319,7 @@
       <div style="display:flex;gap:10px">
         <button class="btn btn-ghost" id="reset-btn-2">Reset to Defaults</button>
         <button class="btn btn-primary" id="save-content-btn-2">
-          <i class="fa-solid fa-floppy-disk"></i> Save All Changes
+          💾 Save All Changes
         </button>
       </div>
     </div>
@@ -301,15 +327,7 @@
 
 
     <!-- Sticky save bar -->
-    <div class="save-bar">
-      <div class="save-status" id="save-status">All changes auto-saved</div>
-      <div style="display:flex;gap:10px">
-        <button class="btn btn-ghost btn-sm" id="reset-btn-2"><i class="fa-solid fa-rotate-left"></i> Reset</button>
-        <button class="btn btn-primary" id="save-content-btn-2">
-          <i class="fa-solid fa-floppy-disk"></i> Save All Changes
-        </button>
-      </div>
-    </div>
+    
   </main>
 </div>
 
@@ -546,8 +564,8 @@ function renderPartsEditor() {
         </div>
         <div style="display:flex;align-items:center;gap:8px">
           <span class="badge-pill badge-${p.condition}">${p.condition}</span>
-          <span style="font-weight:700;color:var(--accent)">$${Number(p.price).toFixed(2)}</span>
-          <i class="fa-solid fa-chevron-down" style="color:var(--text-3);font-size:.75rem" id="pec-chevron-${p.id}"></i>
+          <span style="font-weight:700;color:var(--c-accent)">$${Number(p.price).toFixed(2)}</span>
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" id="pec-chevron-${p.id}" style="color:var(--c-text-3);transition:transform .2s"><polyline points="6,9 12,15 18,9"/></svg>
         </div>
       </div>
       <div class="part-editor-body" id="pec-body-${p.id}">
@@ -597,9 +615,9 @@ function renderPartsEditor() {
           <input class="form-input" id="pe-warranty-${p.id}" value="${Security.escapeHtml(p.warrantyText || '')}">
         </div>
 
-        <hr style="border:none;border-top:1px solid var(--border);margin:16px 0">
-        <div style="font-weight:700;font-size:.82rem;margin-bottom:12px;color:var(--text-2)">
-          <i class="fa-solid fa-car" style="margin-right:6px"></i>Vehicle Fitment Data
+        <hr style="border:none;border-top:1px solid var(--c-border);margin:16px 0">
+        <div style="font-weight:700;font-size:.82rem;margin-bottom:12px;color:var(--c-text-2)">
+          🚗 Vehicle Fitment Data
         </div>
         <div class="fitment-grid">
           <div class="field-group">
@@ -652,10 +670,10 @@ function renderPartsEditor() {
         </div>
         <div style="display:flex;gap:10px;margin-top:16px">
           <button class="btn btn-primary btn-sm" onclick="savePart(${p.id})">
-            <i class="fa-solid fa-floppy-disk"></i> Save Part
+            💾 Save Part
           </button>
           <button class="btn btn-danger btn-sm" onclick="deletePart(${p.id})">
-            <i class="fa-solid fa-trash"></i> Remove
+            ✕ Remove
           </button>
         </div>
       </div>
@@ -718,9 +736,9 @@ function savePart(id) {
 
   // Show feedback
   const btn = document.querySelector(`#pec-${id} .btn-primary`);
-  btn.innerHTML = '<i class="fa-solid fa-check"></i> Saved!';
+  btn.innerHTML = '✓ Saved!';
   btn.style.background = '#22c55e';
-  setTimeout(() => { btn.innerHTML = '<i class="fa-solid fa-floppy-disk"></i> Save Part'; btn.style.background = ''; }, 2000);
+  setTimeout(() => { btn.innerHTML = '💾 Save Part'; btn.style.background = ''; }, 2000);
   
 }
 
@@ -751,7 +769,7 @@ function addCategory() {
     <input class="form-input" placeholder="Category name" style="margin-bottom:8px" oninput="this.dataset.name=this.value">
     <input class="form-input" placeholder="Icon (e.g. fa-car)" style="margin-bottom:8px">
     <input class="form-input" placeholder="Link URL (e.g. /catalog.html?cat=brakes)">
-    <button onclick="this.closest('div').remove()" style="position:absolute;top:8px;right:8px;background:none;border:none;color:var(--c-text-3);cursor:pointer;font-size:.8rem"><i class="fa-solid fa-xmark"></i></button>`;
+    <button onclick="this.closest('div').remove()" style="position:absolute;top:8px;right:8px;background:none;border:none;color:var(--c-text-3);cursor:pointer;font-size:.8rem">✕</button>`;
   container.appendChild(div);
 }
 
@@ -763,8 +781,8 @@ function showToast(msg, type) {
   type = type || 'info';
   var c = document.getElementById('admin-toast-container'); if (!c) return;
   var t = document.createElement('div'); t.className = 'admin-toast toast-' + type;
-  var icons = {success:'fa-check-circle', error:'fa-xmark-circle', info:'fa-circle-info'};
-  t.innerHTML = '<i class="fa-solid ' + (icons[type]||'fa-circle-info') + '" style="color:var(--c-accent)"></i> ' + msg;
+  var icons = {success:'✓', error:'✕', info:'ℹ'};
+  t.innerHTML = '<span style="color:var(--c-accent)">' + (icons[type]||'ℹ') + '</span> ' + msg;
   c.appendChild(t); setTimeout(function(){t.remove();}, 3500);
 }
 
